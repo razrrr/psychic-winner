@@ -12,7 +12,7 @@ cards = {
         id: "2",
         name: "Mine",
         type: "action",
-        cost: 0,
+        cost: 5,
         value: 0,
         victory: 0,
         action: function(player) {
@@ -74,7 +74,7 @@ cards = {
         id: "4",
         name: "Workshop",
         type: "action",
-        cost: 0,
+        cost: 4,
         image: "http://i.imgur.com/GvrGyRa.jpg",
         value: 0,
         victory: 0,
@@ -99,7 +99,7 @@ cards = {
         id: "5",
         name: "Chapel",
         type: "action",
-        cost: 0,
+        cost: 2,
         value: 0,
         victory: 0,
         action: function(player) {
@@ -134,7 +134,7 @@ cards = {
         id: "6",
         name: "Moneylender",
         type: "action",
-        cost: 3,
+        cost: 4,
         value: 0,
         victory: 0,
         action: function(player) {
@@ -246,5 +246,33 @@ cards = {
             player.actions += 2;
             player.bonusTreasure += 2;
         }
-    }
+    },
+    "16": {
+        id: "16",
+        description: "+2 Cards, +1 Action.",
+        name: "Laboratory",
+        type: "action",
+        cost: 5,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            draw(player, 2);
+            player.actions += 1;
+        }
+    },
+    "17": {
+        id: "17",
+        description: "+1 Card, +1 Action, +1 Buy, +1 Coin.",
+        name: "Market",
+        type: "action",
+        cost: 5,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            draw(player, 1);
+            player.buys += 1;
+            player.actions += 1;
+            player.bonusTreasure += 1;
+        }
+    },
 };
