@@ -5,7 +5,8 @@ cards = {
         type: "treasure",
         cost: 0,
         image: "http://i.imgur.com/8jlCjyp.png",
-        value: 1
+        value: 1,
+        victory: 0
     },
     "2": {
         id: "2",
@@ -13,6 +14,7 @@ cards = {
         type: "action",
         cost: 0,
         value: 0,
+        victory: 0,
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
@@ -62,6 +64,7 @@ cards = {
         type: "action",
         cost: 3,
         value: 0,
+        victory: 0,
         action: function(player) {
             draw(player, 1);
             player.actions += 2;
@@ -74,6 +77,7 @@ cards = {
         cost: 0,
         image: "http://i.imgur.com/GvrGyRa.jpg",
         value: 0,
+        victory: 0,
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
@@ -97,6 +101,7 @@ cards = {
         type: "action",
         cost: 0,
         value: 0,
+        victory: 0,
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
@@ -131,6 +136,7 @@ cards = {
         type: "action",
         cost: 3,
         value: 0,
+        victory: 0,
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
@@ -159,13 +165,68 @@ cards = {
         name: "Silver",
         type: "treasure",
         cost: 3,
-        value: 2
+        value: 2,
+        victory: 0
     },
     "8": {
         id: "8",
         name: "Gold",
         type: "treasure",
         cost: 6,
-        value: 3
+        value: 3,
+        victory: 0
     },
+    "9": {
+        id: "9"
+        name: "Estate"
+        type: "victory"
+        cost: 2,
+        value: 0,
+        victory: 1
+    }
+    "10": {
+        id: "10"
+        name: "Duchy"
+        type: "victory"
+        cost: 5,
+        value: 0,
+        victory: 3
+    }
+    "11": {
+        id: "11"
+        name: "Province"
+        type: "victory"
+        cost: 8,
+        value: 0,
+        victory: 6
+    }
+    "12": {
+        id: "12"
+        name: "Curse"
+        type: "curse"
+        cost: 0,
+        value: 0,
+        victory: -1
+    }
+    "13": {
+        id: "13"
+        name: "Estate"
+        type: "victory"
+        cost: 2,
+        value: 0,
+        victory: 1
+    }
+    "14": {
+        id: "14"
+        description: "+1 Buy, +2 Coins.",
+        name: "Woodcutter"
+        type: "Action"
+        cost: 3,
+        value: 0,
+        victory: 0
+        action: function(player) {
+            player.buys += 1;
+            player.bonusTreasure += 2;
+        }
+    }
 };
