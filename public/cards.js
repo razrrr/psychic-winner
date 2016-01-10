@@ -183,7 +183,7 @@ cards = {
         cost: 2,
         value: 0,
         victory: 1
-    }
+    },
     "10": {
         id: "10",
         name: "Duchy",
@@ -191,7 +191,7 @@ cards = {
         cost: 5,
         value: 0,
         victory: 3
-    }
+    },
     "11": {
         id: "11",
         name: "Province",
@@ -199,7 +199,7 @@ cards = {
         cost: 8,
         value: 0,
         victory: 6
-    }
+    },
     "12": {
         id: "12",
         name: "Curse",
@@ -207,18 +207,19 @@ cards = {
         cost: 0,
         value: 0,
         victory: -1
-    }
+    },
     "13": {
         id: "13",
+        description: "Draw 3 cards.",
         name: "Smithy",
         type: "action",
         cost: 4,
         value: 0,
         victory: 0,
         action: function(player) {
-            draw(player, 3;
+            draw(player, 3);
         }
-    }
+    },
     "14": {
         id: "14",
         description: "+1 Buy, +2 Coins.",
@@ -231,6 +232,19 @@ cards = {
             player.buys += 1;
             player.bonusTreasure += 2;
         }
-
+    },
+    "15": {
+        id: "15",
+        description: "+2 Actions, +1 Buy, +2 Coins.",
+        name: "Festival",
+        type: "Action",
+        cost: 5,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            player.buys += 1;
+            player.actions += 2;
+            player.bonusTreasure += 2;
+        }
     }
 };
