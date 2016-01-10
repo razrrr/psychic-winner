@@ -1,0 +1,179 @@
+@import url(http://reset5.googlecode.com/hg/reset.min.css);
+* {
+    font-family: arial;
+}
+
+#output {
+    height: 200px;
+    overflow: auto;
+}
+
+.player,
+.board {
+    float: left;
+    padding: 10px;
+    border: 1px solid #444;
+    margin: 10px;
+}
+
+.board {
+    width: 600px;
+}
+
+.your.player {
+    width: 800px;
+    position: relative;
+}
+
+.player {
+    width: 200px;
+}
+
+.player-stat {
+    list-style: none;
+}
+
+.treasure.card {
+    background: rgb(237, 205, 56);
+}
+
+.victory.card {
+    background: rgb(126, 186, 126);
+}
+
+.action.card {
+    background: #eee;
+}
+
+.card {
+    border: 3px solid #000;
+    padding: 5px;
+    margin-right: 5px;
+    margin-bottom: 10px;
+    list-style: none;
+    display: block;
+    width: 120px;
+    height: 140px;
+    float: left;
+    padding-top: 60px;
+    box-sizing: border-box;
+    background: #aaa;
+    text-align: center;
+    border-radius: 6px;
+    position: relative;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    opacity: 0.2;
+    left: 0px;
+}
+
+.card-cost {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    background: rgba(0, 0, 0, 0.1);
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 40px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.card-type {
+    right: 5px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 12px;
+    position: absolute;
+    bottom: 2px;
+}
+
+.card-name {
+    left: 5px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 14px;
+    position: absolute;
+    top: 2px;
+}
+
+.buyable .card {}
+
+.stacked.card {
+    margin-right: -115px;
+}
+
+.phase-select .card {
+    opacity: 0.5;
+}
+
+.selectable {
+    opacity: 1 !important;
+}
+
+.button {
+    border: 1px solid #444;
+    padding: 5px;
+    margin-right: 5px;
+    margin-bottom: 10px;
+    list-style: none;
+    display: block;
+    width: 100px;
+    height: 50px;
+    line-height: 50px;
+    float: left;
+    background: #aaa;
+    text-align: center;
+    border-radius: 3px;
+}
+
+.select.button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: none;
+}
+
+ul {
+    clear: both;
+    margin: 0px;
+    padding: 0px;
+    padding-bottom: 10px;
+}
+
+h4 {
+    padding-top: 20px;
+}
+
+
+/*
+.animation {
+    -webkit-transition: 0.5s;
+    opacity: 1;
+    transform-origin: 0% 100%;
+    -webkit-transform: rotateY(0deg);
+}
+
+.animation.ng-enter {
+    opacity: 0;
+    -webkit-transform: rotateY(120deg);
+}
+
+.animation.ng-enter-stagger {
+    transition-delay: 0.05s;
+    animation-delay: 0.05s;
+}
+
+.animation.ng-leave {
+    opacity: 0;
+    -webkit-transform: rotateY(0deg);
+}*/
