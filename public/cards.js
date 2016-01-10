@@ -275,4 +275,42 @@ cards = {
             player.bonusTreasure += 1;
         }
     },
+    "18": {
+        id: "18",
+        description: "+1 Action, Discard any number of cards. +1 Card per card discarded.",
+        name: "Cellar",
+        type: "action",
+        cost: 2,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            gameState.phase = "select";
+            gameState.queryData = {
+                eligible: ".your.player .hand .card",
+                number: player.hand.length,
+                unique: true,
+                exact: false,
+                selected: [],
+                callback: function(data) {
+                    var targetCardIndices = [];
+                    for (var i in data) {
+                        targetCardIndices.push(data[i].index);
+                    }
+                    targetCardIndices.sort(function(a, b) {
+                        return b - a;
+                    });
+                    for (var i = 0; i < targetCardIndices.length; i++) {
+                        var cardIndex = targetCardIndices[i];
+                        io.sockets.emit("log", " ... and discards " + cards[player.hand[cardIndex].id].name);
+                        player.discard.push(player.hand[cardIndex]);
+                        player.hand.splice(cardIndex, 1);
+                    }
+                    draw(player, data.length);
+                    player.actions += 1;
+                    gameState.phase = "action";
+                    io.sockets.emit("gameState", gameState);
+                }
+            }
+        }
+    },
 };
