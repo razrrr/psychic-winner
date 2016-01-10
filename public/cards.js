@@ -177,56 +177,60 @@ cards = {
         victory: 0
     },
     "9": {
-        id: "9"
-        name: "Estate"
-        type: "victory"
+        id: "9",
+        name: "Estate",
+        type: "victory",
         cost: 2,
         value: 0,
         victory: 1
     }
     "10": {
-        id: "10"
-        name: "Duchy"
-        type: "victory"
+        id: "10",
+        name: "Duchy",
+        type: "victory",
         cost: 5,
         value: 0,
         victory: 3
     }
     "11": {
-        id: "11"
-        name: "Province"
-        type: "victory"
+        id: "11",
+        name: "Province",
+        type: "victory",
         cost: 8,
         value: 0,
         victory: 6
     }
     "12": {
-        id: "12"
-        name: "Curse"
-        type: "curse"
+        id: "12",
+        name: "Curse",
+        type: "curse",
         cost: 0,
         value: 0,
         victory: -1
     }
     "13": {
-        id: "13"
-        name: "Estate"
-        type: "victory"
-        cost: 2,
+        id: "13",
+        name: "Smithy",
+        type: "action",
+        cost: 4,
         value: 0,
-        victory: 1
+        victory: 0,
+        action: function(player) {
+            draw(player, 3;
+        }
     }
     "14": {
-        id: "14"
+        id: "14",
         description: "+1 Buy, +2 Coins.",
-        name: "Woodcutter"
-        type: "Action"
+        name: "Woodcutter",
+        type: "Action",
         cost: 3,
         value: 0,
-        victory: 0
+        victory: 0,
         action: function(player) {
             player.buys += 1;
             player.bonusTreasure += 2;
         }
+
     }
 };
