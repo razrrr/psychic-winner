@@ -10,7 +10,7 @@ cards = {
         victory: 0,
         action: function(player) {
             player.coins++;
-            io.sockets.emit("log", " ... and gets 1 coin.");
+            io.sockets.emit("log", " ... and gets 1 coin");
             gameState.phase = "buy";
         }
     },
@@ -24,7 +24,7 @@ cards = {
         victory: 0,
         action: function(player) {
             player.coins += 2;
-            io.sockets.emit("log", " ... and gets 2 coins.");
+            io.sockets.emit("log", " ... and gets 2 coins");
             gameState.phase = "buy";
         }
     },
@@ -38,7 +38,7 @@ cards = {
         victory: 0,
         action: function(player) {
             player.coins += 3;
-            io.sockets.emit("log", " ... and gets 3 coins.");
+            io.sockets.emit("log", " ... and gets 3 coins");
             gameState.phase = "buy";
         }
     },
