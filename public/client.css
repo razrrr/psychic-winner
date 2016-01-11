@@ -4,7 +4,7 @@
 }
 
 #output {
-    height: 50px;
+    height: 100px;
     overflow: auto;
 }
 
@@ -148,7 +148,21 @@
     right: 10px;
     display: none;
 }
-
+.choice-dialog {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    padding: 10px;
+    border: 1px solid black;
+}
+.choice-dialog .message {
+    text-align: center;
+}
+.choice {
+    padding: 10px;
+    border: 1px solid black;
+    margin: 10px;
+}
 ul {
     clear: both;
     margin: 0px;

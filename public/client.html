@@ -41,6 +41,11 @@
                 <li class="player-stat">buys : {{clientPlayer.buys}}</li>
                 <li class="player-stat">phase : {{gameState.phase}}</li>
             </ul>
+            <div class="choice-dialog" ng-if="(gameState.playerOrder[gameState.activePlayer] === you.id) && (gameState.phase === 'choose')">
+                <div class="message">{{gameState.queryData.message}}</div>
+                <div class="choosable choice" ng-click="choose($index, $event)" ng-repeat="choice in gameState.queryData.choices">{{choice}}</div>
+            </div>
+
             <div style="position: absolute; left: 150px; top: 0px;">
                 <ul>
                     <h4>deck</h4>

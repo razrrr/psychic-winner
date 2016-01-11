@@ -321,7 +321,7 @@ cards = {
             var hasnoActions = true;
             for (var cardRef in player.hand) {
                 if (cards[cardRef].id.type === action) {
-                    hasnoActions = false;    
+                    hasnoActions = false;
                 }
             }
             if (hasnoActions) {
@@ -354,7 +354,7 @@ cards = {
                         player.actions += 1;
                     }
                     if (data[0].card.type.indexOf("treasure") >= 0) {
-                        player.bonusTreasure =+ 1;
+                        player.bonusTreasure = +1;
                     }
                     if (data[0].card.type.indexOf("victory") >= 0) {
                         draw(player, 1);
@@ -364,4 +364,30 @@ cards = {
             };
         }
     },
+    "chancellor": {
+        id: "chancellor",
+        expansion: "Intrigue",
+        description: "Gain a card costing up to 4 Coins. If it is an... Action card, +1 Action. Treasure card, +1 Coin. Victory card, +1 Card.",
+        name: "Chancellor",
+        type: "action",
+        cost: 3,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            gameState.phase = "choose";
+            gameState.queryData = {
+                number: 1,
+                exact: true,
+                message: "Shuffle your discard pile into your deck?",
+                choices: ["Yes", "No"],
+                selected: [],
+                callback: function(choiceIndexArray) {
+                    if (choiceIndexArray[0] === 0) reload(player);
+                    gameState.phase = "action";
+                    io.sockets.emit("gameState", gameState);
+                }
+            };
+        }
+    },
+
 };

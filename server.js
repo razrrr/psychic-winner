@@ -114,6 +114,10 @@ io.sockets.on("connection", function(socket) {
         // need to validate active player
         gameState.queryData.callback(data);
     });
+    socket.on("callback", function(data) {
+        // need to validate active player
+        gameState.queryData.callback(data);
+    });
     socket.on("disconnect", function() {
         io.sockets.emit("message", {
             msg: socket.id,
