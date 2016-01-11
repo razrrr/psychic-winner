@@ -76,7 +76,7 @@ io.sockets.on("connection", function(socket) {
         for (var key in cards) {
             gameState.board.push(cards[key]);
         }
-
+        gameState.playerOrder = [];
         gameState.players = {};
         for (var id in io.sockets.clients().sockets) {
             var deck = [];
