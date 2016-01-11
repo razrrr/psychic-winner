@@ -297,7 +297,7 @@ cards = {
         id: "great hall",
         description: "1 Victory, +1 Card, +1 Action.",
         name: "Great Hall",
-        type: "action" "victory",
+        type: "action victory",
         cost: 3,
         value: 0,
         victory: 1,
@@ -329,5 +329,4 @@ cards = {
             }
         }
     },
-    
 };
