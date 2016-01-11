@@ -292,7 +292,6 @@ cards = {
             player.bonusTreasure += 1;
         }
     },
-<<<<<<< HEAD
     "18": {
         id: "18",
         description: "+1 Action, Discard any number of cards. +1 Card per card discarded.",
@@ -329,7 +328,8 @@ cards = {
                     io.sockets.emit("gameState", gameState);
                 }
             }
-=======
+        }
+    },
     "great hall": {
         expansion: "Intrigue"
         id: "great hall",
@@ -342,7 +342,6 @@ cards = {
         action: function(player) {
             draw(player, 1);
             player.actions += 1;
->>>>>>> refs/remotes/origin/IAMADDINGCARDS
         }
     },
 };
