@@ -4,28 +4,25 @@
 }
 
 #output {
-    height: 50px;
+    height: 200px;
     overflow: auto;
 }
 
 .player,
 .board {
-    clear: both;
-    padding: 0px 10px;
+    float: left;
+    padding: 10px;
     border: 1px solid #444;
-    box-sizing: border-box;
+    margin: 10px;
 }
 
 .board {
-    width: 100%;
+    width: 600px;
 }
 
 .your.player {
-    width: 100%;
+    width: 800px;
     position: relative;
-}
-.your.player.disabled {
-    opacity: 0.5;
 }
 
 .player {
@@ -49,23 +46,23 @@
 }
 
 .card {
-    border: 1px solid #000;
+    border: 3px solid #000;
     padding: 5px;
     margin-right: 5px;
     margin-bottom: 10px;
     list-style: none;
     display: block;
-    width: 100px;
-    height: 120px;
+    width: 120px;
+    height: 140px;
     float: left;
-    padding-top: 25px;
+    padding-top: 60px;
     box-sizing: border-box;
     background: #aaa;
     text-align: center;
     border-radius: 6px;
     position: relative;
     font-weight: bold;
-    font-size: 10px;
+    font-size: 11px;
 }
 
 .card img {
@@ -112,13 +109,10 @@
 .buyable .card {}
 
 .stacked.card {
-    margin-right: -97px;
+    margin-right: -115px;
 }
 
-.phase-select .hand .card {
-    opacity: 0.5;
-}
-.phase-select .buyable .card {
+.phase-select .card {
     opacity: 0.5;
 }
 
@@ -134,8 +128,8 @@
     list-style: none;
     display: block;
     width: 100px;
-    height: 40px;
-    line-height: 40px;
+    height: 50px;
+    line-height: 50px;
     float: left;
     background: #aaa;
     text-align: center;
