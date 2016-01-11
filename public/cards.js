@@ -1,6 +1,6 @@
 cards = {
     "1": {
-        expansion: "Core"
+        expansion: "Core",
         id: "1",
         name: "Copper",
         type: "treasure",
@@ -10,7 +10,7 @@ cards = {
         victory: 0
     },
     "2": {
-        expansion: "Base"
+        expansion: "Base",
         id: "2",
         name: "Mine",
         type: "action",
@@ -60,7 +60,7 @@ cards = {
         }
     },
     "3": {
-        expansion: "Base"
+        expansion: "Base",
         id: "3",
         name: "Village",
         description: "+1 Card; +2 Actions.",
@@ -74,7 +74,7 @@ cards = {
         }
     },
     "4": {
-        expansion: "Base"
+        expansion: "Base",
         id: "4",
         name: "Workshop",
         type: "action",
@@ -100,7 +100,7 @@ cards = {
         }
     },
     "5": {
-        expansion: "Base"
+        expansion: "Base",
         id: "5",
         name: "Chapel",
         type: "action",
@@ -136,7 +136,7 @@ cards = {
         }
     },
     "6": {
-        expansion: "Base"
+        expansion: "Base",
         id: "6",
         name: "Moneylender",
         type: "action",
@@ -167,7 +167,7 @@ cards = {
         }
     },
     "7": {
-        expansion: "Core"
+        expansion: "Core",
         id: "7",
         name: "Silver",
         type: "treasure",
@@ -176,7 +176,7 @@ cards = {
         victory: 0
     },
     "8": {
-        expansion: "Core"
+        expansion: "Core",
         id: "8",
         name: "Gold",
         type: "treasure",
@@ -185,7 +185,7 @@ cards = {
         victory: 0
     },
     "9": {
-        expansion: "Core"
+        expansion: "Core",
         id: "9",
         name: "Estate",
         type: "victory",
@@ -194,7 +194,7 @@ cards = {
         victory: 1
     },
     "10": {
-        expansion: "Core"
+        expansion: "Core",
         id: "10",
         name: "Duchy",
         type: "victory",
@@ -203,7 +203,7 @@ cards = {
         victory: 3
     },
     "11": {
-        expansion: "Core"
+        expansion: "Core",
         id: "11",
         name: "Province",
         type: "victory",
@@ -212,7 +212,7 @@ cards = {
         victory: 6
     },
     "12": {
-        expansion: "Core"
+        expansion: "Core",
         id: "12",
         name: "Curse",
         type: "curse",
@@ -221,7 +221,7 @@ cards = {
         victory: -1
     },
     "13": {
-        expansion: "Base"
+        expansion: "Base",
         id: "13",
         description: "Draw 3 cards.",
         name: "Smithy",
@@ -234,7 +234,7 @@ cards = {
         }
     },
     "14": {
-        expansion: "Base"
+        expansion: "Base",
         id: "14",
         description: "+1 Buy, +2 Coins.",
         name: "Woodcutter",
@@ -248,7 +248,7 @@ cards = {
         }
     },
     "15": {
-        expansion: "Base"
+        expansion: "Base",
         id: "15",
         description: "+2 Actions, +1 Buy, +2 Coins.",
         name: "Festival",
@@ -263,7 +263,7 @@ cards = {
         }
     },
     "16": {
-        expansion: "Base"
+        expansion: "Base",
         id: "16",
         description: "+2 Cards, +1 Action.",
         name: "Laboratory",
@@ -277,7 +277,7 @@ cards = {
         }
     },
     "17": {
-        expansion: "Base"
+        expansion: "Base",
         id: "17",
         description: "+1 Card, +1 Action, +1 Buy, +1 Coin.",
         name: "Market",
@@ -331,11 +331,11 @@ cards = {
             }
 =======
     "great hall": {
-        expansion: "Intrigue"
+        expansion: "Intrigue",
         id: "great hall",
         description: "1 Victory, +1 Card, +1 Action.",
         name: "Great Hall",
-        type: "action" "victory",
+        type: "action victory",
         cost: 3,
         value: 0,
         victory: 1,
@@ -343,6 +343,29 @@ cards = {
             draw(player, 1);
             player.actions += 1;
 >>>>>>> refs/remotes/origin/IAMADDINGCARDS
+        }
+    },
+    "shanty town": {
+        expansion: "Intrigue",
+        id: "shanty town",
+        description: "+2 Actions, Reveal your hand. If you have no Action cards in hand, +2 Cards.",
+        name: "Shanty Town",
+        type: "action",
+        cost: 3,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            player.actions += 2;
+            //Still needs reveal function
+            var hasnoActions = true;
+            for (var cardRef in player.hand) {
+                if (cards[cardRef].id.type === action) {
+                    hasnoActions = false;    
+                }
+            }
+            if (hasnoActions) {
+                draw(player, 2);
+            }
         }
     },
 };
