@@ -56,17 +56,17 @@ io.sockets.on("connection", function(socket) {
         if (player.actions > 0 && card.type.indexOf("action") >= 0) {
             io.sockets.emit("log", player.id + " plays " + card.name);
             player.actions--;
-            card.action(player);
             player.play.push(player.hand[data.cardIndex]);
             player.hand.splice(data.cardIndex, 1);
+            card.action(player);
             io.sockets.emit("gameState", gameState);
         }
         if (card.type.indexOf("treasure") >= 0) {
             io.sockets.emit("log", player.id + " plays " + card.name);
             gameState.phase = "buy";
-            card.action(player);
             player.play.push(player.hand[data.cardIndex]);
             player.hand.splice(data.cardIndex, 1);
+            card.action(player);
             io.sockets.emit("gameState", gameState);
         }
     });
