@@ -9,6 +9,60 @@ cards = {
         value: 1,
         victory: 0
     },
+    "7": {
+        expansion: "Core",
+        id: "7",
+        name: "Silver",
+        type: "treasure",
+        cost: 3,
+        value: 2,
+        victory: 0
+    },
+    "8": {
+        expansion: "Core",
+        id: "8",
+        name: "Gold",
+        type: "treasure",
+        cost: 6,
+        value: 3,
+        victory: 0
+    },
+    "9": {
+        expansion: "Core",
+        id: "9",
+        name: "Estate",
+        type: "victory",
+        cost: 2,
+        value: 0,
+        victory: 1
+    },
+    "10": {
+        expansion: "Core",
+        id: "10",
+        name: "Duchy",
+        type: "victory",
+        cost: 5,
+        value: 0,
+        victory: 3
+    },
+    "11": {
+        expansion: "Core",
+        id: "11",
+        name: "Province",
+        type: "victory",
+        cost: 8,
+        value: 0,
+        victory: 6
+    },
+    "12": {
+        expansion: "Core",
+        id: "12",
+        name: "Curse",
+        type: "curse",
+        cost: 0,
+        value: 0,
+        victory: -1
+    },
     "2": {
         expansion: "Base",
         id: "2",
@@ -165,60 +219,6 @@ cards = {
                 }
             };
         }
-    },
-    "7": {
-        expansion: "Core",
-        id: "7",
-        name: "Silver",
-        type: "treasure",
-        cost: 3,
-        value: 2,
-        victory: 0
-    },
-    "8": {
-        expansion: "Core",
-        id: "8",
-        name: "Gold",
-        type: "treasure",
-        cost: 6,
-        value: 3,
-        victory: 0
-    },
-    "9": {
-        expansion: "Core",
-        id: "9",
-        name: "Estate",
-        type: "victory",
-        cost: 2,
-        value: 0,
-        victory: 1
-    },
-    "10": {
-        expansion: "Core",
-        id: "10",
-        name: "Duchy",
-        type: "victory",
-        cost: 5,
-        value: 0,
-        victory: 3
-    },
-    "11": {
-        expansion: "Core",
-        id: "11",
-        name: "Province",
-        type: "victory",
-        cost: 8,
-        value: 0,
-        victory: 6
-    },
-    "12": {
-        expansion: "Core",
-        id: "12",
-        name: "Curse",
-        type: "curse",
-        cost: 0,
-        value: 0,
-        victory: -1
     },
     "13": {
         expansion: "Base",
