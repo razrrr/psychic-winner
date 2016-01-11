@@ -275,8 +275,9 @@ cards = {
             player.bonusTreasure += 1;
         }
     },
-    "18": {
-        id: "18",
+    "Remodel": {
+        expansion: "Base"
+        id: "remodel",
         description: "Trash a card from your hand. Gain a card costing up to 2 Coins more than the trashed card.",
         name: "Remodel",
         type: "action",
