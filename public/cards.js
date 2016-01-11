@@ -7,7 +7,12 @@ cards = {
         cost: 0,
         image: "http://i.imgur.com/8jlCjyp.png",
         value: 1,
-        victory: 0
+        victory: 0,
+        action: function(player) {
+            player.coins++;
+            io.sockets.emit("log", " ... and gets 1 coin.");
+            gameState.phase = "buy";
+        }
     },
     "7": {
         expansion: "Core",
@@ -16,7 +21,12 @@ cards = {
         type: "treasure",
         cost: 3,
         value: 2,
-        victory: 0
+        victory: 0,
+        action: function(player) {
+            player.coins += 2;
+            io.sockets.emit("log", " ... and gets 2 coins.");
+            gameState.phase = "buy";
+        }
     },
     "8": {
         expansion: "Core",
@@ -25,7 +35,12 @@ cards = {
         type: "treasure",
         cost: 6,
         value: 3,
-        victory: 0
+        victory: 0,
+        action: function(player) {
+            player.coins += 3;
+            io.sockets.emit("log", " ... and gets 3 coins.");
+            gameState.phase = "buy";
+        }
     },
     "9": {
         expansion: "Core",
@@ -98,7 +113,6 @@ cards = {
                             selected: [],
                             callback: function(data) {
                                 player.hand.push(data[0].card);
-                                player.treasure = countTreasure(player);
                                 gameState.phase = "action";
                                 io.sockets.emit("gameState", gameState);
                             }
@@ -211,9 +225,8 @@ cards = {
                         var cardIndex = data[0].index;
                         gameState.trash.push(player.hand[cardIndex]);
                         player.hand.splice(cardIndex, 1);
-                        player.bonusTreasure += 3;
+                        player.coins += 3;
                     }
-                    player.treasure = countTreasure(player);
                     gameState.phase = "action";
                     io.sockets.emit("gameState", gameState);
                 }
@@ -244,7 +257,7 @@ cards = {
         victory: 0,
         action: function(player) {
             player.buys += 1;
-            player.bonusTreasure += 2;
+            player.coins += 2;
         }
     },
     "15": {
@@ -259,7 +272,7 @@ cards = {
         action: function(player) {
             player.buys += 1;
             player.actions += 2;
-            player.bonusTreasure += 2;
+            player.coins += 2;
         }
     },
     "16": {
@@ -289,7 +302,7 @@ cards = {
             draw(player, 1);
             player.buys += 1;
             player.actions += 1;
-            player.bonusTreasure += 1;
+            player.coins += 1;
         }
     },
     "great hall": {
@@ -318,15 +331,11 @@ cards = {
         action: function(player) {
             player.actions += 2;
             //Still needs reveal function
-            var hasnoActions = true;
+            var hasNoActions = true;
             for (var cardRef in player.hand) {
-                if (cards[cardRef].id.type === action) {
-                    hasnoActions = false;
-                }
+                if (cards[player.hand[cardRef].id].type.indexOf("action") >= 0) hasNoActions = false;
             }
-            if (hasnoActions) {
-                draw(player, 2);
-            }
+            if (hasNoActions) draw(player, 2);
         }
     },
     "ironworks": {
@@ -352,12 +361,15 @@ cards = {
                     gameState.phase = "action";
                     if (data[0].card.type.indexOf("action") >= 0) {
                         player.actions += 1;
+                        io.sockets.emit("log", " ... and gets +1 Action");
                     }
                     if (data[0].card.type.indexOf("treasure") >= 0) {
-                        player.bonusTreasure = +1;
+                        player.coins = +1;
+                        io.sockets.emit("log", " ... and gets +1 Coin");
                     }
                     if (data[0].card.type.indexOf("victory") >= 0) {
                         draw(player, 1);
+                        io.sockets.emit("log", " ... and gets +1 Card");
                     }
                     io.sockets.emit("gameState", gameState);
                 }
