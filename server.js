@@ -37,6 +37,7 @@ io.sockets.on("connection", function(socket) {
 
         // move to next player
         gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+        console.log(gameState.activePlayer);
 
         io.sockets.emit("gameState", gameState);
     });
@@ -106,7 +107,7 @@ io.sockets.on("connection", function(socket) {
             shuffle(gameState.players[id].deck);
             draw(gameState.players[id], 5);
 
-            playerOrder.push(id);
+            gameState.playerOrder.push(id);
         }
 
         io.sockets.emit("gameState", gameState);
