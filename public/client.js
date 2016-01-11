@@ -28,11 +28,7 @@ app.run(function($rootScope) {
         }*/
         // end UI stuff
 
-        // apply gameState changes to UI
         $rootScope.$apply();
-
-        // Prompt Current Player for a Selection
-        if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
         if ($rootScope.gameState.phase === "select") {
             $(".card").removeClass("selectable");
             $(".select.button").hide();
@@ -44,12 +40,9 @@ app.run(function($rootScope) {
 
     });
     $rootScope.endTurn = function() {
-        if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
         socket.emit("endTurn", {});
     };
-    $rootScope.select = function(card, index, zone, event) { // user clicked on a card
-        if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
-
+    $rootScope.select = function(card, index, zone, event) {
         if ($rootScope.gameState.phase === "action" && zone == "hand") {
             socket.emit("action", {
                 cardID: card.id,
