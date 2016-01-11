@@ -292,4 +292,18 @@ cards = {
             player.bonusTreasure += 1;
         }
     },
+    "great hall": {
+        expansion: "Intrigue"
+        id: "great hall",
+        description: "1 Victory, +1 Card, +1 Action.",
+        name: "Great Hall",
+        type: "action" "victory",
+        cost: 3,
+        value: 0,
+        victory: 1,
+        action: function(player) {
+            draw(player, 1);
+            player.actions += 1;
+        }
+    },
 };
