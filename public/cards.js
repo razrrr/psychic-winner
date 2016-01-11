@@ -1,5 +1,6 @@
 cards = {
     "1": {
+        expansion: "Core"
         id: "1",
         name: "Copper",
         type: "treasure",
@@ -9,6 +10,7 @@ cards = {
         victory: 0
     },
     "2": {
+        expansion: "Base"
         id: "2",
         name: "Mine",
         type: "action",
@@ -58,6 +60,7 @@ cards = {
         }
     },
     "3": {
+        expansion: "Base"
         id: "3",
         name: "Village",
         description: "+1 Card; +2 Actions.",
@@ -71,6 +74,7 @@ cards = {
         }
     },
     "4": {
+        expansion: "Base"
         id: "4",
         name: "Workshop",
         type: "action",
@@ -96,6 +100,7 @@ cards = {
         }
     },
     "5": {
+        expansion: "Base"
         id: "5",
         name: "Chapel",
         type: "action",
@@ -131,6 +136,7 @@ cards = {
         }
     },
     "6": {
+        expansion: "Base"
         id: "6",
         name: "Moneylender",
         type: "action",
@@ -161,6 +167,7 @@ cards = {
         }
     },
     "7": {
+        expansion: "Core"
         id: "7",
         name: "Silver",
         type: "treasure",
@@ -169,6 +176,7 @@ cards = {
         victory: 0
     },
     "8": {
+        expansion: "Core"
         id: "8",
         name: "Gold",
         type: "treasure",
@@ -177,6 +185,7 @@ cards = {
         victory: 0
     },
     "9": {
+        expansion: "Core"
         id: "9",
         name: "Estate",
         type: "victory",
@@ -185,6 +194,7 @@ cards = {
         victory: 1
     },
     "10": {
+        expansion: "Core"
         id: "10",
         name: "Duchy",
         type: "victory",
@@ -193,6 +203,7 @@ cards = {
         victory: 3
     },
     "11": {
+        expansion: "Core"
         id: "11",
         name: "Province",
         type: "victory",
@@ -201,6 +212,7 @@ cards = {
         victory: 6
     },
     "12": {
+        expansion: "Core"
         id: "12",
         name: "Curse",
         type: "curse",
@@ -209,6 +221,7 @@ cards = {
         victory: -1
     },
     "13": {
+        expansion: "Base"
         id: "13",
         description: "Draw 3 cards.",
         name: "Smithy",
@@ -221,6 +234,7 @@ cards = {
         }
     },
     "14": {
+        expansion: "Base"
         id: "14",
         description: "+1 Buy, +2 Coins.",
         name: "Woodcutter",
@@ -234,6 +248,7 @@ cards = {
         }
     },
     "15": {
+        expansion: "Base"
         id: "15",
         description: "+2 Actions, +1 Buy, +2 Coins.",
         name: "Festival",
@@ -248,6 +263,7 @@ cards = {
         }
     },
     "16": {
+        expansion: "Base"
         id: "16",
         description: "+2 Cards, +1 Action.",
         name: "Laboratory",
@@ -261,6 +277,7 @@ cards = {
         }
     },
     "17": {
+        expansion: "Base"
         id: "17",
         description: "+1 Card, +1 Action, +1 Buy, +1 Coin.",
         name: "Market",
