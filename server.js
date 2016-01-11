@@ -19,6 +19,30 @@ var gameState = {
     playerOrder: [],
 };
 
+function Player(id, deck) {
+    this.id = id;
+    this.hand = [];
+    this.discard = [];
+    this.play = [];
+    this.deck = deck;
+    this.treasure = 0;
+    this.bonusTreasure = 0;
+    this.actions = 1;
+    this.buys = 1;
+}
+
+var startingHand = [];
+startingHand.push(createCard(1));
+startingHand.push(createCard(1));
+startingHand.push(createCard(1));
+startingHand.push(createCard(1));
+startingHand.push(createCard(1));
+startingHand.push(createCard(1));
+startingHand.push(createCard(1));
+startingHand.push(createCard(4));
+startingHand.push(createCard(4));
+startingHand.push(createCard(4));
+
 // start the server
 var express = require("express");
 var path = require("path");
@@ -86,29 +110,7 @@ io.sockets.on("connection", function(socket) {
 
         gameState.players = {};
         for (var id in io.sockets.clients().sockets) {
-            var deck = [];
-            deck.push(createCard(1));
-            deck.push(createCard(1));
-            deck.push(createCard(1));
-            deck.push(createCard(1));
-            deck.push(createCard(1));
-            deck.push(createCard(1));
-            deck.push(createCard(1));
-            deck.push(createCard(4));
-            deck.push(createCard(4));
-            deck.push(createCard(4));
-
-            gameState.players[id] = {
-                id: id,
-                hand: [],
-                discard: [],
-                play: [],
-                deck: deck,
-                treasure: 0,
-                bonusTreasure: 0,
-                actions: 1,
-                buys: 1
-            };
+            gameState.players[id] = new Player(id, startingHand);
             shuffle(gameState.players[id].deck);
             draw(gameState.players[id], 5);
 
