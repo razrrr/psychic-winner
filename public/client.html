@@ -14,7 +14,7 @@
     <div ng-class="['phase-'+gameState.phase]" ng-app="Dominion">
         <div id="output"></div>
         <div class="board">
-        {{ gameState.activePlayer }}
+            {{ gameState.activePlayer }}
             <ul class="buyable">
                 <h4>buyable</h4>
                 <li ng-click="select(card, $index, 'buy', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type]" class="card" ng-repeat="card in gameState.board track by $index">
@@ -23,19 +23,25 @@
                     <span class="card-type">{{ cards[card.id].type }}</span>
                 </li>
             </ul>
+            <div ng-click="startGame()" class="start button">Start game</div>
+        </div>
+        <div>
+            <ul>
+                <h4>play</h4>
+                <li ng-class="[cards[card.id].type]" class="card" ng-repeat="card in gameState.players[gameState.playerOrder[gameState.activePlayer]].play track by $index">
+                    {{ cards[card.id].name }}
+                </li>
+            </ul>
             <ul>
                 <h4>trash</h4>
                 <li class="stacked card" ng-repeat="card in gameState.trash track by $index">
                     {{ cards[card.id].name }}
                 </li>
             </ul>
-            <div ng-click="startGame()" class="start button">Start game</div>
-            
         </div>
         <div class="your player" ng-class="{'disabled' : (gameState.playerOrder[gameState.activePlayer] != you.id)}">
             <ul>
                 <h4>(you)</h4>
-            
                 <li class="player-stat">coins : {{clientPlayer.coins}}</li>
                 <li class="player-stat">actions : {{clientPlayer.actions}}</li>
                 <li class="player-stat">buys : {{clientPlayer.buys}}</li>
@@ -45,7 +51,6 @@
                 <div class="message">{{gameState.queryData.message}}</div>
                 <div class="choosable choice" ng-click="choose($index, $event)" ng-repeat="choice in gameState.queryData.choices">{{choice}}</div>
             </div>
-
             <div style="position: absolute; left: 150px; top: 0px;">
                 <ul>
                     <h4>deck</h4>
@@ -60,15 +65,6 @@
                     <h4>discard</h4>
                     <li class="stacked card">discard pile empty</li>
                     <li ng-class="[cards[card.id].type]" class="stacked card" ng-repeat="card in clientPlayer.discard track by $index">
-                        {{ cards[card.id].name }}
-                    </li>
-                </ul>
-            </div>
-             <div style="position: absolute; left: 550px; top: 0px;">
-                <ul>
-                    <h4>play</h4>
-                    <li class="stacked card">play zone empty</li>
-                    <li ng-class="[cards[card.id].type]" class="stacked card" ng-repeat="card in clientPlayer.play track by $index">
                         {{ cards[card.id].name }}
                     </li>
                 </ul>
