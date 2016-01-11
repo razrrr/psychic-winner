@@ -14,6 +14,8 @@ var gameState = {
     players: {},
     board: [],
     trash: [],
+    activePlayer: 0, // !! figure out a some way to determine who starts (rather than just first connected)
+    playerOrder: [],
 };
 
 // start the server
@@ -26,10 +28,16 @@ var io = require("socket.io").listen(server);
 
 // listen for connections
 io.sockets.on("connection", function(socket) {
-    io.sockets.emit("log", socket.id + " connected"); 
+    io.sockets.emit("log", socket.id + " connected");
     socket.on("endTurn", function() {
-        // need to validate active player
+        // !! need to validate active player
+
+        // reset current player properties
         endTurn(gameState.players[socket.id]);
+
+        // move to next player
+        gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+
         io.sockets.emit("gameState", gameState);
     });
     socket.on("buy", function(data) {
@@ -97,8 +105,10 @@ io.sockets.on("connection", function(socket) {
             };
             shuffle(gameState.players[id].deck);
             draw(gameState.players[id], 5);
-            gameState.activePlayer = id;
+
+            playerOrder.push(id);
         }
+
         io.sockets.emit("gameState", gameState);
     });
     socket.on("select", function(data) {
