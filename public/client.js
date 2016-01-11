@@ -68,6 +68,13 @@ app.run(function($rootScope) {
                 playerID: playerID
             });
         }
+        if ($rootScope.gameState.phase === "buy" && zone == "hand" && cards[card.id].type === "treasure") {
+            socket.emit("action", {
+                cardID: card.id,
+                cardIndex: index,
+                playerID: playerID
+            });
+        }
         if (($rootScope.gameState.phase === "action" || $rootScope.gameState.phase === "buy") && zone == "buy") {
             socket.emit("buy", {
                 cardID: card.id,

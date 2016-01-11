@@ -36,7 +36,7 @@
             <ul>
                 <h4>(you)</h4>
             
-                <li class="player-stat">treasure : {{clientPlayer.treasure}}</li>
+                <li class="player-stat">coins : {{clientPlayer.coins}}</li>
                 <li class="player-stat">actions : {{clientPlayer.actions}}</li>
                 <li class="player-stat">buys : {{clientPlayer.buys}}</li>
                 <li class="player-stat">phase : {{gameState.phase}}</li>
@@ -60,6 +60,15 @@
                     <h4>discard</h4>
                     <li class="stacked card">discard pile empty</li>
                     <li ng-class="[cards[card.id].type]" class="stacked card" ng-repeat="card in clientPlayer.discard track by $index">
+                        {{ cards[card.id].name }}
+                    </li>
+                </ul>
+            </div>
+             <div style="position: absolute; left: 550px; top: 0px;">
+                <ul>
+                    <h4>play</h4>
+                    <li class="stacked card">play zone empty</li>
+                    <li ng-class="[cards[card.id].type]" class="stacked card" ng-repeat="card in clientPlayer.play track by $index">
                         {{ cards[card.id].name }}
                     </li>
                 </ul>

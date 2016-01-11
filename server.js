@@ -29,13 +29,8 @@ io.sockets.on("connection", function(socket) {
     io.sockets.emit("log", socket.id + " connected");
     socket.on("endTurn", function() {
         // !! need to validate active player
-
-        // reset current player properties
         endTurn(gameState.players[socket.id]);
-
-        // move to next player
         gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
-        console.log(gameState.activePlayer);
 
         io.sockets.emit("gameState", gameState);
     });
@@ -43,10 +38,10 @@ io.sockets.on("connection", function(socket) {
         // need to validate active player
         var player = gameState.players[socket.id];
         var card = cards[data.cardID];
-        if (player.treasure >= card.cost && player.buys > 0) {
+        if (player.coins >= card.cost && player.buys > 0) {
             io.sockets.emit("log", player.id + " buys " + card.name);
             gameState.phase = "buy";
-            player.treasure -= card.cost;
+            player.coins -= card.cost;
             player.buys--;
             player.actions = 0;
             var newCard = createCard(data.cardID);
@@ -62,7 +57,15 @@ io.sockets.on("connection", function(socket) {
             io.sockets.emit("log", player.id + " plays " + card.name);
             player.actions--;
             card.action(player);
-            player.discard.push(player.hand[data.cardIndex]);
+            player.play.push(player.hand[data.cardIndex]);
+            player.hand.splice(data.cardIndex, 1);
+            io.sockets.emit("gameState", gameState);
+        }
+        if (card.type.indexOf("treasure") >= 0) {
+            io.sockets.emit("log", player.id + " plays " + card.name);
+            gameState.phase = "buy";
+            card.action(player);
+            player.play.push(player.hand[data.cardIndex]);
             player.hand.splice(data.cardIndex, 1);
             io.sockets.emit("gameState", gameState);
         }
@@ -97,8 +100,7 @@ io.sockets.on("connection", function(socket) {
                 discard: [],
                 play: [],
                 deck: deck,
-                treasure: 0,
-                bonusTreasure: 0,
+                coins: 0,
                 actions: 1,
                 buys: 1
             };
@@ -142,18 +144,10 @@ function endTurn(player) {
     io.sockets.emit("log", player.id + " ends their turn");
     player.actions = 1;
     player.buys = 1;
-    player.bonusTreasure = 0;
-    discard(player);
+    player.coins = 0;
+    clear(player);
     draw(player, 5);
     gameState.phase = "action";
-}
-
-function countTreasure(player) {
-    var treasure = player.bonusTreasure;
-    for (var i = 0; i < player.hand.length; i++) {
-        treasure += cards[player.hand[i].id].value;
-    }
-    return treasure;
 }
 
 function draw(player, numCards) {
@@ -166,21 +160,22 @@ function draw(player, numCards) {
         }
         if (player.deck.length > 0) {
             var card = player.deck.pop();
-            // card.animation = "deck-to-hand";
             player.hand.push(card);
         }
         actualDrawn++;
         numCards--;
     }
 
-    player.treasure = countTreasure(player);
     io.sockets.emit("log", player.id + " draws " + actualDrawn + " cards");
 }
 
-function discard(player) {
+function clear(player) {
     while (player.hand.length > 0) {
         var card = player.hand.pop();
-        // card.animation = "hand-to-discard";
+        player.discard.push(card);
+    }
+    while (player.play.length > 0) {
+        var card = player.play.pop();
         player.discard.push(card);
     }
 }
