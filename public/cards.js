@@ -329,11 +329,11 @@ cards = {
             }
         }
     },
-    "iron works": {
+    "ironworks": {
         expansion: "Intrigue",
-        id: "iron works",
+        id: "ironworks",
         description: "Gain a card costing up to 4 Coins. If it is an... Action card, +1 Action. Treasure card, +1 Coin. Victory card, +1 Card.",
-        name: "Iron Works",
+        name: "Ironworks",
         type: "action",
         cost: 4,
         value: 0,
