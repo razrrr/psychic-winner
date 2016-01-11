@@ -78,7 +78,7 @@ cards = {
         id: "4",
         name: "Workshop",
         type: "action",
-        cost: 4,
+        cost: 3,
         image: "http://i.imgur.com/GvrGyRa.jpg",
         value: 0,
         victory: 0,
@@ -327,6 +327,41 @@ cards = {
             if (hasnoActions) {
                 draw(player, 2);
             }
+        }
+    },
+    "iron works": {
+        expansion: "Intrigue",
+        id: "iron works",
+        description: "Gain a card costing up to 4 Coins. If it is an... Action card, +1 Action. Treasure card, +1 Coin. Victory card, +1 Card.",
+        name: "Iron Works",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            gameState.phase = "select";
+            gameState.queryData = {
+                eligible: ".buyable .card.COST4, .buyable .card.COST3, .buyable .card.COST2, .buyable .card.COST1, .buyable .card.COST0",
+                number: 1,
+                unique: true,
+                exact: true,
+                selected: [],
+                callback: function(data) {
+                    io.sockets.emit("log", " ... and gets " + data[0].card.name);
+                    player.discard.push(data[0].card);
+                    gameState.phase = "action";
+                    if (data[0].card.type.indexOf("action") >= 0) {
+                        player.actions += 1;
+                    }
+                    if (data[0].card.type.indexOf("treasure") >= 0) {
+                        player.bonusTreasure =+ 1;
+                    }
+                    if (data[0].card.type.indexOf("victory") >= 0) {
+                        draw(player, 1);
+                    }
+                    io.sockets.emit("gameState", gameState);
+                }
+            };
         }
     },
 };
