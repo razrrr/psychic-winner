@@ -321,7 +321,7 @@ cards = {
             var hasnoActions = true;
             for (var cardRef in player.hand) {
                 if (cards[cardRef].id.type === action) {
-                    hasnoActions = false;    
+                    hasnoActions = false;
                 }
             }
             if (hasnoActions) {

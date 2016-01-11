@@ -8,6 +8,7 @@ var cards;
 var fs = require("fs");
 eval(fs.readFileSync("./public/cards.js", "utf8"));
 
+// initialize game variables
 var gameStart = false;
 var gameState = {
     phase: "action",
@@ -74,6 +75,10 @@ io.sockets.on("connection", function(socket) {
         io.sockets.emit("log", "game started");
 
         // initialize board
+        // select 10 random action cards
+        gameState.board = initBoard();
+
+        // !! <DEBUG> Put all cards into play. Delete this section later.
         gameState.board = [];
         for (var key in cards) {
             gameState.board.push(cards[key]);
@@ -152,6 +157,42 @@ function countTreasure(player) {
         treasure += cards[player.hand[i].id].value;
     }
     return treasure;
+}
+
+function initBoard() {
+    var treasureCards = [];
+    var victoryCards = [];
+    var curseCards = [];
+    var actionCards = [];
+    for (var key in cards) {
+        switch (cards[key].type) {
+            case "treasure":
+                treasureCards.push(cards[key]);
+                break;
+            case "victory":
+                victoryCards.push(cards[key]);
+                break;
+            case "curse":
+                curseCards.push(cards[key]);
+                break;
+            case "action":
+                actionCards.push(cards[key]);
+                break;
+        }
+    }
+    treasureCards.sort(sortCost);
+    victoryCards.sort(sortCost);
+    curseCards.sort(sortCost);
+
+    shuffle(actionCards);
+    actionCards = actionCards.splice(0, 10);
+    actionCards.sort(sortCost);
+
+    return treasureCards.concat(victoryCards, curseCards, actionCards);
+}
+
+function sortCost(a, b) {
+    return a.cost > b.cost;
 }
 
 function draw(player, numCards) {
