@@ -275,4 +275,55 @@ cards = {
             player.bonusTreasure += 1;
         }
     },
+    "18": {
+        id: "18",
+        description: "Trash a card from your hand. Gain a card costing up to 2 Coins more than the trashed card.",
+        name: "Remodel",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+        gameState.phase = "select";
+        gameState.queryData = {
+                eligible: ".your.player .hand .card",
+                number: 1,
+                unique: true,
+                exact: false,
+                selected: [],
+                callback: function(data) {
+                    for (var i in data) {
+                        var cardIndex = data[0].index;
+                        var cost = cards[player.hand[cardIndex].id].cost;
+                        var query = ".buyable .card.COST0";
+                        for (var j = 1; j <= cost + 2; j++) {
+                            query += ", .buyable .card.COST" + j;
+                        }
+                        io.sockets.emit("log", cards[player.hand[cardIndex].id].name + " was trashed.");
+                        gameState.trash.push(player.hand[cardIndex]);
+                        player.hand.splice(cardIndex, 1);
+                        gameState.phase = "select";
+                        gameState.queryData = {
+                            eligible: query,
+                            number: 1,
+                            unique: true,
+                            exact: false,
+                            selected: [],
+                            callback: function(data) {
+                                io.sockets.emit("log", " ... and gets " + data[0].card.name);
+                                player.discard.push(data[0].card);
+                                gameState.phase = "action";
+                                io.sockets.emit("gameState", gameState);
+                            }
+                        };
+                        io.sockets.emit("gameState", gameState);
+                    }
+                    if (data.length === 0) {
+                        gameState.phase = "action";
+                        io.sockets.emit("gameState", gameState);
+                    }
+                }
+            };
+        }
+    },
 };
