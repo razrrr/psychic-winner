@@ -311,7 +311,7 @@ cards = {
         id: "shanty town",
         description: "+2 Actions, Reveal your hand. If you have no Action cards in hand, +2 Cards.",
         name: "Shanty Town",
-        type: "action" "victory",
+        type: "action",
         cost: 3,
         value: 0,
         victory: 0,
@@ -329,4 +329,5 @@ cards = {
             }
         }
     },
+    
 };
