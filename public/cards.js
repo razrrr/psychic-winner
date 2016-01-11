@@ -335,13 +335,36 @@ cards = {
         id: "great hall",
         description: "1 Victory, +1 Card, +1 Action.",
         name: "Great Hall",
-        type: "action" "victory",
+        type: "action victory",
         cost: 3,
         value: 0,
         victory: 1,
         action: function(player) {
             draw(player, 1);
             player.actions += 1;
+        }
+    },
+    "shanty town": {
+        expansion: "Intrigue",
+        id: "shanty town",
+        description: "+2 Actions, Reveal your hand. If you have no Action cards in hand, +2 Cards.",
+        name: "Shanty Town",
+        type: "action",
+        cost: 3,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            player.actions += 2;
+            //Still needs reveal function
+            var hasnoActions = true;
+            for (var cardRef in player.hand) {
+                if (cards[cardRef].id.type === action) {
+                    hasnoActions = false;    
+                }
+            }
+            if (hasnoActions) {
+                draw(player, 2);
+            }
         }
     },
 };
