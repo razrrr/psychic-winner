@@ -37,6 +37,13 @@
                     <span class="card-cost">{{ cards[card.id].cost }}</span>
                 </li>
             </ul>
+            <ul class="revealed" style="position: absolute; left: 600px; top:10px;">
+                <li ng-click="select(card, $index, 'revealed', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type,]" class="card" ng-repeat="card in clientPlayer.revealed track by card.uid">
+                    <span class="card-name">{{ cards[card.id].name }}</span>
+                    <span class="card-type">{{ cards[card.id].type }}</span>
+                    <span class="card-cost">{{ cards[card.id].cost }}</span>
+                </li>
+            </ul>
             <div style="clear:both;"></div>
             <ul class="player-stats">
                 <li class="player-stat">

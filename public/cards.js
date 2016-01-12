@@ -700,6 +700,8 @@ cards = {
                 player.actions += 1;
                 io.sockets.emit("log", " gains +1 Action.");
             }
+            gameState.phase = "action";
+            io.sockets.emit("gameState", gameState);
         }
     },
     "militia": {
@@ -755,5 +757,64 @@ cards = {
             }
             attack();
         }
-    }
+    },
+    "adventurer": {
+        expansion: "Base",
+        name: "Adventurer",
+        description: "ARBLGARBL",
+        type: "action",
+        cost: 6,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            var revealedTreasures = 0;
+            var revealedCard;
+
+            var seekTreasure = function() {
+                if (player.deck.length > 0) {
+                    revealedCard = player.deck.pop();
+                    if (cards[revealedCard.id].type.indexOf("treasure") >= 0) {
+                        io.sockets.emit("log", " ... puts " + cards[revealedCard.id].name + " into hand");
+                        player.revealed.push(revealedCard);
+                        revealedTreasures++;
+
+                        gameState.phase = "choose";
+                        gameState.queryData = {
+                            number: 1,
+                            exact: true,
+                            message: "HEERS YO TREASURES #" + revealedTreasures,
+                            choices: ["ok"],
+                            selected: [],
+                            callback: function() {
+                                player.hand.push(player.revealed.pop());
+                                if (revealedTreasures < 2) {
+                                    seekTreasure();
+                                } else {
+                                    while (player.revealed.length > 0) {
+                                        player.discarded.push(player.revealed.pop());
+                                    }
+                                    gameState.phase = "action";
+                                    io.sockets.emit("gameState", gameState);
+                                }
+                            }
+                        };
+                        io.sockets.emit("gameState", gameState);
+                    } else {
+                        player.revealed.push(revealedCard);
+                        io.sockets.emit("log", " ... reveals " + cards[revealedCard.id].name);
+                        seekTreasure();
+                    }
+                } else {
+                    if (player.discarded.length > 0) {
+                        reload(player);
+                        seekTreasure();
+                    } else {
+                        revealedTreasures = 2;
+                    }
+                }
+            };
+            seekTreasure();
+        }
+    },
+
 };
