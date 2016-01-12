@@ -124,10 +124,10 @@ io.sockets.on("connection", function(socket) {
         gameState.board = initBoard();
 
         // !! <DEBUG> Put all cards into play. Delete this section later.
-        // gameState.board = [];
-        // for (var key in cards) {
-        //     gameState.board.push(cards[key]);
-        // }
+        gameState.board = [];
+        for (var key in cards) {
+            gameState.board.push(cards[key]);
+        }
 
         gameState.playerOrder = [];
         gameState.players = {};
