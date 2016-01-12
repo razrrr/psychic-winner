@@ -595,8 +595,8 @@ cards = {
     "upgrade": {
         expansion: "Intrigue",
         description: "+1 Card, +1 Action, Trash a card from your hand. Gain a card costing exactly 1 Coin more than it.",
-        id: "mining village",
-        name: "Mining Village",
+        id: "upgrade",
+        name: "Upgrade",
         type: "action",
         cost: 4,
         value: 0,
