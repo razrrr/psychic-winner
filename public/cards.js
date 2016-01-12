@@ -692,4 +692,22 @@ cards = {
             gameState.phase = "buy";
         }
     },
+    "witch": {
+        expansion: "Base",
+        id: "witch",
+        description: "+2 Cards, Each other player gains a Curse card.",
+        name: "Witch",
+        type: "action",
+        cost: 5,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            draw(player, 2)
+            for (var aPlayer in gameState.players) {
+                if (aPlayer.id != player.id) {
+                    //gain card issue
+                }
+            }
+        }
+    },  
 };
