@@ -41,16 +41,34 @@ app.run(function($rootScope) {
             }, 100);
             if (!$rootScope.gameState.queryData.exact) $(".select.button").show();
         }
+        if ($rootScope.gameState.phase === "choose") {
+
+        }
 
     });
     $rootScope.endTurn = function() {
         if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
         socket.emit("endTurn", {});
     };
+    $rootScope.choose = function(index, event) {
+        if ($(event.target).hasClass("choosable")) {
+            $rootScope.gameState.queryData.selected.push(index);
+            if ($rootScope.gameState.queryData.number === $rootScope.gameState.queryData.selected.length) {
+                socket.emit("callback", $rootScope.gameState.queryData.selected);
+            }
+        }
+    }
     $rootScope.select = function(card, index, zone, event) { // user clicked on a card
         if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
 
         if ($rootScope.gameState.phase === "action" && zone == "hand") {
+            socket.emit("action", {
+                cardID: card.id,
+                cardIndex: index,
+                playerID: playerID
+            });
+        }
+        if ($rootScope.gameState.phase === "buy" && zone == "hand" && cards[card.id].type === "treasure") {
             socket.emit("action", {
                 cardID: card.id,
                 cardIndex: index,
