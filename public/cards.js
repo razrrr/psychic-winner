@@ -23,7 +23,7 @@ cards = {
         value: 2,
         victory: 0,
         action: function(player) {
-            player.coins += 2;
+            player.coins += this.value;
             io.sockets.emit("log", " ... and gets 2 coins");
             gameState.phase = "buy";
         }
@@ -37,7 +37,7 @@ cards = {
         value: 3,
         victory: 0,
         action: function(player) {
-            player.coins += 3;
+            player.coins += this.value;
             io.sockets.emit("log", " ... and gets 3 coins");
             gameState.phase = "buy";
         }
@@ -675,6 +675,21 @@ cards = {
                     }
                 }
             };
+        }
+    },        
+    "harem": {
+        expansion: "Intrigue",
+        id: "harem",
+        description: "+2 Coins, +2 Victory.",
+        name: "Harem",
+        type: "treasure victory",
+        cost: 6,
+        value: 2,
+        victory: 2,
+        action: function(player) {
+            player.coins += this.value;
+            io.sockets.emit("log", " ... and gets 2 coins");
+            gameState.phase = "buy";
         }
     },
 };
