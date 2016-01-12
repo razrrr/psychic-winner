@@ -66,10 +66,6 @@ body {
     opacity: 0.5;
 }
 
-.player {
-    width: 200px;
-}
-
 .player-stat {
     list-style: none;
 }
