@@ -1,14 +1,14 @@
 "use strict";
 
-// find better way to do this
-var idCounter = 0;
-
 // load card data from external file - there might be a better way to do this
 var cards;
+var idCounter;
 var fs = require("fs");
 eval(fs.readFileSync("./public/cards.js", "utf8"));
 
-// initialize game variables
+// ===============
+// game variables
+// ===============
 var gameStart = false;
 var gameState = {
     phase: "action",
@@ -44,9 +44,9 @@ function createStartingHand() {
     return startingHand;
 }
 
-// !! reset idCounter at end of game?
-
+// ===============
 // start the server
+// ===============
 var express = require("express");
 var path = require("path");
 var app = express();
@@ -54,9 +54,14 @@ app.use(express.static(path.join(__dirname, "public")));
 var server = require("http").createServer(app).listen(process.env.PORT || 8081);
 var io = require("socket.io").listen(server);
 
+// ===============
 // listen for connections
+// ===============
 io.sockets.on("connection", function(socket) {
     io.sockets.emit("log", socket.id + " connected");
+    // ----------------
+    // Received endTurn message from client
+    // ----------------
     socket.on("endTurn", function() {
         // !! need to validate active player
         endTurn(gameState.players[socket.id]);
@@ -64,6 +69,9 @@ io.sockets.on("connection", function(socket) {
 
         io.sockets.emit("gameState", gameState);
     });
+    // ----------------
+    // Received buy message from client
+    // ----------------
     socket.on("buy", function(data) {
         // need to validate active player
         var player = gameState.players[socket.id];
@@ -79,6 +87,9 @@ io.sockets.on("connection", function(socket) {
             io.sockets.emit("gameState", gameState);
         }
     });
+    // ----------------
+    // Received action message from client
+    // ----------------
     socket.on("action", function(data) {
         // need to validate active player
         var player = gameState.players[socket.id];
@@ -100,8 +111,12 @@ io.sockets.on("connection", function(socket) {
             io.sockets.emit("gameState", gameState);
         }
     });
+    // ----------------
+    // Received startGame message from client
+    // ----------------
     socket.on("startGame", function() {
         gameStart = true;
+        idCounter = 0;
         io.sockets.emit("log", "game started");
 
         // initialize board
@@ -126,14 +141,23 @@ io.sockets.on("connection", function(socket) {
 
         io.sockets.emit("gameState", gameState);
     });
+    // ----------------
+    // Received select message from client
+    // ----------------
     socket.on("select", function(data) {
         // need to validate active player
         gameState.queryData.callback(data);
     });
+    // ----------------
+    // Received callback message from client
+    // ----------------
     socket.on("callback", function(data) {
         // need to validate active player
         gameState.queryData.callback(data);
     });
+    // ----------------
+    // Received disconnect message from client
+    // ----------------
     socket.on("disconnect", function() {
         io.sockets.emit("message", {
             msg: socket.id,
@@ -142,11 +166,15 @@ io.sockets.on("connection", function(socket) {
     });
 });
 
+// ===============
 // utility functions
+// ===============
+// generates unique identifiers for each card
 function generateID() {
     return idCounter++;
 }
 
+// create a new card on the game board
 function createCard(id) {
     var newCard = {};
     newCard.id = id;
@@ -154,6 +182,7 @@ function createCard(id) {
     return newCard;
 }
 
+// reset player properties at the end of their turn
 function endTurn(player) {
     io.sockets.emit("log", player.id + " ends their turn");
     player.actions = 1;
@@ -165,6 +194,7 @@ function endTurn(player) {
     io.sockets.emit("log", gameState.players[gameState.playerOrder[gameState.activePlayer]].id + "'s turn");
 }
 
+// initialize game board
 function initBoard() {
     var treasureCards = [];
     var victoryCards = [];
@@ -197,10 +227,12 @@ function initBoard() {
     return treasureCards.concat(victoryCards, curseCards, actionCards);
 }
 
+// helper function to sort cards by cost
 function sortCost(a, b) {
     return a.cost > b.cost;
 }
 
+// draw cards from a players deck
 function draw(player, numCards) {
     var actualDrawn = 0;
     while (numCards > 0) {
@@ -220,6 +252,7 @@ function draw(player, numCards) {
     io.sockets.emit("log", player.id + " draws " + actualDrawn + " cards");
 }
 
+// move cards from hand and in play to discard pile
 function clear(player) {
     while (player.hand.length > 0) {
         var card = player.hand.pop();
@@ -231,6 +264,7 @@ function clear(player) {
     }
 }
 
+// move cards from discard pile to deck and shuffle
 function reload(player) {
     while (player.discard.length > 0) {
         player.deck.push(player.discard.pop());
@@ -239,6 +273,7 @@ function reload(player) {
     io.sockets.emit("log", player.id + " shuffles their discard pile into their deck");
 }
 
+// shuffles an array of cards
 function shuffle(array) {
     var currentIndex = array.length,
         temporaryValue, randomIndex;
