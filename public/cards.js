@@ -692,4 +692,23 @@ cards = {
             gameState.phase = "buy";
         }
     },
+    "council room": {
+        expansion: "Base",
+        id: "council room",
+        description: "+4 Cards, +1 Buy, Each other player draws a card.",
+        name: "Council Room",
+        type: "action",
+        cost: 5,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            draw(player, 4);
+            player.buys += 1;
+            for (var pid in gameState.players) {
+                var aPlayer = gameState.players[pid];
+                if (aPlayer.id != player.id) draw(aPlayer, 1);
+                io.sockets.emit("log", " Each other player drew 1 Card.")
+            }
+        }
+    },
 };
