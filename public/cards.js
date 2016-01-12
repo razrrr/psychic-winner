@@ -562,4 +562,34 @@ cards = {
             };
         }
     },
+    "mining village": {
+        expansion: "Base",
+        description: "+1 Card, +2 Actions. You may trash this card immediately. If you do, +2 Coins.",
+        id: "mining village",
+        name: "Mining Village",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            draw(player, 1);
+            player.actions += 2;
+            gameState.phase = "choose";
+            gameState.queryData = {
+                number: 1,
+                exact: true,
+                message: "Would you like to trash Mining Village for +2 Coins?",
+                choices: ["Yes", "No"],
+                selected: [],
+                callback: function(choiceIndexArray) {
+                    if (choiceIndexArray[0] === 0) {
+                        gameState.trash.push(player.play.pop());
+                        player.coins += 2;
+                    };
+                    gameState.phase = "action";
+                    io.sockets.emit("gameState", gameState);
+                }
+            };
+        }
+    }    
 };
