@@ -4,6 +4,9 @@
 var cards;
 var fs = require("fs");
 eval(fs.readFileSync("./public/cards.js", "utf8"));
+for (var id in cards) {
+    cards[id].id = id;
+}
 
 // ===============
 // game variables
@@ -25,19 +28,19 @@ function Player(id, deck) {
     this.played = [];
     this.revealed = [];
     this.deck = deck;
-    this.coins = 0;
-    this.actions = 1;
-    this.buys = 1;
+    this.coins = 110;
+    this.actions = 111;
+    this.buys = 111;
 }
 
 function createStartingHand() {
     var startingHand = [];
     // add 7 coppers
-    for (var i = 1; i <= 7; i++) {
+    for (var i = 0; i < 7; i++) {
         startingHand.push(createCard("copper"));
     }
     // add 3 estates
-    for (var i = 1; i <= 3; i++) {
+    for (i = 0; i < 3; i++) {
         startingHand.push(createCard("estate"));
     }
 
@@ -186,9 +189,9 @@ function createCard(id) {
 // reset player properties at the end of their turn
 function endTurn(player) {
     io.sockets.emit("log", player.id + " ends their turn");
-    player.actions = 12;
-    player.buys = 12;
-    player.coins = 120;
+    player.actions = 1;
+    player.buys = 1;
+    player.coins = 0;
     clear(player);
     draw(player, 5);
     gameState.phase = "action";
@@ -254,7 +257,7 @@ function clear(player) {
     while (player.played.length > 0) {
         player.discarded.push(player.played.pop());
     }
-    while (player.played.length > 0) {
+    while (player.revealed.length > 0) {
         player.discarded.push(player.revealed.pop());
     }
 }

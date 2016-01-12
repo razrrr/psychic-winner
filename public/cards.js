@@ -1,7 +1,6 @@
 cards = {
     "copper": {
         expansion: "Core",
-        id: "copper",
         name: "Copper",
         type: "treasure",
         cost: 0,
@@ -16,7 +15,6 @@ cards = {
     },
     "silver": {
         expansion: "Core",
-        id: "silver",
         name: "Silver",
         type: "treasure",
         cost: 3,
@@ -30,7 +28,6 @@ cards = {
     },
     "gold": {
         expansion: "Core",
-        id: "gold",
         name: "Gold",
         type: "treasure",
         cost: 6,
@@ -44,7 +41,6 @@ cards = {
     },
     "estate": {
         expansion: "Core",
-        id: "estate",
         name: "Estate",
         type: "victory",
         cost: 2,
@@ -53,7 +49,6 @@ cards = {
     },
     "duchy": {
         expansion: "Core",
-        id: "duchy",
         name: "Duchy",
         type: "victory",
         cost: 5,
@@ -62,7 +57,6 @@ cards = {
     },
     "province": {
         expansion: "Core",
-        id: "province",
         name: "Province",
         type: "victory",
         cost: 8,
@@ -71,7 +65,6 @@ cards = {
     },
     "curse": {
         expansion: "Core",
-        id: "curse",
         name: "Curse",
         type: "curse",
         cost: 0,
@@ -81,7 +74,6 @@ cards = {
     "mine": {
         expansion: "Base",
         description: "Trash a Treasure card from your hand. Gain a Treasure card costing up to 3 Coins more; put it into your hand.",
-        id: "mine",
         name: "Mine",
         type: "action",
         cost: 5,
@@ -130,7 +122,6 @@ cards = {
     },
     "village": {
         expansion: "Base",
-        id: "village",
         name: "Village",
         description: "+1 Card; +2 Actions.",
         type: "action",
@@ -145,7 +136,6 @@ cards = {
     "workshop": {
         expansion: "Base",
         description: "Gain a card costing up to 4 Coins.",
-        id: "workshop",
         name: "Workshop",
         type: "action",
         cost: 3,
@@ -172,7 +162,6 @@ cards = {
     "chapel": {
         expansion: "Base",
         description: "Trash up to 4 Cards from your hand.",
-        id: "chapel",
         name: "Chapel",
         type: "action",
         cost: 2,
@@ -209,7 +198,6 @@ cards = {
     "moneylender": {
         expansion: "Base",
         description: "Trash a Copper from your hand. If you do, +3 Coins.",
-        id: "moneylender",
         name: "Moneylender",
         type: "action",
         cost: 4,
@@ -239,7 +227,6 @@ cards = {
     },
     "smithy": {
         expansion: "Base",
-        id: "smithy",
         description: "Draw 3 cards.",
         name: "Smithy",
         type: "action",
@@ -266,7 +253,6 @@ cards = {
     },
     "festival": {
         expansion: "Base",
-        id: "festival",
         description: "+2 Actions, +1 Buy, +2 Coins.",
         name: "Festival",
         type: "action",
@@ -281,7 +267,6 @@ cards = {
     },
     "laboratory": {
         expansion: "Base",
-        id: "laboratory",
         description: "+2 Cards, +1 Action.",
         name: "Laboratory",
         type: "action",
@@ -295,7 +280,6 @@ cards = {
     },
     "market": {
         expansion: "Base",
-        id: "market",
         description: "+1 Card, +1 Action, +1 Buy, +1 Coin.",
         name: "Market",
         type: "action",
@@ -311,7 +295,6 @@ cards = {
     },
     "great hall": {
         expansion: "Intrigue",
-        id: "great hall",
         description: "1 Victory, +1 Card, +1 Action.",
         name: "Great Hall",
         type: "action victory",
@@ -325,7 +308,6 @@ cards = {
     },
     "shanty town": {
         expansion: "Intrigue",
-        id: "shanty town",
         description: "+2 Actions, Reveal your hand. If you have no Action cards in hand, +2 Cards.",
         name: "Shanty Town",
         type: "action",
@@ -344,7 +326,6 @@ cards = {
     },
     "ironworks": {
         expansion: "Intrigue",
-        id: "ironworks",
         description: "Gain a card costing up to 4 Coins. If it is an... Action card, +1 Action. Treasure card, +1 Coin. Victory card, +1 Card.",
         name: "Ironworks",
         type: "action",
@@ -381,7 +362,6 @@ cards = {
         }
     },
     "chancellor": {
-        id: "chancellor",
         expansion: "Intrigue",
         description: "+2 Coins, You may immediately put your deck into your discard pile.",
         name: "Chancellor",
@@ -411,7 +391,6 @@ cards = {
         }
     },
     "pawn": {
-        id: "pawn",
         expansion: "Intrigue",
         description: "Choose two: +1 Card, +1 Action, +1 Buy, +1 Coin. (The choices must be different).",
         name: "Pawn",
@@ -450,7 +429,6 @@ cards = {
         }
     },
     "steward": {
-        id: "steward",
         expansion: "Intrigue",
         description: "Choose one: +2 Cards; or +2 Coins; or trash 2 cards from your hand.",
         name: "Steward",
@@ -510,7 +488,6 @@ cards = {
     },
     "remodel": {
         expansion: "Intrigue",
-        id: "remodel",
         description: "Trash a card from your hand. Gain a card costing up to 2 Coins more than the trashed card.",
         name: "Remodel",
         type: "action",
@@ -563,7 +540,6 @@ cards = {
     "mining village": {
         expansion: "Intrigue",
         description: "+1 Card, +2 Actions. You may trash this card immediately. If you do, +2 Coins.",
-        id: "mining village",
         name: "Mining Village",
         type: "action",
         cost: 4,
@@ -593,7 +569,6 @@ cards = {
     "upgrade": {
         expansion: "Intrigue",
         description: "+1 Card, +1 Action, Trash a card from your hand. Gain a card costing exactly 1 Coin more than it.",
-        id: "upgrade",
         name: "Upgrade",
         type: "action",
         cost: 4,
@@ -613,10 +588,7 @@ cards = {
                     for (var i in data) {
                         var cardIndex = data[0].index;
                         var cost = cards[player.hand[cardIndex].id].cost;
-                        var query = ".buyable .card.COST0";
-                        for (var j = 1; j <= cost + 1; j++) {
-                            query += ", .buyable .card.COST" + j;
-                        }
+                        var query = ".buyable .card.COST" + (cost + 1);
                         io.sockets.emit("log", cards[player.hand[cardIndex].id].name + " was trashed.");
                         gameState.trash.push(player.hand[cardIndex]);
                         player.hand.splice(cardIndex, 1);
@@ -628,8 +600,10 @@ cards = {
                             exact: false,
                             selected: [],
                             callback: function(data) {
-                                io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                                player.discarded.push(data[0].card);
+                                if (data[0]) {
+                                    io.sockets.emit("log", " ... and gets " + data[0].card.name);
+                                    player.discarded.push(data[0].card);
+                                }
                                 gameState.phase = "action";
                                 io.sockets.emit("gameState", gameState);
                             }
@@ -645,7 +619,6 @@ cards = {
         }
     },
     "nobles": {
-        id: "nobles",
         expansion: "Intrigue",
         description: "+2 Victory, Choose one: +3 Cards, or +2 Actions.",
         name: "Nobles",
@@ -677,7 +650,6 @@ cards = {
     },
     "harem": {
         expansion: "Intrigue",
-        id: "harem",
         description: "+2 Coins, +2 Victory.",
         name: "Harem",
         type: "treasure victory",
@@ -692,7 +664,6 @@ cards = {
     },
     "council room": {
         expansion: "Base",
-        id: "council room",
         description: "+4 Cards, +1 Buy, Each other player draws a card.",
         name: "Council Room",
         type: "action",
@@ -711,7 +682,6 @@ cards = {
     },
     "conspirator": {
         expansion: "Intrigue",
-        id: "conspirator",
         description: "+2 Coins. If you've played 3 or more Actions this turn (including this); +1 Card, +1 Action.",
         name: "Conspirator",
         type: "action",
@@ -734,7 +704,6 @@ cards = {
     },
     "militia": {
         expansion: "Base",
-        id: "militia",
         description: "+2 Coins, Each other player discards down to 3 cards in his hand.",
         name: "Militia",
         type: "action attack",
