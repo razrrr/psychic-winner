@@ -703,9 +703,11 @@ cards = {
         victory: 0,
         action: function(player) {
             draw(player, 2)
-            for (var aPlayer in gameState.players) {
+            for (var pid in gameState.players) {
+                var aPlayer = gameState.players[pid];
                 if (aPlayer.id != player.id) {
                     //gain card issue
+                    io.sockets.emit("log", " Each opponent gains a Curse!")
                 }
             }
         }
