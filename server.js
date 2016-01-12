@@ -124,10 +124,11 @@ io.sockets.on("connection", function(socket) {
         gameState.board = initBoard();
 
         // !! <DEBUG> Put all cards into play. Delete this section later.
-        gameState.board = [];
-        for (var key in cards) {
-            gameState.board.push(cards[key]);
-        }
+        // gameState.board = [];
+        // for (var key in cards) {
+        //     gameState.board.push(cards[key]);
+        // }
+
         gameState.playerOrder = [];
         gameState.players = {};
         gameState.trash = [];
@@ -199,32 +200,30 @@ function initBoard() {
     var treasureCards = [];
     var victoryCards = [];
     var curseCards = [];
-    var actionCards = [];
+    var bankCards = [];
     for (var key in cards) {
-        switch (cards[key].type) {
-            case "treasure":
-                treasureCards.push(cards[key]);
-                break;
-            case "victory":
-                victoryCards.push(cards[key]);
-                break;
-            case "curse":
-                curseCards.push(cards[key]);
-                break;
-            case "action":
-                actionCards.push(cards[key]);
-                break;
+        if (key === "copper" || key === "silver" || key === "gold") {
+            treasureCards.push(cards[key]);
+        }
+        else if (key === "estate" || key === "duchy" || key === "province") {
+            victoryCards.push(cards[key]);
+        }
+        else if (key === "curse") {
+            curseCards.push(cards[key]);
+        }
+        else {
+            bankCards.push(cards[key]);
         }
     }
     treasureCards.sort(sortCost);
     victoryCards.sort(sortCost);
     curseCards.sort(sortCost);
 
-    shuffle(actionCards);
-    actionCards = actionCards.splice(0, 10);
-    actionCards.sort(sortCost);
+    shuffle(bankCards);
+    bankCards = bankCards.splice(0, 10);
+    bankCards.sort(sortCost);
 
-    return treasureCards.concat(victoryCards, curseCards, actionCards);
+    return treasureCards.concat(victoryCards, curseCards, bankCards);
 }
 
 // helper function to sort cards by cost
