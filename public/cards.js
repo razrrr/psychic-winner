@@ -80,6 +80,7 @@ cards = {
     },
     "2": {
         expansion: "Base",
+        description: "Trash a Treasure card from your hand. Gain a Treasure card costing up to 3 Coins more; put it into your hand.",
         id: "2",
         name: "Mine",
         type: "action",
@@ -143,6 +144,7 @@ cards = {
     },
     "4": {
         expansion: "Base",
+        description: "Gain a card costing up to 4 Coins.",
         id: "4",
         name: "Workshop",
         type: "action",
@@ -169,6 +171,7 @@ cards = {
     },
     "5": {
         expansion: "Base",
+        description: "Trash up to 4 Cards from your hand.",
         id: "5",
         name: "Chapel",
         type: "action",
@@ -205,6 +208,7 @@ cards = {
     },
     "6": {
         expansion: "Base",
+        description: "Trash a Copper from your hand. If you do, +3 Coins.",
         id: "6",
         name: "Moneylender",
         type: "action",
