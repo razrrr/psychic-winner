@@ -420,7 +420,7 @@ cards = {
             gameState.queryData = {
                 number: 2,
                 exact: true,
-                message: "Choose 2! (The choices must be different).",
+                message: "Choose two (the choices must be different).",
                 choices: ["+1 Card", "+1 Action", "+1 Buy", "+1 Coin"],
                 selected: [],
                 callback: function(choiceIndexArray) {
@@ -445,5 +445,65 @@ cards = {
             };
         }
     },
-
+    "steward": {
+        id: "steward",
+        expansion: "Intrigue",
+        description: "Choose one: +2 Cards; or +2 Coins; or trash 2 cards from your hand.",
+        name: "Steward",
+        type: "action",
+        cost: 3,
+        value: 0,
+        victory: 0,        
+        action: function(player) {
+            gameState.phase = "choose";
+            gameState.queryData = {
+                number: 1,
+                exact: true,
+                message: "Choose one.",
+                choices: ["+2 Cards", "+2 Coins", "Trash 2 cards from your hand"],
+                selected: [],
+                callback: function(choiceIndexArray) {
+                    for (var i = 0; i < choiceIndexArray.length; i++) {
+                        if (choiceIndexArray[i] === 0) {
+                            draw(player, 2);
+                            gameState.phase = "action";
+                        }
+                        else if (choiceIndexArray[i] === 1) {
+                            player.coins += 2;
+                            io.sockets.emit("log", " gains +2 Coins.");
+                            gameState.phase = "action";
+                        }
+                        else if (choiceIndexArray[i] === 2) {
+                            gameState.phase = "select";
+                            gameState.queryData = {
+                                eligible: ".your.player .hand .card",
+                                number: 2,
+                                unique: true,
+                                exact: true,
+                                selected: [],
+                                callback: function(data) {
+                                    var targetCardIndices = [];
+                                    for (var i in data) {
+                                        targetCardIndices.push(data[i].index);
+                                    }
+                                    targetCardIndices.sort(function(a, b) {
+                                        return b - a;
+                                    });
+                                    for (var i = 0; i < targetCardIndices.length; i++) {
+                                        var cardIndex = targetCardIndices[i];
+                                        io.sockets.emit("log", " ... and trashes " + cards[player.hand[cardIndex].id].name);
+                                        gameState.trash.push(player.hand[cardIndex]);
+                                        player.hand.splice(cardIndex, 1);
+                                    }  
+                                    gameState.phase = "action";
+                                    io.sockets.emit("gameState", gameState);
+                                }   
+                            }    
+                        }
+                        io.sockets.emit("gameState", gameState);
+                    }
+                }   
+            };
+        }
+    },
 };
