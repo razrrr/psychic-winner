@@ -162,7 +162,7 @@ cards = {
                 selected: [],
                 callback: function(data) {
                     io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                    player.discard.push(data[0].card);
+                    player.discarded.push(data[0].card);
                     gameState.phase = "action";
                     io.sockets.emit("gameState", gameState);
                 }
@@ -361,7 +361,7 @@ cards = {
                 selected: [],
                 callback: function(data) {
                     io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                    player.discard.push(data[0].card);
+                    player.discarded.push(data[0].card);
                     gameState.phase = "action";
                     if (data[0].card.type.indexOf("action") >= 0) {
                         player.actions += 1;
@@ -401,7 +401,7 @@ cards = {
                 callback: function(choiceIndexArray) {
                     if (choiceIndexArray[0] === 0) {
                         while (player.deck.length > 0) {
-                            player.discard.push(player.deck.pop());
+                            player.discarded.push(player.deck.pop());
                         }
                     };
                     gameState.phase = "action";
@@ -439,7 +439,7 @@ cards = {
                             io.sockets.emit("log", " gains +1 Buy.");
                         }
                         if (choiceIndexArray[i] === 3) {
-                            player.coins +=1;
+                            player.coins += 1;
                             io.sockets.emit("log", " gains +1 Coin.");
                         }
                         gameState.phase = "action";
@@ -471,13 +471,11 @@ cards = {
                         if (choiceIndexArray[i] === 0) {
                             draw(player, 2);
                             gameState.phase = "action";
-                        }
-                        else if (choiceIndexArray[i] === 1) {
+                        } else if (choiceIndexArray[i] === 1) {
                             player.coins += 2;
                             io.sockets.emit("log", " gains +2 Coins.");
                             gameState.phase = "action";
-                        }
-                        else if (choiceIndexArray[i] === 2) {
+                        } else if (choiceIndexArray[i] === 2) {
                             gameState.phase = "select";
                             gameState.queryData = {
                                 eligible: ".your.player .hand .card",
@@ -520,8 +518,8 @@ cards = {
         value: 0,
         victory: 0,
         action: function(player) {
-        gameState.phase = "select";
-        gameState.queryData = {
+            gameState.phase = "select";
+            gameState.queryData = {
                 eligible: ".your.player .hand .card",
                 number: 1,
                 unique: true,
@@ -547,7 +545,7 @@ cards = {
                             selected: [],
                             callback: function(data) {
                                 io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                                player.discard.push(data[0].card);
+                                player.discarded.push(data[0].card);
                                 gameState.phase = "action";
                                 io.sockets.emit("gameState", gameState);
                             }
@@ -583,7 +581,7 @@ cards = {
                 selected: [],
                 callback: function(choiceIndexArray) {
                     if (choiceIndexArray[0] === 0) {
-                        gameState.trash.push(player.play.pop());
+                        gameState.trash.push(player.played.pop());
                         player.coins += 2;
                     };
                     gameState.phase = "action";
@@ -631,7 +629,7 @@ cards = {
                             selected: [],
                             callback: function(data) {
                                 io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                                player.discard.push(data[0].card);
+                                player.discarded.push(data[0].card);
                                 gameState.phase = "action";
                                 io.sockets.emit("gameState", gameState);
                             }
@@ -712,26 +710,81 @@ cards = {
         }
     },
     "conspirator": {
-            expansion: "Intrigue",
-            id: "conspirator",
-            description: "+2 Coins. If you've played 3 or more Actions this turn (including this); +1 Card, +1 Action.",
-            name: "Conspirator",
-            type: "action",
-            cost: 4,
-            value: 0,
-            victory: 0,
-            action: function(player) {
-                player.coins += 2;
-                io.sockets.emit("log", " ... and gets 2 coins");
-                var counter = 0;
-                for (var i = 0; i < player.play.length; i++) {
-                    if (cards[player.play[i].id].type.indexOf("action") >= 0) counter++;
-                }
-                if (counter >= 3) {
-                    draw(player, 1);
-                    player.actions += 1;
-                    io.sockets.emit("log", " gains +1 Action.");
-                }
+        expansion: "Intrigue",
+        id: "conspirator",
+        description: "+2 Coins. If you've played 3 or more Actions this turn (including this); +1 Card, +1 Action.",
+        name: "Conspirator",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            player.coins += 2;
+            io.sockets.emit("log", " ... and gets 2 coins");
+            var counter = 0;
+            for (var i = 0; i < player.played.length; i++) {
+                if (cards[player.played[i].id].type.indexOf("action") >= 0) counter++;
             }
-        },
+            if (counter >= 3) {
+                draw(player, 1);
+                player.actions += 1;
+                io.sockets.emit("log", " gains +1 Action.");
+            }
+        }
+    },
+    "militia": {
+        expansion: "Base",
+        id: "militia",
+        description: "+2 Coins, Each other player discards down to 3 cards in his hand.",
+        name: "Militia",
+        type: "action attack",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            // save current player id so we know when all players have been attacked
+            var currentPlayer = gameState.activePlayer;
+
+            gameState.phase = "select";
+            gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+            var attack = function() {
+                var playerData = gameState.players[gameState.playerOrder[gameState.activePlayer]];
+                var discardTo = playerData.hand.length - 3;
+                if (discardTo < 0) discardTo = 0;
+                gameState.queryData = {
+                    eligible: ".your.player .hand .card",
+                    number: discardTo,
+                    unique: true,
+                    exact: true,
+                    message: "Select cards to discard",
+                    selected: [],
+                    callback: function(data) {
+                        var targetCardIndices = [];
+                        for (var i in data) {
+                            targetCardIndices.push(data[i].index);
+                        }
+                        targetCardIndices.sort(function(a, b) {
+                            return b - a;
+                        });
+                        for (var i = 0; i < targetCardIndices.length; i++) {
+                            var cardIndex = targetCardIndices[i];
+                            playerData.discarded.push(playerData.hand[cardIndex]);
+                            io.sockets.emit("log", " ... " + playerData.id + " discards " + cards[playerData.hand[cardIndex].id].name);
+                            playerData.hand.splice(cardIndex, 1);
+                        }
+                        gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+                        if (gameState.activePlayer === currentPlayer) {
+                            player.coins += 2;
+                            gameState.phase = "action";
+                            io.sockets.emit("gameState", gameState);
+                        } else {
+                            attack();
+                            io.sockets.emit("gameState", gameState);
+                        }
+                    }
+                };
+            }
+            attack();
+        }
+    }
 };

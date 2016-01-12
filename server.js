@@ -2,7 +2,6 @@
 
 // load card data from external file - there might be a better way to do this
 var cards;
-var idCounter;
 var fs = require("fs");
 eval(fs.readFileSync("./public/cards.js", "utf8"));
 
@@ -15,15 +14,16 @@ var gameState = {
     players: {},
     board: [],
     trash: [],
-    activePlayer: 0, // !! figure out a some way to determine who starts (rather than just first connected)
+    activePlayer: 0,
     playerOrder: [],
 };
 
 function Player(id, deck) {
     this.id = id;
     this.hand = [];
-    this.discard = [];
-    this.play = [];
+    this.discarded = [];
+    this.played = [];
+    this.revealed = [];
     this.deck = deck;
     this.coins = 0;
     this.actions = 1;
@@ -83,21 +83,21 @@ io.sockets.on("connection", function(socket) {
             player.buys--;
             player.actions = 0;
             var newCard = createCard(data.cardID);
-            player.discard.push(newCard);
+            player.discarded.push(newCard);
             io.sockets.emit("gameState", gameState);
         }
     });
     // ----------------
     // Received action message from client
     // ----------------
-    socket.on("action", function(data) {
+    socket.on("play", function(data) {
         // need to validate active player
         var player = gameState.players[socket.id];
         var card = cards[data.cardID];
         if (player.actions > 0 && card.type.indexOf("action") >= 0) {
             io.sockets.emit("log", player.id + " plays " + card.name);
             player.actions--;
-            player.play.push(player.hand[data.cardIndex]);
+            player.played.push(player.hand[data.cardIndex]);
             player.hand.splice(data.cardIndex, 1);
             card.action(player);
             io.sockets.emit("gameState", gameState);
@@ -105,7 +105,7 @@ io.sockets.on("connection", function(socket) {
         if (card.type.indexOf("treasure") >= 0) {
             io.sockets.emit("log", player.id + " plays " + card.name);
             gameState.phase = "buy";
-            player.play.push(player.hand[data.cardIndex]);
+            player.played.push(player.hand[data.cardIndex]);
             player.hand.splice(data.cardIndex, 1);
             card.action(player);
             io.sockets.emit("gameState", gameState);
@@ -116,7 +116,6 @@ io.sockets.on("connection", function(socket) {
     // ----------------
     socket.on("startGame", function() {
         gameStart = true;
-        idCounter = 0;
         io.sockets.emit("log", "game started");
 
         // initialize board
@@ -134,7 +133,6 @@ io.sockets.on("connection", function(socket) {
         gameState.trash = [];
         for (var id in io.sockets.clients().sockets) {
             gameState.players[id] = new Player(id, createStartingHand());
-
             shuffle(gameState.players[id].deck);
             draw(gameState.players[id], 5);
             gameState.playerOrder.push(id);
@@ -170,16 +168,18 @@ io.sockets.on("connection", function(socket) {
 // ===============
 // utility functions
 // ===============
-// generates unique identifiers for each card
-function generateID() {
-    return idCounter++;
-}
+
+// generates unique identifiers
+var uniqueID = (function() {
+   var id = 0;
+   return function() { return id++; };
+})();
 
 // create a new card on the game board
 function createCard(id) {
     var newCard = {};
     newCard.id = id;
-    newCard.uid = generateID();
+    newCard.uid = uniqueID();
     return newCard;
 }
 
@@ -230,43 +230,39 @@ function initBoard() {
 function sortCost(a, b) {
     return a.cost > b.cost;
 }
-
 // draw cards from a players deck
 function draw(player, numCards) {
     var actualDrawn = 0;
     while (numCards > 0) {
         if (player.deck.length === 0) {
-            io.sockets.emit("log", player.id + " draws " + actualDrawn + " cards");
+            if (actualDrawn > 0) io.sockets.emit("log", player.id + " draws " + actualDrawn + " cards");
             actualDrawn = 0;
             reload(player);
         }
-        if (player.deck.length > 0) {
-            var card = player.deck.pop();
-            player.hand.push(card);
-        }
+        if (player.deck.length > 0) player.hand.push(player.deck.pop());
         actualDrawn++;
         numCards--;
     }
-
     io.sockets.emit("log", player.id + " draws " + actualDrawn + " cards");
 }
 
-// move cards from hand and in play to discard pile
+// move cards from hand, played, and revealed to discard pile - used for end of turn... but where else? merge with endTurn if nowhere
 function clear(player) {
     while (player.hand.length > 0) {
-        var card = player.hand.pop();
-        player.discard.push(card);
+        player.discarded.push(player.hand.pop());
     }
-    while (player.play.length > 0) {
-        var card = player.play.pop();
-        player.discard.push(card);
+    while (player.played.length > 0) {
+        player.discarded.push(player.played.pop());
+    }
+    while (player.played.length > 0) {
+        player.discarded.push(player.revealed.pop());
     }
 }
 
 // move cards from discard pile to deck and shuffle
 function reload(player) {
-    while (player.discard.length > 0) {
-        player.deck.push(player.discard.pop());
+    while (player.discarded.length > 0) {
+        player.deck.push(player.discarded.pop());
     }
     shuffle(player.deck);
     io.sockets.emit("log", player.id + " shuffles their discard pile into their deck");
