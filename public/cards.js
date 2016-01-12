@@ -379,22 +379,26 @@ cards = {
     "chancellor": {
         id: "chancellor",
         expansion: "Intrigue",
-        description: "Gain a card costing up to 4 Coins. If it is an... Action card, +1 Action. Treasure card, +1 Coin. Victory card, +1 Card.",
+        description: "+2 Coins, You may immediately put your deck into your discard pile.",
         name: "Chancellor",
         type: "action",
         cost: 3,
         value: 0,
-        victory: 0,
+        victory: 0,        
         action: function(player) {
             gameState.phase = "choose";
             gameState.queryData = {
                 number: 1,
                 exact: true,
-                message: "Shuffle your discard pile into your deck?",
+                message: "Put your deck into your discard pile?",
                 choices: ["Yes", "No"],
                 selected: [],
                 callback: function(choiceIndexArray) {
-                    if (choiceIndexArray[0] === 0) reload(player);
+                    if (choiceIndexArray[0] === 0) {
+                        while (player.deck.length > 0) {
+                            player.discard.push(player.deck.pop());
+                        }
+                    };
                     gameState.phase = "action";
                     io.sockets.emit("gameState", gameState);
                 }
