@@ -506,7 +506,7 @@ cards = {
             };
         }
     },
-    "Remodel": {
+    "remodel": {
             expansion: "Base",
             id: "remodel",
             description: "Trash a card from your hand. Gain a card costing up to 2 Coins more than the trashed card.",
