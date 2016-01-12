@@ -21,7 +21,9 @@ var gameState = {
 // start the server
 var express = require("express");
 var path = require("path");
-var server = require("http").createServer(express.static("public")).listen(process.env.PORT || 8081);
+var app = express();
+app.use(express.static(path.join(__dirname, "public")));
+var server = require("http").createServer(app).listen(process.env.PORT || 8081);
 var io = require("socket.io").listen(server);
 
 // listen for connections
@@ -81,6 +83,7 @@ io.sockets.on("connection", function(socket) {
         }
         gameState.playerOrder = [];
         gameState.players = {};
+        gameState.trash = [];
         for (var id in io.sockets.clients().sockets) {
             var deck = [];
             deck.push(createCard(1));
@@ -99,6 +102,7 @@ io.sockets.on("connection", function(socket) {
                 hand: [],
                 discard: [],
                 play: [],
+                revealed: [],
                 deck: deck,
                 coins: 0,
                 actions: 1,
@@ -148,6 +152,7 @@ function endTurn(player) {
     clear(player);
     draw(player, 5);
     gameState.phase = "action";
+    io.sockets.emit("log", gameState.players[gameState.playerOrder[gameState.activePlayer]].id + "'s turn");
 }
 
 function draw(player, numCards) {

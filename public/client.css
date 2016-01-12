@@ -1,29 +1,67 @@
 @import url(http://reset5.googlecode.com/hg/reset.min.css);
 * {
     font-family: arial;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+.disabled {
+    opacity: 0.2;
 }
 
 #output {
     height: 100px;
     overflow: auto;
+    position: absolute;
+    right: 0px;
+    width: 100%;
+    bottom: 0px;
+    border-top: 2px solid #666;
+    border-left: 2px solid #666;
+    width: 500px;
+    padding: 5px;
+    font-size: 12px;
+    font-family: courier;
+}
+
+.played-zone {
+    padding: 10px 10px 0px;
+    border-bottom: 5px solid #555555;
+    position: relative;
+}
+.played-cards {
+    margin-left: 200px;
+}
+.played-zone .card {
+    margin-right: -50px;
 }
 
 .player,
 .board {
     clear: both;
-    padding: 0px 10px;
-    border: 1px solid #444;
+    padding: 10px 10px;
     box-sizing: border-box;
 }
 
 .board {
     width: 100%;
+    background: #dddddd;
+    border-bottom: 5px solid #555;
+}
+
+.board .card {
+    -webkit-transition: 0.5s;
 }
 
 .your.player {
     width: 100%;
     position: relative;
 }
+
 .your.player.disabled {
     opacity: 0.5;
 }
@@ -34,6 +72,10 @@
 
 .player-stat {
     list-style: none;
+}
+
+.playable {
+    box-shadow: 0px 0px 2px 2px #8FFF00;
 }
 
 .treasure.card {
@@ -49,78 +91,148 @@
 }
 
 .card {
-    border: 1px solid #000;
+    border: 1px solid rgba(0, 0, 0, 0.3);
     padding: 5px;
     margin-right: 5px;
     margin-bottom: 10px;
     list-style: none;
     display: block;
     width: 100px;
-    height: 120px;
+    height: 140px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 4px 2px rgba(0, 0, 0, 0.23);
     float: left;
-    padding-top: 25px;
     box-sizing: border-box;
     background: #aaa;
     text-align: center;
-    border-radius: 6px;
     position: relative;
     font-weight: bold;
     font-size: 10px;
     user-select: none;
 }
 
-.card img {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0px;
-    opacity: 0.2;
+.card-name {
     left: 0px;
+    top: 5px;
+    height: 20px;
+    line-height: 20px;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    background: rgb(53, 22, 0);
+    color: white;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-family: monospace;
+    font-weight: bold;
+}
+
+.card-type {
+    left: 0px;
+    bottom: 5px;
+    height: 20px;
+    line-height: 20px;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    background: rgb(53, 22, 0);
+    color: white;
+    font-size: 8px;
+    text-transform: uppercase;
+    font-family: monospace;
+}
+
+.card-description {
+    left: 0px;
+    top: 40px;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-size: 8px;
+    padding: 5px;
+    text-transform: uppercase;
+    font-family: monospace;
+    box-sizing: border-box;
 }
 
 .card-cost {
     position: absolute;
-    bottom: 2px;
+    bottom: 8px;
     left: 2px;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(234, 200, 11, 1);
     border: 2px solid rgba(0, 0, 0, 0.2);
     border-radius: 40px;
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
+    width: 10px;
+    color: black;
+    height: 10px;
+    line-height: 12px;
     text-align: center;
-    font-size: 12px;
+    font-size: 8px;
+    font-family: monospace;
 }
-
-.card-type {
-    right: 5px;
-    height: 20px;
-    line-height: 20px;
-    font-size: 12px;
+.icon {
+    clear: both;
+    padding: 5px;
+}
+.icon i.fa-shopping-cart {
+    width: 40px;
+    height: 40px;
+    line-height:40px;
+    text-align: center;
+    background: rgba(111, 88, 22, 1);
+    border-radius: 25px;
+    float: left;
+}
+.icon i.fa-circle-o {
+    width: 40px;
+    height: 40px;
+    line-height:40px;
+    text-align: center;
+    background: rgba(234, 200, 11, 1);
+    border-radius: 25px;
+    float: left;
+}
+.icon i.fa-share {
+    width: 40px;
+    height: 40px;
+    line-height:40px;
+    text-align: center;
+    background: rgba(99, 155, 222, 1);
+    border-radius: 25px;
+    float: left;
+}
+.icon div {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    float: left;
+    font-size: 20px;
+    font-family: monospace;
+}
+.player-stats {
     position: absolute;
-    bottom: 2px;
+    left: 110px;
+    top: 10px;
 }
-
-.card-name {
-    left: 5px;
-    height: 20px;
-    line-height: 20px;
-    font-size: 14px;
+.end.button {
     position: absolute;
-    top: 2px;
+    top: 10px;
+    left: 10px;
+    width: 80px;
 }
-
 .buyable .card {}
 
 .stacked.card {
-    margin-right: -97px;
+    margin-right: -98px;
 }
 
 .phase-select .hand .card {
-    opacity: 0.5;
+    opacity: 0.2;
 }
+
 .phase-select .buyable .card {
-    opacity: 0.5;
+    opacity: 0.2;
 }
 
 .selectable {
@@ -135,21 +247,26 @@
     list-style: none;
     display: block;
     width: 100px;
-    height: 40px;
+    height: 100px;
     line-height: 40px;
     float: left;
-    background: #aaa;
+    background: #3355dd;
     text-align: center;
     border-radius: 3px;
 }
 
 .select.button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
     display: none;
 }
+
 .choice-dialog {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    padding: 10px;
+    border: 1px solid black;
+}
+.select-dialog {
     position: absolute;
     right: 20px;
     top: 20px;
@@ -159,11 +276,13 @@
 .choice-dialog .message {
     text-align: center;
 }
+
 .choice {
     padding: 10px;
     border: 1px solid black;
     margin: 10px;
 }
+
 ul {
     clear: both;
     margin: 0px;
