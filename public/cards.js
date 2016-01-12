@@ -386,6 +386,7 @@ cards = {
         value: 0,
         victory: 0,
         action: function(player) {
+            player.coins += 2;
             gameState.phase = "choose";
             gameState.queryData = {
                 number: 1,
@@ -402,6 +403,45 @@ cards = {
                     gameState.phase = "action";
                     io.sockets.emit("gameState", gameState);
                 }
+            };
+        }
+    },
+    "pawn": {
+        id: "pawn",
+        expansion: "Intrigue",
+        description: "Choose two: +1 Card, +1 Action, +1 Buy, +1 Coin. (The choices must be different).",
+        name: "Pawn",
+        type: "action",
+        cost: 2,
+        value: 0,
+        victory: 0,        
+        action: function(player) {
+            gameState.phase = "choose";
+            gameState.queryData = {
+                number: 2,
+                exact: true,
+                message: "Choose 2! (The choices must be different).",
+                choices: ["+1 Card", "+1 Action", "+1 Buy", "+1 Coin"],
+                selected: [],
+                callback: function(choiceIndexArray) {
+                    for (var i = 0; i < choiceIndexArray.length; i++) {
+                        if (choiceIndexArray[i] === 0) draw(player, 1);
+                        if (choiceIndexArray[i] === 1) {
+                            player.actions += 1;
+                            io.sockets.emit("log", " gains +1 Action.");
+                        }
+                        if (choiceIndexArray[i] === 2) {
+                            player.buys += 1;
+                            io.sockets.emit("log", " gains +1 Buy.");
+                        }
+                        if (choiceIndexArray[i] === 3) {
+                            player.coins +=1;
+                            io.sockets.emit("log", " gains +1 Coin.");
+                        }
+                        gameState.phase = "action";
+                        io.sockets.emit("gameState", gameState);
+                    }
+                }   
             };
         }
     },
