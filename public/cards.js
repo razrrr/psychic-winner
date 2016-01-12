@@ -646,6 +646,37 @@ cards = {
             };
         }
     },
+    "nobles": {
+        id: "nobles",
+        expansion: "Intrigue",
+        description: "+2 Victory, Choose one: +3 Cards, or +2 Actions.",
+        name: "Nobles",
+        type: "action victory",
+        cost: 6,
+        value: 0,
+        victory: 2,
+        action: function(player) {
+            gameState.phase = "choose";
+            gameState.queryData = {
+                number: 1,
+                exact: true,
+                message: "Choose one.",
+                choices: ["+3 Cards", "+2 Actions"],
+                selected: [],
+                callback: function(choiceIndexArray) {
+                    for (var i = 0; i < choiceIndexArray.length; i++) {
+                        if (choiceIndexArray[i] === 0) draw(player, 3);
+                        if (choiceIndexArray[i] === 1) {
+                            player.actions += 2;
+                            io.sockets.emit("log", " gains +2 Actions.");
+                        }
+                        gameState.phase = "action";
+                        io.sockets.emit("gameState", gameState);
+                    }
+                }
+            };
+        }
+    },        
     "harem": {
         expansion: "Intrigue",
         id: "harem",
