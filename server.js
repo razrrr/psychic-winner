@@ -28,9 +28,9 @@ function Player(id, deck) {
     this.played = [];
     this.revealed = [];
     this.deck = deck;
-    this.coins = 110;
-    this.actions = 111;
-    this.buys = 111;
+    this.coins = 0;
+    this.actions = 1;
+    this.buys = 1;
 }
 
 function createStartingHand() {
@@ -189,9 +189,9 @@ function createCard(id) {
 // reset player properties at the end of their turn
 function endTurn(player) {
     io.sockets.emit("log", player.id + " ends their turn");
-    player.actions = 1;
-    player.buys = 1;
-    player.coins = 0;
+    player.actions = 111;
+    player.buys = 111;
+    player.coins = 110;
     clear(player);
     draw(player, 5);
     gameState.phase = "action";
