@@ -30,6 +30,22 @@ function Player(id, deck) {
     this.buys = 1;
 }
 
+function createStartingHand() {
+    var startingHand = [];
+    // add 7 coppers
+    for (var i = 1; i <= 7; i++) {
+        startingHand.push(createCard("copper"));
+    }
+    // add 3 estates
+    for (var i = 1; i <= 3; i++) {
+        startingHand.push(createCard("estate"));
+    }
+
+    return startingHand;
+}
+
+// !! reset idCounter at end of game?
+
 // start the server
 var express = require("express");
 var path = require("path");
@@ -101,19 +117,7 @@ io.sockets.on("connection", function(socket) {
         gameState.players = {};
         gameState.trash = [];
         for (var id in io.sockets.clients().sockets) {
-            var startingHand = [];
-            startingHand.push(createCard(1));
-            startingHand.push(createCard(1));
-            startingHand.push(createCard(1));
-            startingHand.push(createCard(1));
-            startingHand.push(createCard(1));
-            startingHand.push(createCard(1));
-            startingHand.push(createCard(1));
-            startingHand.push(createCard(4));
-            startingHand.push(createCard(4));
-            startingHand.push(createCard(4));
-
-            gameState.players[id] = new Player(id, startingHand);
+            gameState.players[id] = new Player(id, createStartingHand());
 
             shuffle(gameState.players[id].deck);
             draw(gameState.players[id], 5);
