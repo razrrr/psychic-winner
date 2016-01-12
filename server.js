@@ -185,9 +185,9 @@ function createCard(id) {
 // reset player properties at the end of their turn
 function endTurn(player) {
     io.sockets.emit("log", player.id + " ends their turn");
-    player.actions = 1;
-    player.buys = 1;
-    player.coins = 0;
+    player.actions = 12;
+    player.buys = 12;
+    player.coins = 120;
     clear(player);
     draw(player, 5);
     gameState.phase = "action";

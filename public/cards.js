@@ -692,4 +692,27 @@ cards = {
             gameState.phase = "buy";
         }
     },
+    "conspirator": {
+        expansion: "Intrigue",
+        id: "conspirator",
+        description: "+2 Coins. If you've played 3 or more Actions this turn (including this); +1 Card, +1 Action.",
+        name: "Conspirator",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            player.coins += 2;
+            io.sockets.emit("log", " ... and gets 2 coins");
+            var counter = 0;
+            for (var i = 0; i < player.play.length; i++) {
+                if (cards[player.play[i].id].type.indexOf("action") >= 0) counter++;
+            }
+            if (counter >= 3) {
+                draw(player, 1);
+                player.actions += 1;
+                io.sockets.emit("log", " gains +1 Action.");
+            }
+        }
+    },
 };
