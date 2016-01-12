@@ -1,7 +1,7 @@
 cards = {
-    "1": {
+    "copper": {
         expansion: "Core",
-        id: "1",
+        id: "copper",
         name: "Copper",
         type: "treasure",
         cost: 0,
@@ -14,9 +14,9 @@ cards = {
             gameState.phase = "buy";
         }
     },
-    "7": {
+    "silver": {
         expansion: "Core",
-        id: "7",
+        id: "silver",
         name: "Silver",
         type: "treasure",
         cost: 3,
@@ -28,9 +28,9 @@ cards = {
             gameState.phase = "buy";
         }
     },
-    "8": {
+    "gold": {
         expansion: "Core",
-        id: "8",
+        id: "gold",
         name: "Gold",
         type: "treasure",
         cost: 6,
@@ -42,46 +42,46 @@ cards = {
             gameState.phase = "buy";
         }
     },
-    "9": {
+    "estate": {
         expansion: "Core",
-        id: "9",
+        id: "estate",
         name: "Estate",
         type: "victory",
         cost: 2,
         value: 0,
         victory: 1
     },
-    "10": {
+    "duchy": {
         expansion: "Core",
-        id: "10",
+        id: "duchy",
         name: "Duchy",
         type: "victory",
         cost: 5,
         value: 0,
         victory: 3
     },
-    "11": {
+    "province": {
         expansion: "Core",
-        id: "11",
+        id: "province",
         name: "Province",
         type: "victory",
         cost: 8,
         value: 0,
         victory: 6
     },
-    "12": {
+    "curse": {
         expansion: "Core",
-        id: "12",
+        id: "curse",
         name: "Curse",
         type: "curse",
         cost: 0,
         value: 0,
         victory: -1
     },
-    "2": {
+    "mine": {
         expansion: "Base",
         description: "Trash a Treasure card from your hand. Gain a Treasure card costing up to 3 Coins more; put it into your hand.",
-        id: "2",
+        id: "mine",
         name: "Mine",
         type: "action",
         cost: 5,
@@ -128,9 +128,9 @@ cards = {
             };
         }
     },
-    "3": {
+    "village": {
         expansion: "Base",
-        id: "3",
+        id: "village",
         name: "Village",
         description: "+1 Card; +2 Actions.",
         type: "action",
@@ -142,10 +142,10 @@ cards = {
             player.actions += 2;
         }
     },
-    "4": {
+    "workshop": {
         expansion: "Base",
         description: "Gain a card costing up to 4 Coins.",
-        id: "4",
+        id: "workshop",
         name: "Workshop",
         type: "action",
         cost: 3,
@@ -169,10 +169,10 @@ cards = {
             };
         }
     },
-    "5": {
+    "chapel": {
         expansion: "Base",
         description: "Trash up to 4 Cards from your hand.",
-        id: "5",
+        id: "chapel",
         name: "Chapel",
         type: "action",
         cost: 2,
@@ -206,10 +206,10 @@ cards = {
             };
         }
     },
-    "6": {
+    "moneylender": {
         expansion: "Base",
         description: "Trash a Copper from your hand. If you do, +3 Coins.",
-        id: "6",
+        id: "moneylender",
         name: "Moneylender",
         type: "action",
         cost: 4,
@@ -237,9 +237,9 @@ cards = {
             };
         }
     },
-    "13": {
+    "smithy": {
         expansion: "Base",
-        id: "13",
+        id: "smithy",
         description: "Draw 3 cards.",
         name: "Smithy",
         type: "action",
@@ -250,9 +250,9 @@ cards = {
             draw(player, 3);
         }
     },
-    "14": {
+    "woodcutter": {
         expansion: "Base",
-        id: "14",
+        id: "woodcutter",
         description: "+1 Buy, +2 Coins.",
         name: "Woodcutter",
         type: "action",
@@ -264,9 +264,9 @@ cards = {
             player.coins += 2;
         }
     },
-    "15": {
+    "festival": {
         expansion: "Base",
-        id: "15",
+        id: "festival",
         description: "+2 Actions, +1 Buy, +2 Coins.",
         name: "Festival",
         type: "action",
@@ -279,9 +279,9 @@ cards = {
             player.coins += 2;
         }
     },
-    "16": {
+    "laboratory": {
         expansion: "Base",
-        id: "16",
+        id: "laboratory",
         description: "+2 Cards, +1 Action.",
         name: "Laboratory",
         type: "action",
@@ -293,9 +293,9 @@ cards = {
             player.actions += 1;
         }
     },
-    "17": {
+    "market": {
         expansion: "Base",
-        id: "17",
+        id: "market",
         description: "+1 Card, +1 Action, +1 Buy, +1 Coin.",
         name: "Market",
         type: "action",
@@ -511,55 +511,115 @@ cards = {
         }
     },
     "remodel": {
-            expansion: "Base",
-            id: "remodel",
-            description: "Trash a card from your hand. Gain a card costing up to 2 Coins more than the trashed card.",
-            name: "Remodel",
-            type: "action",
-            cost: 4,
-            value: 0,
-            victory: 0,
-            action: function(player) {
-            gameState.phase = "select";
-            gameState.queryData = {
-                    eligible: ".your.player .hand .card",
-                    number: 1,
-                    unique: true,
-                    exact: false,
-                    selected: [],
-                    callback: function(data) {
-                        for (var i in data) {
-                            var cardIndex = data[0].index;
-                            var cost = cards[player.hand[cardIndex].id].cost;
-                            var query = ".buyable .card.COST0";
-                            for (var j = 1; j <= cost + 2; j++) {
-                                query += ", .buyable .card.COST" + j;
+        expansion: "Intrigue",
+        id: "remodel",
+        description: "Trash a card from your hand. Gain a card costing up to 2 Coins more than the trashed card.",
+        name: "Remodel",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+        gameState.phase = "select";
+        gameState.queryData = {
+                eligible: ".your.player .hand .card",
+                number: 1,
+                unique: true,
+                exact: false,
+                selected: [],
+                callback: function(data) {
+                    for (var i in data) {
+                        var cardIndex = data[0].index;
+                        var cost = cards[player.hand[cardIndex].id].cost;
+                        var query = ".buyable .card.COST0";
+                        for (var j = 1; j <= cost + 2; j++) {
+                            query += ", .buyable .card.COST" + j;
+                        }
+                        io.sockets.emit("log", cards[player.hand[cardIndex].id].name + " was trashed.");
+                        gameState.trash.push(player.hand[cardIndex]);
+                        player.hand.splice(cardIndex, 1);
+                        gameState.phase = "select";
+                        gameState.queryData = {
+                            eligible: query,
+                            number: 1,
+                            unique: true,
+                            exact: false,
+                            selected: [],
+                            callback: function(data) {
+                                io.sockets.emit("log", " ... and gets " + data[0].card.name);
+                                player.discard.push(data[0].card);
+                                gameState.phase = "action";
+                                io.sockets.emit("gameState", gameState);
                             }
-                            io.sockets.emit("log", cards[player.hand[cardIndex].id].name + " was trashed.");
-                            gameState.trash.push(player.hand[cardIndex]);
-                            player.hand.splice(cardIndex, 1);
-                            gameState.phase = "select";
-                            gameState.queryData = {
-                                eligible: query,
-                                number: 1,
-                                unique: true,
-                                exact: false,
-                                selected: [],
-                                callback: function(data) {
-                                    io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                                    player.discard.push(data[0].card);
-                                    gameState.phase = "action";
-                                    io.sockets.emit("gameState", gameState);
-                                }
-                            };
-                            io.sockets.emit("gameState", gameState);
-                        }
-                        if (data.length === 0) {
-                            gameState.phase = "action";
-                            io.sockets.emit("gameState", gameState);
-                        }
+                        };
+                        io.sockets.emit("gameState", gameState);
                     }
-                };
-            }
-        },
+                    if (data.length === 0) {
+                        gameState.phase = "action";
+                        io.sockets.emit("gameState", gameState);
+                    }
+                }
+            };
+        }
+    },
+    "mining village": {
+        expansion: "Intrigue",
+        description: "+1 Card, +2 Actions. You may trash this card immediately. If you do, +2 Coins.",
+        id: "mining village",
+        name: "Mining Village",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            draw(player, 1);
+            player.actions += 2;
+            gameState.phase = "choose";
+            gameState.queryData = {
+                number: 1,
+                exact: true,
+                message: "Would you like to trash Mining Village for +2 Coins?",
+                choices: ["Yes", "No"],
+                selected: [],
+                callback: function(choiceIndexArray) {
+                    if (choiceIndexArray[0] === 0) {
+                        gameState.trash.push(player.play.pop());
+                        player.coins += 2;
+                    };
+                    gameState.phase = "action";
+                    io.sockets.emit("gameState", gameState);
+                }
+            };
+        }
+    },
+   "upgrade": {
+        expansion: "Intrigue",
+        description: "+1 Card, +1 Action, Trash a card from your hand. Gain a card costing exactly 1 Coin more than it.",
+        id: "mining village",
+        name: "Mining Village",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            draw(player, 1);
+            player.actions += 2;
+            gameState.phase = "choose";
+            gameState.queryData = {
+                number: 1,
+                exact: true,
+                message: "Would you like to trash Mining Village for +2 Coins?",
+                choices: ["Yes", "No"],
+                selected: [],
+                callback: function(choiceIndexArray) {
+                    if (choiceIndexArray[0] === 0) {
+                        gameState.trash.push(player.play.pop());
+                        player.coins += 2;
+                    };
+                    gameState.phase = "action";
+                    io.sockets.emit("gameState", gameState);
+                }
+            };
+        }
+    },    
 };
