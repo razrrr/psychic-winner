@@ -384,7 +384,7 @@ cards = {
         type: "action",
         cost: 3,
         value: 0,
-        victory: 0,        
+        victory: 0,
         action: function(player) {
             gameState.phase = "choose";
             gameState.queryData = {
