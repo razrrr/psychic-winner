@@ -8,9 +8,11 @@ app.run(function($rootScope) {
     $rootScope.cards = cards;
     $rootScope.physicalCards = [];
     socket.on("log", function(msg) {
-        $("#output").prepend("<br/>" + msg);
+        $("#output").append("<br/>" + msg);
+        $("#output")[0].scrollTop = $("#output")[0].scrollHeight;
     });
     socket.on("gameState", function(update) {
+        $(".start.button").hide();
         $rootScope.you = {
             id: "/#" + socket.id
         };
@@ -18,6 +20,19 @@ app.run(function($rootScope) {
         $rootScope.gameState = update;
         $rootScope.clientPlayer = $rootScope.gameState.players[playerID];
 
+        $rootScope.$watch("clientPlayer.coins", function() {
+            $(".buyable .card").addClass("disabled");
+            if ($rootScope.clientPlayer.buys === 0) return;
+            if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
+            for (var i = 0; i <= $rootScope.clientPlayer.coins; i++) {
+                $(".buyable .card.COST" + i).removeClass("disabled");
+            }
+        });
+        $rootScope.$watch("gameState.phase", function() {
+            if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
+            $(".your.player .hand .action").addClass("disabled");
+            if ($rootScope.gameState.phase == "action" && $rootScope.clientPlayer.actions > 0) $(".your.player .hand .action").removeClass("disabled");
+        });
         // UI stuff
         /*$rootScope.physicalCards = [];
         for (var playerID in $rootScope.gameState.players) {
@@ -28,7 +43,11 @@ app.run(function($rootScope) {
         }*/
         // end UI stuff
 
+        // apply gameState changes to UI
         $rootScope.$apply();
+
+        // Prompt Current Player for a Selection
+        if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
         if ($rootScope.gameState.phase === "select") {
             $(".card").removeClass("selectable");
             $(".select.button").hide();
@@ -37,13 +56,35 @@ app.run(function($rootScope) {
             }, 100);
             if (!$rootScope.gameState.queryData.exact) $(".select.button").show();
         }
+        if ($rootScope.gameState.phase === "choose") {
+
+        }
 
     });
+
     $rootScope.endTurn = function() {
+        if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
         socket.emit("endTurn", {});
     };
-    $rootScope.select = function(card, index, zone, event) {
+    $rootScope.choose = function(index, event) {
+        if ($(event.target).hasClass("choosable")) {
+            $rootScope.gameState.queryData.selected.push(index);
+            if ($rootScope.gameState.queryData.number === $rootScope.gameState.queryData.selected.length) {
+                socket.emit("callback", $rootScope.gameState.queryData.selected);
+            }
+        }
+    }
+    $rootScope.select = function(card, index, zone, event) { // user clicked on a card
+        if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
+
         if ($rootScope.gameState.phase === "action" && zone == "hand") {
+            socket.emit("action", {
+                cardID: card.id,
+                cardIndex: index,
+                playerID: playerID
+            });
+        }
+        if ($rootScope.gameState.phase === "buy" && zone == "hand" && cards[card.id].type === "treasure") {
             socket.emit("action", {
                 cardID: card.id,
                 cardIndex: index,
@@ -69,6 +110,7 @@ app.run(function($rootScope) {
             };
             $rootScope.gameState.queryData.selected.push(data);
             if ($rootScope.gameState.queryData.number === $rootScope.gameState.queryData.selected.length) {
+                $(".selectable").removeClass("selectable");   
                 socket.emit("select", $rootScope.gameState.queryData.selected);
             }
         }
@@ -78,6 +120,7 @@ app.run(function($rootScope) {
         socket.emit("startGame");
     };
     $rootScope.submit = function() {
+        $(".selectable").removeClass("selectable");
         socket.emit("select", $rootScope.gameState.queryData.selected);
     };
 });

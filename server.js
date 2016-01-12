@@ -8,13 +8,39 @@ var cards;
 var fs = require("fs");
 eval(fs.readFileSync("./public/cards.js", "utf8"));
 
+// initialize game variables
 var gameStart = false;
 var gameState = {
     phase: "action",
     players: {},
     board: [],
     trash: [],
+    activePlayer: 0, // !! figure out a some way to determine who starts (rather than just first connected)
+    playerOrder: [],
 };
+
+function Player(id, deck) {
+    this.id = id;
+    this.hand = [];
+    this.discard = [];
+    this.play = [];
+    this.deck = deck;
+    this.coins = 0;
+    this.actions = 1;
+    this.buys = 1;
+}
+
+var startingHand = [];
+startingHand.push(createCard(1));
+startingHand.push(createCard(1));
+startingHand.push(createCard(1));
+startingHand.push(createCard(1));
+startingHand.push(createCard(1));
+startingHand.push(createCard(1));
+startingHand.push(createCard(1));
+startingHand.push(createCard(4));
+startingHand.push(createCard(4));
+startingHand.push(createCard(4));
 
 // start the server
 var express = require("express");
@@ -26,20 +52,22 @@ var io = require("socket.io").listen(server);
 
 // listen for connections
 io.sockets.on("connection", function(socket) {
-    io.sockets.emit("log", socket.id + " connected"); 
+    io.sockets.emit("log", socket.id + " connected");
     socket.on("endTurn", function() {
-        // need to validate active player
+        // !! need to validate active player
         endTurn(gameState.players[socket.id]);
+        gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+
         io.sockets.emit("gameState", gameState);
     });
     socket.on("buy", function(data) {
         // need to validate active player
         var player = gameState.players[socket.id];
         var card = cards[data.cardID];
-        if (player.treasure >= card.cost && player.buys > 0) {
+        if (player.coins >= card.cost && player.buys > 0) {
             io.sockets.emit("log", player.id + " buys " + card.name);
             gameState.phase = "buy";
-            player.treasure -= card.cost;
+            player.coins -= card.cost;
             player.buys--;
             player.actions = 0;
             var newCard = createCard(data.cardID);
@@ -54,9 +82,17 @@ io.sockets.on("connection", function(socket) {
         if (player.actions > 0 && card.type.indexOf("action") >= 0) {
             io.sockets.emit("log", player.id + " plays " + card.name);
             player.actions--;
-            card.action(player);
-            player.discard.push(player.hand[data.cardIndex]);
+            player.play.push(player.hand[data.cardIndex]);
             player.hand.splice(data.cardIndex, 1);
+            card.action(player);
+            io.sockets.emit("gameState", gameState);
+        }
+        if (card.type.indexOf("treasure") >= 0) {
+            io.sockets.emit("log", player.id + " plays " + card.name);
+            gameState.phase = "buy";
+            player.play.push(player.hand[data.cardIndex]);
+            player.hand.splice(data.cardIndex, 1);
+            card.action(player);
             io.sockets.emit("gameState", gameState);
         }
     });
@@ -65,43 +101,32 @@ io.sockets.on("connection", function(socket) {
         io.sockets.emit("log", "game started");
 
         // initialize board
+        // select 10 random action cards
+        gameState.board = initBoard();
+
+        // !! <DEBUG> Put all cards into play. Delete this section later.
         gameState.board = [];
         for (var key in cards) {
             gameState.board.push(cards[key]);
         }
-
+        gameState.playerOrder = [];
         gameState.players = {};
+        gameState.trash = [];
         for (var id in io.sockets.clients().sockets) {
-            var deck = [];
-            deck.push(createCard(1));
-            deck.push(createCard(1));
-            deck.push(createCard(1));
-            deck.push(createCard(1));
-            deck.push(createCard(1));
-            deck.push(createCard(1));
-            deck.push(createCard(1));
-            deck.push(createCard(4));
-            deck.push(createCard(4));
-            deck.push(createCard(4));
+            gameState.players[id] = new Player(id, startingHand);
 
-            gameState.players[id] = {
-                id: id,
-                hand: [],
-                discard: [],
-                play: [],
-                deck: deck,
-                treasure: 0,
-                bonusTreasure: 0,
-                actions: 1,
-                buys: 1
-            };
             shuffle(gameState.players[id].deck);
             draw(gameState.players[id], 5);
-            gameState.activePlayer = id;
+            gameState.playerOrder.push(id);
         }
+
         io.sockets.emit("gameState", gameState);
     });
     socket.on("select", function(data) {
+        // need to validate active player
+        gameState.queryData.callback(data);
+    });
+    socket.on("callback", function(data) {
         // need to validate active player
         gameState.queryData.callback(data);
     });
@@ -129,18 +154,47 @@ function endTurn(player) {
     io.sockets.emit("log", player.id + " ends their turn");
     player.actions = 1;
     player.buys = 1;
-    player.bonusTreasure = 0;
-    discard(player);
+    player.coins = 0;
+    clear(player);
     draw(player, 5);
     gameState.phase = "action";
+    io.sockets.emit("log", gameState.players[gameState.playerOrder[gameState.activePlayer]].id + "'s turn");
 }
 
-function countTreasure(player) {
-    var treasure = player.bonusTreasure;
-    for (var i = 0; i < player.hand.length; i++) {
-        treasure += cards[player.hand[i].id].value;
+function initBoard() {
+    var treasureCards = [];
+    var victoryCards = [];
+    var curseCards = [];
+    var actionCards = [];
+    for (var key in cards) {
+        switch (cards[key].type) {
+            case "treasure":
+                treasureCards.push(cards[key]);
+                break;
+            case "victory":
+                victoryCards.push(cards[key]);
+                break;
+            case "curse":
+                curseCards.push(cards[key]);
+                break;
+            case "action":
+                actionCards.push(cards[key]);
+                break;
+        }
     }
-    return treasure;
+    treasureCards.sort(sortCost);
+    victoryCards.sort(sortCost);
+    curseCards.sort(sortCost);
+
+    shuffle(actionCards);
+    actionCards = actionCards.splice(0, 10);
+    actionCards.sort(sortCost);
+
+    return treasureCards.concat(victoryCards, curseCards, actionCards);
+}
+
+function sortCost(a, b) {
+    return a.cost > b.cost;
 }
 
 function draw(player, numCards) {
@@ -153,21 +207,22 @@ function draw(player, numCards) {
         }
         if (player.deck.length > 0) {
             var card = player.deck.pop();
-            // card.animation = "deck-to-hand";
             player.hand.push(card);
         }
         actualDrawn++;
         numCards--;
     }
 
-    player.treasure = countTreasure(player);
     io.sockets.emit("log", player.id + " draws " + actualDrawn + " cards");
 }
 
-function discard(player) {
+function clear(player) {
     while (player.hand.length > 0) {
         var card = player.hand.pop();
-        // card.animation = "hand-to-discard";
+        player.discard.push(card);
+    }
+    while (player.play.length > 0) {
+        var card = player.play.pop();
         player.discard.push(card);
     }
 }
