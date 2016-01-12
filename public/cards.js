@@ -592,7 +592,7 @@ cards = {
             };
         }
     },
-   "upgrade": {
+    "upgrade": {
         expansion: "Intrigue",
         description: "+1 Card, +1 Action, Trash a card from your hand. Gain a card costing exactly 1 Coin more than it.",
         id: "mining village",
@@ -603,23 +603,47 @@ cards = {
         victory: 0,
         action: function(player) {
             draw(player, 1);
-            player.actions += 2;
-            gameState.phase = "choose";
+            player.actions += 1;
+            gameState.phase = "select";
             gameState.queryData = {
+                eligible: ".your.player .hand .card",
                 number: 1,
-                exact: true,
-                message: "Would you like to trash Mining Village for +2 Coins?",
-                choices: ["Yes", "No"],
+                unique: true,
+                exact: false,
                 selected: [],
-                callback: function(choiceIndexArray) {
-                    if (choiceIndexArray[0] === 0) {
-                        gameState.trash.push(player.play.pop());
-                        player.coins += 2;
-                    };
-                    gameState.phase = "action";
-                    io.sockets.emit("gameState", gameState);
+                callback: function(data) {
+                    for (var i in data) {
+                        var cardIndex = data[0].index;
+                        var cost = cards[player.hand[cardIndex].id].cost;
+                        var query = ".buyable .card.COST0";
+                        for (var j = 1; j <= cost + 1; j++) {
+                            query += ", .buyable .card.COST" + j;
+                        }
+                        io.sockets.emit("log", cards[player.hand[cardIndex].id].name + " was trashed.");
+                        gameState.trash.push(player.hand[cardIndex]);
+                        player.hand.splice(cardIndex, 1);
+                        gameState.phase = "select";
+                        gameState.queryData = {
+                            eligible: query,
+                            number: 1,
+                            unique: true,
+                            exact: false,
+                            selected: [],
+                            callback: function(data) {
+                                io.sockets.emit("log", " ... and gets " + data[0].card.name);
+                                player.discard.push(data[0].card);
+                                gameState.phase = "action";
+                                io.sockets.emit("gameState", gameState);
+                            }
+                        };
+                        io.sockets.emit("gameState", gameState);
+                    }
+                    if (data.length === 0) {
+                        gameState.phase = "action";
+                        io.sockets.emit("gameState", gameState);
+                    }
                 }
             };
         }
-    },    
+    },
 };
