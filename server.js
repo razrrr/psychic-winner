@@ -33,20 +33,6 @@ function Player(id, deck) {
     this.buys = 1;
 }
 
-function createStartingHand() {
-    var startingHand = [];
-    // add 7 coppers
-    for (var i = 0; i < 7; i++) {
-        startingHand.push(createCard("copper"));
-    }
-    // add 3 estates
-    for (i = 0; i < 3; i++) {
-        startingHand.push(createCard("estate"));
-    }
-
-    return startingHand;
-}
-
 // ===============
 // start the server
 // ===============
@@ -80,13 +66,27 @@ io.sockets.on("connection", function(socket) {
         var player = gameState.players[socket.id];
         var card = cards[data.cardID];
         if (player.coins >= card.cost && player.buys > 0) {
-            io.sockets.emit("log", player.id + " buys " + card.name);
-            gameState.phase = "buy";
-            player.coins -= card.cost;
-            player.buys--;
-            player.actions = 0;
-            var newCard = createCard(data.cardID);
-            player.discarded.push(newCard);
+            // check if there is any supply left
+            if (cards[data.cardID].bankVersion.supply > 0) {
+                var acquiredCard = acquire(player, data.cardID);
+                if (acquiredCard) {
+                    // buy the card
+                    io.sockets.emit("log", player.id + " buys " + card.name);
+                    gameState.phase = "buy";
+                    player.coins -= card.cost;
+                    player.buys--;
+                    player.actions = 0;
+
+                    // add to discard pile
+                    player.discarded.push(acquiredCard);
+
+                    console.log(cards[data.cardID].bankVersion);
+                }
+                else {
+                    // notify user there are no more cards
+                }
+            }
+
             io.sockets.emit("gameState", gameState);
         }
     });
@@ -121,16 +121,6 @@ io.sockets.on("connection", function(socket) {
         gameStart = true;
         io.sockets.emit("log", "game started");
 
-        // initialize board
-        // select 10 random action cards
-        gameState.board = initBoard();
-
-        // !! <DEBUG> Put all cards into play. Delete this section later.
-        gameState.board = [];
-        for (var key in cards) {
-            gameState.board.push(cards[key]);
-        }
-
         gameState.playerOrder = [];
         gameState.players = {};
         gameState.trash = [];
@@ -139,6 +129,19 @@ io.sockets.on("connection", function(socket) {
             shuffle(gameState.players[id].deck);
             draw(gameState.players[id], 5);
             gameState.playerOrder.push(id);
+        }
+
+        // initialize board
+        // select 10 random action cards
+        gameState.board = initBoard();
+
+        // !! <DEBUG> Put all cards into play. Delete this section later.
+        gameState.board = [];
+        for (var key in cards) {
+            var newCard = createCard(key);
+            newCard.supply = 10;
+            gameState.board.push(newCard);
+            cards[key].bankVersion = newCard;
         }
 
         io.sockets.emit("gameState", gameState);
@@ -178,6 +181,21 @@ var uniqueID = (function() {
    return function() { return id++; };
 })();
 
+
+function acquire(player, cardID) {
+    if (cards[cardID].bankVersion.supply > 0) {
+        var newCard = createCard(cardID);
+
+        // decrease supply
+        cards[cardID].bankVersion.supply--;
+
+        return newCard;
+    }
+    else {
+        return false;
+    }
+}
+
 // create a new card on the game board
 function createCard(id) {
     var newCard = {};
@@ -200,39 +218,60 @@ function endTurn(player) {
 
 // initialize game board
 function initBoard() {
+    var supplySize = getSupplySize(gameState.playerOrder.length);
+
     var treasureCards = [];
     var victoryCards = [];
     var curseCards = [];
-    var bankCards = [];
+    var kingdomCards = [];
     for (var key in cards) {
         if (key === "copper" || key === "silver" || key === "gold") {
-            treasureCards.push(cards[key]);
+            var newCard = createCard(key);
+            newCard.supply = supplySize[key];
+            treasureCards.push(newCard);
         }
         else if (key === "estate" || key === "duchy" || key === "province") {
-            victoryCards.push(cards[key]);
+            var newCard = createCard(key);
+            newCard.supply = supplySize[key];
+            victoryCards.push(newCard);
         }
         else if (key === "curse") {
-            curseCards.push(cards[key]);
+            var newCard = createCard(key);
+            newCard.supply = supplySize[key];
+            curseCards.push(newCard);
         }
         else {
-            bankCards.push(cards[key]);
+            var newCard = createCard(key);
+            if (cards[key].type === "victory") // e.g. gardens, duke
+                newCard.supply = supplySize.estate;
+            else
+                newCard.supply = supplySize.kingdomCard;
+
+            kingdomCards.push(newCard);;
         }
     }
     treasureCards.sort(sortCost);
     victoryCards.sort(sortCost);
     curseCards.sort(sortCost);
 
-    shuffle(bankCards);
-    bankCards = bankCards.splice(0, 10);
-    bankCards.sort(sortCost);
+    shuffle(kingdomCards);
+    kingdomCards = kingdomCards.splice(0, 10);
+    kingdomCards.sort(sortCost);
 
-    return treasureCards.concat(victoryCards, curseCards, bankCards);
+    var boardCards = treasureCards.concat(victoryCards, curseCards, kingdomCards);
+    // add references to the "board" version of the card in the global cards variable
+    for (var i in boardCards) {
+        cards[boardCards[i].id].bankVersion = boardCards[i];
+    }
+    console.log(boardCards);
+    return boardCards;
 }
 
 // helper function to sort cards by cost
 function sortCost(a, b) {
-    return a.cost > b.cost;
+    return cards[a.id].cost > cards[b.id].cost;
 }
+
 // draw cards from a players deck
 function draw(player, numCards) {
     var actualDrawn = 0;
@@ -280,4 +319,93 @@ function shuffle(array) {
         array[randomIndex] = temporaryValue;
     }
     return array;
+}
+
+// create starting hand of player
+function createStartingHand() {
+    var startingHand = [];
+    // add 7 coppers
+    for (var i = 0; i < 7; i++) {
+        startingHand.push(createCard("copper"));
+    }
+    // add 3 estates
+    for (i = 0; i < 3; i++) {
+        startingHand.push(createCard("estate"));
+    }
+
+    return startingHand;
+}
+
+// defines supply sizes based on the number of players
+function getSupplySize(numPlayers) {
+    var supplySize = {
+        estate: 10,
+        duchy: 10,
+        province: 10,
+        colony: 10,
+        curse: 10,
+        copper: 10,
+        silver: 10,
+        gold: 10,
+        platinum: 10,
+        kingdomCard: 10,
+    };
+
+    switch (numPlayers) {
+        case 2:
+            supplySize.estate = 8;
+            supplySize.duchy = 8;
+            supplySize.province = 8;
+            supplySize.colony = 8;
+            supplySize.curse = 10;
+            supplySize.copper = (60 - 7*numPlayers);
+            supplySize.silver = 40;
+            supplySize.gold = 30;
+            break;
+        case 3:
+            supplySize.estate = 12;
+            supplySize.duchy = 12;
+            supplySize.province = 12;
+            supplySize.colony = 12;
+            supplySize.curse = 20;
+            supplySize.copper = (60 - 7*numPlayers);
+            supplySize.silver = 40;
+            supplySize.gold = 30;
+            break;
+        case 4:
+            supplySize.estate = 12;
+            supplySize.duchy = 12;
+            supplySize.province = 12;
+            supplySize.colony = 12;
+            supplySize.curse = 30;
+            supplySize.copper = (60 - 7*numPlayers);
+            supplySize.silver = 40;
+            supplySize.gold = 30;
+            break;
+        case 5:
+            supplySize.estate = 12;
+            supplySize.duchy = 12;
+            supplySize.province = 15;
+            supplySize.colony = 12;
+            supplySize.curse = 40;
+            supplySize.copper = (120 - 7*numPlayers);
+            supplySize.silver = 80;
+            supplySize.gold = 60;
+            break;
+        case 6:
+            supplySize.estate = 12;
+            supplySize.duchy = 12;
+            supplySize.province = 18;
+            supplySize.colony = 12;
+            supplySize.curse = 50;
+            supplySize.copper = (120 - 7*numPlayers);
+            supplySize.silver = 80;
+            supplySize.gold = 60;
+            break;
+        default:
+            // !! better way of handling?
+            break;
+    }
+
+    return supplySize;
 }
