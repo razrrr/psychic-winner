@@ -151,8 +151,9 @@ cards = {
                 exact: true,
                 selected: [],
                 callback: function(data) {
-                    io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                    player.discarded.push(data[0].card);
+                    var acquiredCard = acquire(player, data[0].card.id);
+                    io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
+                    player.discarded.push(acquiredCard);
                     gameState.phase = "action";
                     io.sockets.emit("gameState", gameState);
                 }
@@ -341,18 +342,20 @@ cards = {
                 exact: true,
                 selected: [],
                 callback: function(data) {
-                    io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                    player.discarded.push(data[0].card);
+                    var acquiredCard = acquire(player, data[0].card.id);
+                    io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
+                    player.discarded.push(acquiredCard);
+
                     gameState.phase = "action";
-                    if (data[0].card.type.indexOf("action") >= 0) {
+                    if (cards[acquiredCard.id].type.indexOf("action") >= 0) {
                         player.actions += 1;
                         io.sockets.emit("log", " ... and gets +1 Action");
                     }
-                    if (data[0].card.type.indexOf("treasure") >= 0) {
+                    if (cards[acquiredCard.id].type.indexOf("treasure") >= 0) {
                         player.coins = +1;
                         io.sockets.emit("log", " ... and gets +1 Coin");
                     }
-                    if (data[0].card.type.indexOf("victory") >= 0) {
+                    if (cards[acquiredCard.id].type.indexOf("victory") >= 0) {
                         draw(player, 1);
                         io.sockets.emit("log", " ... and gets +1 Card");
                     }
@@ -698,10 +701,8 @@ cards = {
             if (counter >= 3) {
                 draw(player, 1);
                 player.actions += 1;
-                io.sockets.emit("log", " gains +1 Action.");
+                io.sockets.emit("log", " ... and gains +1 Action.");
             }
-            gameState.phase = "action";
-            io.sockets.emit("gameState", gameState);
         }
     },
     "militia": {
@@ -907,9 +908,8 @@ cards = {
                                 gameState.phase = "action";
                                 io.sockets.emit("gameState", gameState);
                             }
-                        } 
-                    }
-                    else gameState.phase = "action";    
+                        }
+                    } else gameState.phase = "action";
                     io.sockets.emit("gameState", gameState);
                 }
             }

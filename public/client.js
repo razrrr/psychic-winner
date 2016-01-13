@@ -79,6 +79,7 @@ app.run(function($rootScope) {
         }
     }
     $rootScope.select = function(card, index, zone, event) { // user clicked on a card
+        console.log(event);
         if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
 
         if ($rootScope.gameState.phase === "action" && zone == "hand") {
@@ -103,15 +104,16 @@ app.run(function($rootScope) {
         }
 
         // event.target will get caught by foreground images thus blocking the correct click event
-        if ($rootScope.gameState.phase === "select" && $(event.target).hasClass("selectable")) {
+        if ($rootScope.gameState.phase === "select" && $(event.currentTarget).hasClass("selectable")) {
             if ($rootScope.gameState.queryData.unique === true) {
-                $(event.target).removeClass("selectable");
+                $(event.currentTarget).removeClass("selectable");
             }
             var data = {
                 card: card,
                 index: index,
                 zone: zone,
             };
+            console.log(data)
             $rootScope.gameState.queryData.selected.push(data);
             if ($rootScope.gameState.queryData.number === $rootScope.gameState.queryData.selected.length) {
                 $(".selectable").removeClass("selectable");

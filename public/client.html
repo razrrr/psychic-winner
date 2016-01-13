@@ -13,13 +13,17 @@
 
 <body>
     <div ng-class="['phase-'+gameState.phase]" ng-app="Dominion">
+        <script type="text/ng-template" id="card.html">
+            <img style="position: absolute; border:0px; width: 100%; height: 100%; top: 0px; left: 0px; opacity: 0.8" src="{{cards[card.id].image}}" />
+            <span class="card-name">{{ cards[card.id].name }}</span>
+            <span class="card-type">{{ cards[card.id].type }}</span>
+            <span class="card-cost">{{ cards[card.id].cost }}</span>
+            <span style="background: rgba(255,255,255,0.8);" class="card-description">{{ cards[card.id].description }}</span>
+        </script>
         <div class="board">
             <ul class="buyable">
-                <li ng-click="select(card, $index, 'buy', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type]" class="disabled card" ng-repeat="card in gameState.board track by $index">
-                    <span class="card-name">{{ cards[card.id].name }}</span>
-                    <span class="card-type">{{ cards[card.id].type }}</span>
-                    <span class="card-cost">{{ cards[card.id].cost }}</span>
-                    <span class="card-description">{{ cards[card.id].description }}</span>
+                <li ng-click="select(card, $index, 'buy', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type]" class="card" ng-repeat="card in gameState.board track by $index">
+                    <ng-include src="'card.html'"></ng-include>
                     <div style="position: absolute; background: white; width: 18px; height: 15px; line-height:15px; border: 2px solid black; text-align: center; top: -4px; left: -4px;">{{card.supply}}</div>
                 </li>
             </ul>
@@ -33,16 +37,12 @@
             <ul class="played-cards">
                 <li style="opacity:0; width:0px; margin:0px 0px 10px; border:0px; padding: 0px;" class="card"></li>
                 <li ng-class="[cards[card.id].type]" class="card" ng-repeat="card in gameState.players[gameState.playerOrder[gameState.activePlayer]].played track by card.uid">
-                    <span class="card-name">{{ cards[card.id].name }}</span>
-                    <span class="card-type">{{ cards[card.id].type }}</span>
-                    <span class="card-cost">{{ cards[card.id].cost }}</span>
+                    <ng-include src="'card.html'"></ng-include>
                 </li>
             </ul>
             <ul class="revealed" style="position: absolute; left: 600px; top:10px;">
                 <li ng-click="select(card, $index, 'revealed', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type,]" class="card" ng-repeat="card in gameState.revealed track by card.uid">
-                    <span class="card-name">{{ cards[card.id].name }}</span>
-                    <span class="card-type">{{ cards[card.id].type }}</span>
-                    <span class="card-cost">{{ cards[card.id].cost }}</span>
+                    <ng-include src="'card.html'"></ng-include>
                 </li>
             </ul>
             <div style="clear:both;"></div>
@@ -69,9 +69,7 @@
             <ul class="hand">
                 <h4>hand</h4>
                 <li ng-click="select(card, $index, 'hand', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type,]" class="card" ng-repeat="card in clientPlayer.hand track by card.uid">
-                    <span class="card-name">{{ cards[card.id].name }}</span>
-                    <span class="card-type">{{ cards[card.id].type }}</span>
-                    <span class="card-cost">{{ cards[card.id].cost }}</span>
+                    <ng-include src="'card.html'"></ng-include>
                 </li>
                 <li style="clear:both"></li>
             </ul>
@@ -88,9 +86,7 @@
                     <h4>deck</h4>
                     <li class="stacked card">deck empty</li>
                     <li class="stacked card" ng-repeat="card in clientPlayer.deck track by $index">
-                        <span class="card-name">{{ cards[card.id].name }}</span>
-                        <span class="card-type">{{ cards[card.id].type }}</span>
-                        <span class="card-cost">{{ cards[card.id].cost }}</span>
+                        <ng-include src="'card.html'"></ng-include>
                     </li>
                 </ul>
             </div>
@@ -99,9 +95,7 @@
                     <h4>discard</h4>
                     <li class="stacked card">discard pile empty</li>
                     <li ng-class="[cards[card.id].type]" class="stacked card" ng-repeat="card in clientPlayer.discarded track by $index">
-                        <span class="card-name">{{ cards[card.id].name }}</span>
-                        <span class="card-type">{{ cards[card.id].type }}</span>
-                        <span class="card-cost">{{ cards[card.id].cost }}</span>
+                        <ng-include src="'card.html'"></ng-include>
                     </li>
                 </ul>
             </div>
@@ -110,9 +104,7 @@
                 <h4>trash</h4>
                 <li class="stacked card">trash empty</li>
                 <li class="stacked card" ng-repeat="card in gameState.trash track by card.uid">
-                    <span class="card-name">{{ cards[card.id].name }}</span>
-                    <span class="card-type">{{ cards[card.id].type }}</span>
-                    <span class="card-cost">{{ cards[card.id].cost }}</span>
+                    <ng-include src="'card.html'"></ng-include>
                 </li>
             </ul>
             <div id="output"></div>
