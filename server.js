@@ -16,6 +16,7 @@ var gameState = {
     phase: "action",
     players: {},
     board: [],
+    revealed : [],
     trash: [],
     activePlayer: 0,
     playerOrder: [],
@@ -26,7 +27,6 @@ function Player(id, deck) {
     this.hand = [];
     this.discarded = [];
     this.played = [];
-    this.revealed = [];
     this.deck = deck;
     this.coins = 0;
     this.actions = 1;
@@ -256,9 +256,6 @@ function clear(player) {
     }
     while (player.played.length > 0) {
         player.discarded.push(player.played.pop());
-    }
-    while (player.revealed.length > 0) {
-        player.discarded.push(player.revealed.pop());
     }
 }
 

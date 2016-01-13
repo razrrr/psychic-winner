@@ -775,7 +775,7 @@ cards = {
                     revealedCard = player.deck.pop();
                     if (cards[revealedCard.id].type.indexOf("treasure") >= 0) {
                         io.sockets.emit("log", " ... puts " + cards[revealedCard.id].name + " into hand");
-                        player.revealed.push(revealedCard);
+                        gameState.revealed.push(revealedCard);
                         revealedTreasures++;
 
                         gameState.phase = "choose";
@@ -786,12 +786,12 @@ cards = {
                             choices: ["ok"],
                             selected: [],
                             callback: function() {
-                                player.hand.push(player.revealed.pop());
+                                player.hand.push(gameState.revealed.pop());
                                 if (revealedTreasures < 2) {
                                     seekTreasure();
                                 } else {
-                                    while (player.revealed.length > 0) {
-                                        player.discarded.push(player.revealed.pop());
+                                    while (gameState.revealed.length > 0) {
+                                        player.discarded.push(gameState.revealed.pop());
                                     }
                                     gameState.phase = "action";
                                     io.sockets.emit("gameState", gameState);
@@ -800,7 +800,7 @@ cards = {
                         };
                         io.sockets.emit("gameState", gameState);
                     } else {
-                        player.revealed.push(revealedCard);
+                        gameState.revealed.push(revealedCard);
                         io.sockets.emit("log", " ... reveals " + cards[revealedCard.id].name);
                         seekTreasure();
                     }
