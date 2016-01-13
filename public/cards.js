@@ -151,8 +151,9 @@ cards = {
                 exact: true,
                 selected: [],
                 callback: function(data) {
-                    io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                    player.discarded.push(data[0].card);
+                    var acquiredCard = acquire(player, data[0].card.id);
+                    io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
+                    player.discarded.push(acquiredCard);
                     gameState.phase = "action";
                     io.sockets.emit("gameState", gameState);
                 }
@@ -341,18 +342,20 @@ cards = {
                 exact: true,
                 selected: [],
                 callback: function(data) {
-                    io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                    player.discarded.push(data[0].card);
+                    var acquiredCard = acquire(player, data[0].card.id);
+                    io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
+                    player.discarded.push(acquiredCard);
+
                     gameState.phase = "action";
-                    if (data[0].card.type.indexOf("action") >= 0) {
+                    if (cards[acquiredCard.id].type.indexOf("action") >= 0) {
                         player.actions += 1;
                         io.sockets.emit("log", " ... and gets +1 Action");
                     }
-                    if (data[0].card.type.indexOf("treasure") >= 0) {
+                    if (cards[acquiredCard.id].type.indexOf("treasure") >= 0) {
                         player.coins = +1;
                         io.sockets.emit("log", " ... and gets +1 Coin");
                     }
-                    if (data[0].card.type.indexOf("victory") >= 0) {
+                    if (cards[acquiredCard.id].type.indexOf("victory") >= 0) {
                         draw(player, 1);
                         io.sockets.emit("log", " ... and gets +1 Card");
                     }
@@ -698,10 +701,8 @@ cards = {
             if (counter >= 3) {
                 draw(player, 1);
                 player.actions += 1;
-                io.sockets.emit("log", " gains +1 Action.");
+                io.sockets.emit("log", " ... and gains +1 Action.");
             }
-            gameState.phase = "action";
-            io.sockets.emit("gameState", gameState);
         }
     },
     "militia": {
@@ -817,7 +818,6 @@ cards = {
         }
     },
     "cellar": {
-        id: "cellar",
         description: "+1 Action, Discard any number of cards. +1 Card per card discarded.",
         name: "Cellar",
         type: "action",
@@ -852,6 +852,69 @@ cards = {
                     io.sockets.emit("gameState", gameState);
                 }
             }
+        }
+    },
+    "scout": {
+        description: "+1 Action. Reveal the top 4 cards of your deck. Put the revealed Victory cards into your hand. Put the other cards on top of your deck in any order.",
+        name: "Scout",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            player.actions += 1;
+            var victoryCount = 0;
+            for (var i = 0; i < 4; i++) {
+                if (player.deck.length <= 0) reload(player);
+                var revealedCard = player.deck.pop();
+                if (cards[revealedCard.id].type.indexOf("victory") >= 0) victoryCount++;
+                gameState.revealed.push(revealedCard);
+            }
+            gameState.phase = "choose";
+            gameState.queryData = {
+                number: 1,
+                exact: true,
+                message: "",
+                choices: ["OK"],
+                selected: [],
+                callback: function(choiceIndexArray) {
+                    for (var i = 0; i < gameState.revealed.length; i++) {
+                        if (cards[gameState.revealed[i].id].type.indexOf("victory") >= 0) {
+                            player.hand.push(gameState.revealed[i]);
+                            gameState.revealed.splice(i, 1);
+                            i--;
+                        }
+                    }
+                    //  Can we make it so the UI updates which cards get put on deck per card clicked on
+                    if (gameState.revealed.length > 0) {
+                        gameState.phase = "select";
+                        gameState.queryData = {
+                            eligible: ".revealed .card",
+                            number: gameState.revealed.length,
+                            unique: true,
+                            exact: true,
+                            selected: [],
+                            callback: function(data) {
+                                var targetCardIndices = [];
+                                for (var i in data) {
+                                    targetCardIndices.push(data[i].index);
+                                }
+                                for (var i = 0; i < targetCardIndices.length; i++) {
+                                    var cardIndex = targetCardIndices[i];
+                                    io.sockets.emit("log", " ... and puts " + cards[gameState.revealed[cardIndex].id].name + " on top of deck");
+                                    player.deck.push(gameState.revealed[cardIndex]);
+                                }
+                                gameState.revealed = [];
+                                gameState.phase = "action";
+                                io.sockets.emit("gameState", gameState);
+                            }
+                        }
+                    } else gameState.phase = "action";
+                    io.sockets.emit("gameState", gameState);
+                }
+            }
+            if (victoryCount > 0) gameState.queryData.message = "Put revealed Victory cards into hand.";
+            else gameState.queryData.message = "No Victory cards were revealed.";
         }
     },
 };

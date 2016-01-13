@@ -223,11 +223,7 @@ body {
     margin-right: -98px;
 }
 
-.phase-select .hand .card {
-    opacity: 0.2;
-}
-
-.phase-select .buyable .card {
+.phase-select .hand .card, .phase-select .buyable .card, .phase-select .revealed .card {
     opacity: 0.2;
 }
 
