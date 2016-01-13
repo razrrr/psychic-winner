@@ -1,7 +1,6 @@
 cards = {
     "copper": {
         expansion: "Core",
-        id: "copper",
         name: "Copper",
         type: "treasure",
         cost: 0,
@@ -16,7 +15,6 @@ cards = {
     },
     "silver": {
         expansion: "Core",
-        id: "silver",
         name: "Silver",
         type: "treasure",
         cost: 3,
@@ -30,7 +28,6 @@ cards = {
     },
     "gold": {
         expansion: "Core",
-        id: "gold",
         name: "Gold",
         type: "treasure",
         cost: 6,
@@ -44,7 +41,6 @@ cards = {
     },
     "estate": {
         expansion: "Core",
-        id: "estate",
         name: "Estate",
         type: "victory",
         cost: 2,
@@ -53,7 +49,6 @@ cards = {
     },
     "duchy": {
         expansion: "Core",
-        id: "duchy",
         name: "Duchy",
         type: "victory",
         cost: 5,
@@ -62,7 +57,6 @@ cards = {
     },
     "province": {
         expansion: "Core",
-        id: "province",
         name: "Province",
         type: "victory",
         cost: 8,
@@ -71,7 +65,6 @@ cards = {
     },
     "curse": {
         expansion: "Core",
-        id: "curse",
         name: "Curse",
         type: "curse",
         cost: 0,
@@ -81,7 +74,6 @@ cards = {
     "mine": {
         expansion: "Base",
         description: "Trash a Treasure card from your hand. Gain a Treasure card costing up to 3 Coins more; put it into your hand.",
-        id: "mine",
         name: "Mine",
         type: "action",
         cost: 5,
@@ -130,7 +122,6 @@ cards = {
     },
     "village": {
         expansion: "Base",
-        id: "village",
         name: "Village",
         description: "+1 Card; +2 Actions.",
         type: "action",
@@ -145,7 +136,6 @@ cards = {
     "workshop": {
         expansion: "Base",
         description: "Gain a card costing up to 4 Coins.",
-        id: "workshop",
         name: "Workshop",
         type: "action",
         cost: 3,
@@ -162,7 +152,7 @@ cards = {
                 selected: [],
                 callback: function(data) {
                     io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                    player.discard.push(data[0].card);
+                    player.discarded.push(data[0].card);
                     gameState.phase = "action";
                     io.sockets.emit("gameState", gameState);
                 }
@@ -172,7 +162,6 @@ cards = {
     "chapel": {
         expansion: "Base",
         description: "Trash up to 4 Cards from your hand.",
-        id: "chapel",
         name: "Chapel",
         type: "action",
         cost: 2,
@@ -209,7 +198,6 @@ cards = {
     "moneylender": {
         expansion: "Base",
         description: "Trash a Copper from your hand. If you do, +3 Coins.",
-        id: "moneylender",
         name: "Moneylender",
         type: "action",
         cost: 4,
@@ -239,7 +227,6 @@ cards = {
     },
     "smithy": {
         expansion: "Base",
-        id: "smithy",
         description: "Draw 3 cards.",
         name: "Smithy",
         type: "action",
@@ -266,7 +253,6 @@ cards = {
     },
     "festival": {
         expansion: "Base",
-        id: "festival",
         description: "+2 Actions, +1 Buy, +2 Coins.",
         name: "Festival",
         type: "action",
@@ -281,7 +267,6 @@ cards = {
     },
     "laboratory": {
         expansion: "Base",
-        id: "laboratory",
         description: "+2 Cards, +1 Action.",
         name: "Laboratory",
         type: "action",
@@ -295,7 +280,6 @@ cards = {
     },
     "market": {
         expansion: "Base",
-        id: "market",
         description: "+1 Card, +1 Action, +1 Buy, +1 Coin.",
         name: "Market",
         type: "action",
@@ -311,7 +295,6 @@ cards = {
     },
     "great hall": {
         expansion: "Intrigue",
-        id: "great hall",
         description: "1 Victory, +1 Card, +1 Action.",
         name: "Great Hall",
         type: "action victory",
@@ -325,7 +308,6 @@ cards = {
     },
     "shanty town": {
         expansion: "Intrigue",
-        id: "shanty town",
         description: "+2 Actions, Reveal your hand. If you have no Action cards in hand, +2 Cards.",
         name: "Shanty Town",
         type: "action",
@@ -344,7 +326,6 @@ cards = {
     },
     "ironworks": {
         expansion: "Intrigue",
-        id: "ironworks",
         description: "Gain a card costing up to 4 Coins. If it is an... Action card, +1 Action. Treasure card, +1 Coin. Victory card, +1 Card.",
         name: "Ironworks",
         type: "action",
@@ -361,7 +342,7 @@ cards = {
                 selected: [],
                 callback: function(data) {
                     io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                    player.discard.push(data[0].card);
+                    player.discarded.push(data[0].card);
                     gameState.phase = "action";
                     if (data[0].card.type.indexOf("action") >= 0) {
                         player.actions += 1;
@@ -381,7 +362,6 @@ cards = {
         }
     },
     "chancellor": {
-        id: "chancellor",
         expansion: "Intrigue",
         description: "+2 Coins, You may immediately put your deck into your discard pile.",
         name: "Chancellor",
@@ -401,7 +381,7 @@ cards = {
                 callback: function(choiceIndexArray) {
                     if (choiceIndexArray[0] === 0) {
                         while (player.deck.length > 0) {
-                            player.discard.push(player.deck.pop());
+                            player.discarded.push(player.deck.pop());
                         }
                     };
                     gameState.phase = "action";
@@ -411,7 +391,6 @@ cards = {
         }
     },
     "pawn": {
-        id: "pawn",
         expansion: "Intrigue",
         description: "Choose two: +1 Card, +1 Action, +1 Buy, +1 Coin. (The choices must be different).",
         name: "Pawn",
@@ -439,7 +418,7 @@ cards = {
                             io.sockets.emit("log", " gains +1 Buy.");
                         }
                         if (choiceIndexArray[i] === 3) {
-                            player.coins +=1;
+                            player.coins += 1;
                             io.sockets.emit("log", " gains +1 Coin.");
                         }
                         gameState.phase = "action";
@@ -450,7 +429,6 @@ cards = {
         }
     },
     "steward": {
-        id: "steward",
         expansion: "Intrigue",
         description: "Choose one: +2 Cards; or +2 Coins; or trash 2 cards from your hand.",
         name: "Steward",
@@ -471,13 +449,11 @@ cards = {
                         if (choiceIndexArray[i] === 0) {
                             draw(player, 2);
                             gameState.phase = "action";
-                        }
-                        else if (choiceIndexArray[i] === 1) {
+                        } else if (choiceIndexArray[i] === 1) {
                             player.coins += 2;
                             io.sockets.emit("log", " gains +2 Coins.");
                             gameState.phase = "action";
-                        }
-                        else if (choiceIndexArray[i] === 2) {
+                        } else if (choiceIndexArray[i] === 2) {
                             gameState.phase = "select";
                             gameState.queryData = {
                                 eligible: ".your.player .hand .card",
@@ -512,7 +488,6 @@ cards = {
     },
     "remodel": {
         expansion: "Intrigue",
-        id: "remodel",
         description: "Trash a card from your hand. Gain a card costing up to 2 Coins more than the trashed card.",
         name: "Remodel",
         type: "action",
@@ -520,8 +495,8 @@ cards = {
         value: 0,
         victory: 0,
         action: function(player) {
-        gameState.phase = "select";
-        gameState.queryData = {
+            gameState.phase = "select";
+            gameState.queryData = {
                 eligible: ".your.player .hand .card",
                 number: 1,
                 unique: true,
@@ -547,7 +522,7 @@ cards = {
                             selected: [],
                             callback: function(data) {
                                 io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                                player.discard.push(data[0].card);
+                                player.discarded.push(data[0].card);
                                 gameState.phase = "action";
                                 io.sockets.emit("gameState", gameState);
                             }
@@ -565,7 +540,6 @@ cards = {
     "mining village": {
         expansion: "Intrigue",
         description: "+1 Card, +2 Actions. You may trash this card immediately. If you do, +2 Coins.",
-        id: "mining village",
         name: "Mining Village",
         type: "action",
         cost: 4,
@@ -583,7 +557,7 @@ cards = {
                 selected: [],
                 callback: function(choiceIndexArray) {
                     if (choiceIndexArray[0] === 0) {
-                        gameState.trash.push(player.play.pop());
+                        gameState.trash.push(player.played.pop());
                         player.coins += 2;
                     };
                     gameState.phase = "action";
@@ -595,7 +569,6 @@ cards = {
     "upgrade": {
         expansion: "Intrigue",
         description: "+1 Card, +1 Action, Trash a card from your hand. Gain a card costing exactly 1 Coin more than it.",
-        id: "upgrade",
         name: "Upgrade",
         type: "action",
         cost: 4,
@@ -615,10 +588,7 @@ cards = {
                     for (var i in data) {
                         var cardIndex = data[0].index;
                         var cost = cards[player.hand[cardIndex].id].cost;
-                        var query = ".buyable .card.COST0";
-                        for (var j = 1; j <= cost + 1; j++) {
-                            query += ", .buyable .card.COST" + j;
-                        }
+                        var query = ".buyable .card.COST" + (cost + 1);
                         io.sockets.emit("log", cards[player.hand[cardIndex].id].name + " was trashed.");
                         gameState.trash.push(player.hand[cardIndex]);
                         player.hand.splice(cardIndex, 1);
@@ -630,8 +600,10 @@ cards = {
                             exact: false,
                             selected: [],
                             callback: function(data) {
-                                io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                                player.discard.push(data[0].card);
+                                if (data[0]) {
+                                    io.sockets.emit("log", " ... and gets " + data[0].card.name);
+                                    player.discarded.push(data[0].card);
+                                }
                                 gameState.phase = "action";
                                 io.sockets.emit("gameState", gameState);
                             }
@@ -647,7 +619,6 @@ cards = {
         }
     },
     "nobles": {
-        id: "nobles",
         expansion: "Intrigue",
         description: "+2 Victory, Choose one: +3 Cards, or +2 Actions.",
         name: "Nobles",
@@ -676,10 +647,9 @@ cards = {
                 }
             };
         }
-    },        
+    },
     "harem": {
         expansion: "Intrigue",
-        id: "harem",
         description: "+2 Coins, +2 Victory.",
         name: "Harem",
         type: "treasure victory",
@@ -690,6 +660,198 @@ cards = {
             player.coins += this.value;
             io.sockets.emit("log", " ... and gets 2 coins");
             gameState.phase = "buy";
+        }
+    },
+    "council room": {
+        expansion: "Base",
+        description: "+4 Cards, +1 Buy, Each other player draws a card.",
+        name: "Council Room",
+        type: "action",
+        cost: 5,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            draw(player, 4);
+            player.buys += 1;
+            for (var pid in gameState.players) {
+                var aPlayer = gameState.players[pid];
+                if (aPlayer.id != player.id) draw(aPlayer, 1);
+                io.sockets.emit("log", " Each other player drew 1 Card.")
+            }
+        }
+    },
+    "conspirator": {
+        expansion: "Intrigue",
+        description: "+2 Coins. If you've played 3 or more Actions this turn (including this); +1 Card, +1 Action.",
+        name: "Conspirator",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            player.coins += 2;
+            io.sockets.emit("log", " ... and gets 2 coins");
+            var counter = 0;
+            for (var i = 0; i < player.played.length; i++) {
+                if (cards[player.played[i].id].type.indexOf("action") >= 0) counter++;
+            }
+            if (counter >= 3) {
+                draw(player, 1);
+                player.actions += 1;
+                io.sockets.emit("log", " gains +1 Action.");
+            }
+            gameState.phase = "action";
+            io.sockets.emit("gameState", gameState);
+        }
+    },
+    "militia": {
+        expansion: "Base",
+        description: "+2 Coins, Each other player discards down to 3 cards in his hand.",
+        name: "Militia",
+        type: "action attack",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            // save current player id so we know when all players have been attacked
+            var currentPlayer = gameState.activePlayer;
+
+            gameState.phase = "select";
+            gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+            var attack = function() {
+                var playerData = gameState.players[gameState.playerOrder[gameState.activePlayer]];
+                var discardTo = playerData.hand.length - 3;
+                if (discardTo < 0) discardTo = 0;
+                gameState.queryData = {
+                    eligible: ".your.player .hand .card",
+                    number: discardTo,
+                    unique: true,
+                    exact: true,
+                    message: "Select cards to discard",
+                    selected: [],
+                    callback: function(data) {
+                        var targetCardIndices = [];
+                        for (var i in data) {
+                            targetCardIndices.push(data[i].index);
+                        }
+                        targetCardIndices.sort(function(a, b) {
+                            return b - a;
+                        });
+                        for (var i = 0; i < targetCardIndices.length; i++) {
+                            var cardIndex = targetCardIndices[i];
+                            playerData.discarded.push(playerData.hand[cardIndex]);
+                            io.sockets.emit("log", " ... " + playerData.id + " discards " + cards[playerData.hand[cardIndex].id].name);
+                            playerData.hand.splice(cardIndex, 1);
+                        }
+                        gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+                        if (gameState.activePlayer === currentPlayer) {
+                            player.coins += 2;
+                            gameState.phase = "action";
+                            io.sockets.emit("gameState", gameState);
+                        } else {
+                            attack();
+                            io.sockets.emit("gameState", gameState);
+                        }
+                    }
+                };
+            }
+            attack();
+        }
+    },
+    "adventurer": {
+        expansion: "Base",
+        name: "Adventurer",
+        description: "ARBLGARBL",
+        type: "action",
+        cost: 6,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            var revealedTreasures = 0;
+            var revealedCard;
+
+            var seekTreasure = function() {
+                if (player.deck.length > 0) {
+                    revealedCard = player.deck.pop();
+                    if (cards[revealedCard.id].type.indexOf("treasure") >= 0) {
+                        io.sockets.emit("log", " ... puts " + cards[revealedCard.id].name + " into hand");
+                        gameState.revealed.push(revealedCard);
+                        revealedTreasures++;
+
+                        gameState.phase = "choose";
+                        gameState.queryData = {
+                            number: 1,
+                            exact: true,
+                            message: "HEERS YO TREASURES #" + revealedTreasures,
+                            choices: ["ok"],
+                            selected: [],
+                            callback: function() {
+                                player.hand.push(gameState.revealed.pop());
+                                if (revealedTreasures < 2) {
+                                    seekTreasure();
+                                } else {
+                                    while (gameState.revealed.length > 0) {
+                                        player.discarded.push(gameState.revealed.pop());
+                                    }
+                                    gameState.phase = "action";
+                                    io.sockets.emit("gameState", gameState);
+                                }
+                            }
+                        };
+                        io.sockets.emit("gameState", gameState);
+                    } else {
+                        gameState.revealed.push(revealedCard);
+                        io.sockets.emit("log", " ... reveals " + cards[revealedCard.id].name);
+                        seekTreasure();
+                    }
+                } else {
+                    if (player.discarded.length > 0) {
+                        reload(player);
+                        seekTreasure();
+                    } else {
+                        revealedTreasures = 2;
+                    }
+                }
+            };
+            seekTreasure();
+        }
+    },
+    "cellar": {
+        id: "cellar",
+        description: "+1 Action, Discard any number of cards. +1 Card per card discarded.",
+        name: "Cellar",
+        type: "action",
+        cost: 2,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            gameState.phase = "select";
+            gameState.queryData = {
+                eligible: ".your.player .hand .card",
+                number: player.hand.length,
+                unique: true,
+                exact: false,
+                selected: [],
+                callback: function(data) {
+                    var targetCardIndices = [];
+                    for (var i in data) {
+                        targetCardIndices.push(data[i].index);
+                    }
+                    targetCardIndices.sort(function(a, b) {
+                        return b - a;
+                    });
+                    for (var i = 0; i < targetCardIndices.length; i++) {
+                        var cardIndex = targetCardIndices[i];
+                        io.sockets.emit("log", " ... and discards " + cards[player.hand[cardIndex].id].name);
+                        player.discarded.push(player.hand[cardIndex]);
+                        player.hand.splice(cardIndex, 1);
+                    }
+                    draw(player, data.length);
+                    player.actions += 1;
+                    gameState.phase = "action";
+                    io.sockets.emit("gameState", gameState);
+                }
+            }
         }
     },
 };
