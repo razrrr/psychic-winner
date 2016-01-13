@@ -20,6 +20,7 @@
                     <span class="card-type">{{ cards[card.id].type }}</span>
                     <span class="card-cost">{{ cards[card.id].cost }}</span>
                     <span class="card-description">{{ cards[card.id].description }}</span>
+                    <div style="position: absolute; background: white; width: 18px; height: 15px; line-height:15px; border: 2px solid black; text-align: center; top: -4px; left: -4px;">{{card.supply}}</div>
                 </li>
             </ul>
             <div ng-click="startGame()" class="start button">Start game</div>
