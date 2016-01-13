@@ -53,8 +53,15 @@ io.sockets.on("connection", function(socket) {
     // ----------------
     socket.on("endTurn", function() {
         // !! need to validate active player
-        endTurn(gameState.players[socket.id]);
-        gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+        if (gameOver()) {
+            countVictoryPoints();
+            io.sockets.emit("gameOver", gameState);
+        }
+        else {
+            // move to next player
+            endTurn(gameState.players[socket.id]);
+            gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+        }
 
         io.sockets.emit("gameState", gameState);
     });
@@ -79,8 +86,6 @@ io.sockets.on("connection", function(socket) {
 
                     // add to discard pile
                     player.discarded.push(acquiredCard);
-
-                    console.log(cards[data.cardID].bankVersion);
                 }
                 else {
                     // notify user there are no more cards
@@ -258,12 +263,11 @@ function initBoard() {
     kingdomCards = kingdomCards.splice(0, 10);
     kingdomCards.sort(sortCost);
 
-    var boardCards = treasureCards.concat(victoryCards, curseCards, kingdomCards);
     // add references to the "board" version of the card in the global cards variable
+    var boardCards = treasureCards.concat(victoryCards, curseCards, kingdomCards);
     for (var i in boardCards) {
         cards[boardCards[i].id].bankVersion = boardCards[i];
     }
-    console.log(boardCards);
     return boardCards;
 }
 
@@ -408,4 +412,68 @@ function getSupplySize(numPlayers) {
     }
 
     return supplySize;
+}
+
+function gameOver() {
+    // end game conditions
+        // 2-4 players - 3 piles are empty
+        // 5-6 players - 4 piles are empty
+    // provinces are gone
+    // colonies are gone
+
+    var numPlayers = gameState.playerOrder.length;
+    var pileLimit;
+    if (numPlayers <= 4)
+        pileLimit = 3;
+    else
+        pileLimit = 4;
+
+    var pileCount = 0;
+    for (var i in gameState.board) {
+        if (gameState.board[i].supply === 0) {
+            pileCount++;
+            if (gameState.board[i].id === "province" || gameState.board[i].id === "colony") pileCount = pileLimit;
+        }
+    }
+
+    if (pileCount >= pileLimit) return true;
+
+    return false;
+}
+
+function countVictoryPoints() {
+    var winners = [];
+    var winnerScore = 0;
+
+    for (var p in gameState.players) {
+        var player = gameState.players[p];
+        player.deck = player.deck.concat(player.hand, player.discarded, player.played);
+
+        // calculate victory points
+        var totalVictoryPoints = 0;
+        for (var c in player.deck) {
+            var card = cards[player.deck[c].id];
+            if (card.type.indexOf("victory") >= 0) {
+                totalVictoryPoints += card.victory;
+            }
+        }
+
+        // determine winner
+        player.totalVictoryPoints = totalVictoryPoints;
+        if (totalVictoryPoints > winnerScore) {
+            winners = [];
+            winners.push(player.id);
+            winnerScore = totalVictoryPoints;
+        }
+        else if (totalVictoryPoints === winnerScore) {
+            winners.push(player.id);
+        }
+
+        io.sockets.emit("log", player.id + " has " + totalVictoryPoints + " victory points!");
+    }
+
+    // list all winners
+    for (var i in winners) {
+        io.sockets.emit("log", winners[i] + " wins!");
+    }
 }
