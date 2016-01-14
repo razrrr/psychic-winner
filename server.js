@@ -451,11 +451,23 @@ function countVictoryPoints() {
         player.deck = player.deck.concat(player.hand, player.discarded, player.played);
 
         // calculate victory points
+        var victoryCards = {};
         var totalVictoryPoints = 0;
         for (var c in player.deck) {
             var card = cards[player.deck[c].id];
-            if (card.type.indexOf("victory") >= 0) {
+            if (card.type.indexOf("victory") >= 0 || card.type.indexOf("curse") >= 0) {
+                if (!victoryCards[card.id]) {
+                    victoryCards[card.id] = {
+                        name: card.id,
+                        count: 1,
+                    };
+                }
+                else {
+                    victoryCards[card.id].count++;
+                }
+
                 totalVictoryPoints += card.victory(player);
+                victoryCards[card.id].total = victoryCards[card.id].count * card.victory(player);
             }
         }
 
@@ -471,6 +483,17 @@ function countVictoryPoints() {
         }
 
         io.sockets.emit("log", player.id + " has " + totalVictoryPoints + " victory points!");
+        var victoryCardsArray = [];
+        for (var card in victoryCards) {
+            victoryCardsArray.push(victoryCards[card]);
+        }
+        victoryCardsArray.sort(function(a, b) {
+            return a.total < b.total;
+        });
+        for (var i in victoryCardsArray) {
+            io.sockets.emit("log", victoryCardsArray[i].name + ": (count) " + victoryCardsArray[i].count + " (value) " + victoryCardsArray[i].total);
+        }
+
     }
 
     // list all winners

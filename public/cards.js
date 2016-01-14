@@ -929,6 +929,33 @@ cards = {
             else gameState.queryData.message = "No Victory cards were revealed.";
         }
     },
+    "courtyard": {
+        description: "+3 Cards, Put a card from your hand on top of your deck.",
+        name: "Courtyard",
+        type: "action",
+        cost: 2,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            draw(player, 3);
+            gameState.phase = "select";
+            gameState.queryData = {
+                eligible: ".your.player .hand .card",
+                message: "Select a card from your hand on top of your deck.",
+                number: 1,
+                unique: true,
+                exact: true,
+                selected: [],
+                callback: function(data) {
+                    player.deck.push(cards[data[0].card.id]);
+                    player.hand.splice(data[0].index, 1);
+                    io.sockets.emit("log", "... and puts 1 card from hand on top of deck.");
+                    gameState.phase = "action";
+                    io.sockets.emit("gameState", gameState);
+                }
+            }
+        }
+    },
     "gardens": {
         description: "Worth 1 Victory for every 10 cards in your deck (rounded down).",
         name: "Gardens",
@@ -937,6 +964,63 @@ cards = {
         value: 0,
         victory: function(player) {
             return Math.floor(player.deck.length / 10);
+        }
+    },
+    "baron": {
+        id: "baron",
+        expansion: "Intrigue",
+        description: "+1 Buy, you may discard an Estate card. If you do, +4 coins. Otherwise, gain an Estate card.",
+        name: "Baron",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            var estateNotFound = true;
+            player.buys += 1;
+            for (var i = 0; i < player.hand.length; i++) {
+                if (player.hand[i].id === "estate") {
+                    estateNotFound = false;
+                    i = player.hand.length;
+                    gameState.phase = "choose";
+                    gameState.queryData = {
+                        number: 1,
+                        exact: true,
+                        message: "Choose one.",
+                        choices: ["Discard an Estate and +4 Coins", "Gain an Estate"],
+                        selected: [],
+                        callback: function(choiceIndexArray) {
+                            if (choiceIndexArray[0] === 0) {
+                                for (var j = 0; j < player.hand.length; j++) {
+                                    if (player.hand[j].id === "estate") {
+                                        player.discarded.push(player.hand[j]);
+                                        player.hand.splice(j, 1);
+                                        j = player.hand.length;
+                                    }
+                                }
+                                player.coins += 4;
+                                io.sockets.emit("log", " discards an Estate and gains +4 Coins.")
+                                gameState.phase = "action";
+                                io.sockets.emit("gameState", gameState);
+                            }
+                            else if (choiceIndexArray[0] === 1) {
+                                var acquiredCard = acquire(player, "estate");
+                                player.discarded.push(acquiredCard);
+                                io.sockets.emit("log", " gains an Estate.");
+                                gameState.phase = "action";
+                                io.sockets.emit("gameState", gameState);
+                            }
+                        }
+                    }
+                }
+            };
+            if (estateNotFound) {
+                var acquiredCard = acquire(player, "estate");
+                player.discarded.push(acquiredCard);
+                io.sockets.emit("log", " gains an Estate.");
+                gameState.phase = "action";
+                io.sockets.emit("gameState", gameState);
+            }
         }
     },
     "wishing well": {
@@ -967,7 +1051,7 @@ cards = {
                     console.log(revealedCard);
                     console.log(data);
                     namedCard = cards[data[0].card.id].name;
-                    
+
                     gameState.phase = "choose";
                     gameState.queryData = {
                         number: 1,
@@ -990,8 +1074,8 @@ cards = {
                         }
                     }
                     io.sockets.emit("gameState", gameState);
-                }        
+                }
             }
-        }                    
+        }
     },
 };
