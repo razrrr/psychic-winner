@@ -75,7 +75,7 @@ app.run(function($rootScope) {
                 playerID: playerID
             });
         }
-        if ($rootScope.gameState.phase === "buy" && zone == "hand" && cards[card.id].type === "treasure") {
+        if ($rootScope.gameState.phase === "buy" && zone == "hand" && cards[card.id].type.indexOf("treasure") >= 0) {
             socket.emit("play", {
                 cardID: card.id,
                 cardIndex: index,
@@ -108,6 +108,9 @@ app.run(function($rootScope) {
         }
     };
     $rootScope.startGame = function() {
+        for (var id in cards) {
+            cards[id].id = id;
+        }
         $(".start.button").hide();
         $rootScope.$watch("clientPlayer.coins", function() {
             $(".buyable .card").addClass("disabled");

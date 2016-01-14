@@ -219,7 +219,7 @@ cards = {
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
-                eligible: ".your.player .hand .card.ID1",
+                eligible: ".your.player .hand .card.IDcopper",
                 number: 1,
                 unique: true,
                 exact: false,
