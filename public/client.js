@@ -19,20 +19,6 @@ app.run(function($rootScope) {
         playerID = "/#" + socket.id;
         $rootScope.gameState = update;
         $rootScope.clientPlayer = $rootScope.gameState.players[playerID];
-
-        $rootScope.$watch("clientPlayer.coins", function() {
-            $(".buyable .card").addClass("disabled");
-            if ($rootScope.clientPlayer.buys === 0) return;
-            if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
-            for (var i = 0; i <= $rootScope.clientPlayer.coins; i++) {
-                $(".buyable .card.COST" + i).removeClass("disabled");
-            }
-        });
-        $rootScope.$watch("gameState.phase", function() {
-            if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
-            $(".your.player .hand .action").addClass("disabled");
-            if ($rootScope.gameState.phase == "action" && $rootScope.clientPlayer.actions > 0) $(".your.player .hand .action").removeClass("disabled");
-        });
         // UI stuff
         /*$rootScope.physicalCards = [];
         for (var playerID in $rootScope.gameState.players) {
@@ -123,6 +109,19 @@ app.run(function($rootScope) {
     };
     $rootScope.startGame = function() {
         $(".start.button").hide();
+        $rootScope.$watch("clientPlayer.coins", function() {
+            $(".buyable .card").addClass("disabled");
+            if ($rootScope.clientPlayer.buys === 0) return;
+            if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
+            for (var i = 0; i <= $rootScope.clientPlayer.coins; i++) {
+                $(".buyable .card.COST" + i).removeClass("disabled");
+            }
+        });
+        $rootScope.$watch("gameState.phase", function() {
+            if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
+            $(".your.player .hand .action").addClass("disabled");
+            if ($rootScope.gameState.phase == "action" && $rootScope.clientPlayer.actions > 0) $(".your.player .hand .action").removeClass("disabled");
+        });
         socket.emit("startGame");
     };
     $rootScope.submit = function() {
