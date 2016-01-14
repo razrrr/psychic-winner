@@ -216,6 +216,7 @@ function endTurn(player) {
     player.buys = 111;
     player.coins = 110;
     clear(player);
+    io.sockets.emit("gameState", gameState);
     draw(player, 5);
     gameState.phase = "action";
     io.sockets.emit("log", gameState.players[gameState.playerOrder[gameState.activePlayer]].id + "'s turn");
