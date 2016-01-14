@@ -6,7 +6,7 @@ app.run(function($rootScope) {
     var playerID;
     $rootScope.gameState = {};
     $rootScope.cards = cards;
-    $rootScope.physicalCards = [];
+    
     socket.on("log", function(msg) {
         $("#output").append("<br/>" + msg);
         $("#output")[0].scrollTop = $("#output")[0].scrollHeight;
@@ -19,15 +19,6 @@ app.run(function($rootScope) {
         playerID = "/#" + socket.id;
         $rootScope.gameState = update;
         $rootScope.clientPlayer = $rootScope.gameState.players[playerID];
-        // UI stuff
-        /*$rootScope.physicalCards = [];
-        for (var playerID in $rootScope.gameState.players) {
-            var player = $rootScope.gameState.players[playerID];
-            $rootScope.physicalCards = $rootScope.physicalCards.concat(player.hand);
-            $rootScope.physicalCards = $rootScope.physicalCards.concat(player.deck);
-            $rootScope.physicalCards = $rootScope.physicalCards.concat(player.discard);
-        }*/
-        // end UI stuff
 
         // apply gameState changes to UI
         $rootScope.$apply();
