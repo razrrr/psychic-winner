@@ -14,7 +14,7 @@
 <body>
     <div ng-class="['phase-'+gameState.phase]" ng-app="Dominion">
         <script type="text/ng-template" id="card.html">
-            <img style="position: absolute; border:0px; width: 100%; height: 100%; top: 0px; left: 0px; opacity: 0.8" src="{{cards[card.id].image}}" />
+            <img style="position: absolute; border:0px; width: 100%; height: 100%; top: 0px; left: 0px; opacity: 0.4" src="{{cards[card.id].image}}" />
             <span class="card-name">{{ cards[card.id].name }}</span>
             <span class="card-type">{{ cards[card.id].type }}</span>
             <span class="card-cost">{{ cards[card.id].cost }}</span>
@@ -36,7 +36,7 @@
             </li>
             <ul class="played-cards">
                 <li style="opacity:0; width:0px; margin:0px 0px 10px; border:0px; padding: 0px;" class="card"></li>
-                <li ng-class="[cards[card.id].type]" class="card" ng-repeat="card in gameState.players[gameState.playerOrder[gameState.activePlayer]].played track by card.uid">
+                <li ng-class="[cards[card.id].type]" class="animation card" ng-repeat="card in gameState.players[gameState.playerOrder[gameState.activePlayer]].played track by card.uid">
                     <ng-include src="'card.html'"></ng-include>
                 </li>
             </ul>
@@ -68,7 +68,7 @@
         <div class="your player" ng-class="{'disabled' : (gameState.playerOrder[gameState.activePlayer] != you.id)}">
             <ul class="hand">
                 <h4>hand</h4>
-                <li ng-click="select(card, $index, 'hand', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type,]" class="card" ng-repeat="card in clientPlayer.hand track by card.uid">
+                <li ng-click="select(card, $index, 'hand', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type,]" class="animation card" ng-repeat="card in clientPlayer.hand track by card.uid">
                     <ng-include src="'card.html'"></ng-include>
                 </li>
                 <li style="clear:both"></li>
@@ -85,7 +85,7 @@
                 <ul>
                     <h4>deck</h4>
                     <li class="stacked card">deck empty</li>
-                    <li class="stacked card" ng-repeat="card in clientPlayer.deck track by $index">
+                    <li ng-class="[cards[card.id].type]" class="stacked card" ng-repeat="card in clientPlayer.deck track by $index">
                         <ng-include src="'card.html'"></ng-include>
                     </li>
                 </ul>
@@ -94,7 +94,7 @@
                 <ul>
                     <h4>discard</h4>
                     <li class="stacked card">discard pile empty</li>
-                    <li ng-class="[cards[card.id].type]" class="stacked card" ng-repeat="card in clientPlayer.discarded track by $index">
+                    <li ng-class="[cards[card.id].type]" class="animation stacked card" ng-repeat="card in clientPlayer.discarded track by $index">
                         <ng-include src="'card.html'"></ng-include>
                     </li>
                 </ul>

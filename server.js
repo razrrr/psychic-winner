@@ -141,13 +141,13 @@ io.sockets.on("connection", function(socket) {
         gameState.board = initBoard();
 
         // !! <DEBUG> Put all cards into play. Delete this section later.
-        gameState.board = [];
+     /*   gameState.board = [];
         for (var key in cards) {
             var newCard = createCard(key);
             newCard.supply = 10;
             gameState.board.push(newCard);
             cards[key].bankVersion = newCard;
-        }
+        }*/
 
         io.sockets.emit("gameState", gameState);
     });
@@ -212,10 +212,11 @@ function createCard(id) {
 // reset player properties at the end of their turn
 function endTurn(player) {
     io.sockets.emit("log", player.id + " ends their turn");
-    player.actions = 111;
-    player.buys = 111;
-    player.coins = 110;
+    player.actions = 1;
+    player.buys = 1;
+    player.coins = 0;
     clear(player);
+    io.sockets.emit("gameState", gameState);
     draw(player, 5);
     gameState.phase = "action";
     io.sockets.emit("log", gameState.players[gameState.playerOrder[gameState.activePlayer]].id + "'s turn");
@@ -450,11 +451,23 @@ function countVictoryPoints() {
         player.deck = player.deck.concat(player.hand, player.discarded, player.played);
 
         // calculate victory points
+        var victoryCards = {};
         var totalVictoryPoints = 0;
         for (var c in player.deck) {
             var card = cards[player.deck[c].id];
-            if (card.type.indexOf("victory") >= 0) {
-                totalVictoryPoints += card.victory;
+            if (card.type.indexOf("victory") >= 0 || card.type.indexOf("curse") >= 0) {
+                if (!victoryCards[card.id]) {
+                    victoryCards[card.id] = {
+                        name: card.id,
+                        count: 1,
+                    };
+                }
+                else {
+                    victoryCards[card.id].count++;
+                }
+
+                totalVictoryPoints += card.victory(player);
+                victoryCards[card.id].total = victoryCards[card.id].count * card.victory(player);
             }
         }
 
@@ -470,6 +483,17 @@ function countVictoryPoints() {
         }
 
         io.sockets.emit("log", player.id + " has " + totalVictoryPoints + " victory points!");
+        var victoryCardsArray = [];
+        for (var card in victoryCards) {
+            victoryCardsArray.push(victoryCards[card]);
+        }
+        victoryCardsArray.sort(function(a, b) {
+            return a.total < b.total;
+        });
+        for (var i in victoryCardsArray) {
+            io.sockets.emit("log", victoryCardsArray[i].name + ": (count) " + victoryCardsArray[i].count + " (value) " + victoryCardsArray[i].total);
+        }
+
     }
 
     // list all winners
