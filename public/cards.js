@@ -6,7 +6,7 @@ cards = {
         image: "http://i.imgur.com/8jlCjyp.png",
         description: "+1 Coins.",
         cost: 0,
-        value: 10,
+        value: 1,
         victory: function(player) { return 0; },
         action: function(player) {
             player.coins += this.value;
