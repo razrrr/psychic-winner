@@ -1079,3 +1079,5 @@ cards = {
         }
     },
 };
+
+exports.cards = cards;

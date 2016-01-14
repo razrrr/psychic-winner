@@ -1,13 +1,5 @@
 "use strict";
 
-// load card data from external file - there might be a better way to do this
-var cards;
-var fs = require("fs");
-eval(fs.readFileSync("./public/cards.js", "utf8"));
-for (var id in cards) {
-    cards[id].id = id;
-}
-
 // ===============
 // game variables
 // ===============
@@ -42,6 +34,14 @@ var app = express();
 app.use(express.static(path.join(__dirname, "public")));
 var server = require("http").createServer(app).listen(process.env.PORT || 8081);
 var io = require("socket.io").listen(server);
+
+// load card data from external file
+var cards;
+var fs = require("fs");
+cards = require("./public/cards").cards;
+for (var id in cards) {
+    cards[id].id = id;
+}
 
 // ===============
 // listen for connections
