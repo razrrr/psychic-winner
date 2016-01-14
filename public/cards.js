@@ -6,7 +6,7 @@ cards = {
         cost: 0,
         image: "http://i.imgur.com/8jlCjyp.png",
         value: 10,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             player.coins += this.value;
             io.sockets.emit("log", " ... and gets 1 coin");
@@ -19,7 +19,7 @@ cards = {
         type: "treasure",
         cost: 3,
         value: 2,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             player.coins += this.value;
             io.sockets.emit("log", " ... and gets 2 coins");
@@ -32,7 +32,7 @@ cards = {
         type: "treasure",
         cost: 6,
         value: 3,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             player.coins += this.value;
             io.sockets.emit("log", " ... and gets 3 coins");
@@ -45,7 +45,7 @@ cards = {
         type: "victory",
         cost: 2,
         value: 0,
-        victory: 1
+        victory: function(player) { return 1; }
     },
     "duchy": {
         expansion: "Core",
@@ -53,7 +53,7 @@ cards = {
         type: "victory",
         cost: 5,
         value: 0,
-        victory: 3
+        victory: function(player) { return 3; }
     },
     "province": {
         expansion: "Core",
@@ -61,7 +61,7 @@ cards = {
         type: "victory",
         cost: 8,
         value: 0,
-        victory: 6
+        victory: function(player) { return 6; }
     },
     "curse": {
         expansion: "Core",
@@ -69,7 +69,7 @@ cards = {
         type: "curse",
         cost: 0,
         value: 0,
-        victory: -1
+        victory: function(player) { return -1; }
     },
     "mine": {
         expansion: "Base",
@@ -78,7 +78,7 @@ cards = {
         type: "action",
         cost: 5,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
@@ -127,7 +127,7 @@ cards = {
         type: "action",
         cost: 3,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             draw(player, 1);
             player.actions += 2;
@@ -141,7 +141,7 @@ cards = {
         cost: 3,
         image: "http://i.imgur.com/GvrGyRa.jpg",
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
@@ -167,7 +167,7 @@ cards = {
         type: "action",
         cost: 2,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
@@ -203,7 +203,7 @@ cards = {
         type: "action",
         cost: 4,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
@@ -233,7 +233,7 @@ cards = {
         type: "action",
         cost: 4,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             draw(player, 3);
         }
@@ -246,7 +246,7 @@ cards = {
         type: "action",
         cost: 3,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             player.buys += 1;
             player.coins += 2;
@@ -259,7 +259,7 @@ cards = {
         type: "action",
         cost: 5,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             player.buys += 1;
             player.actions += 2;
@@ -273,7 +273,7 @@ cards = {
         type: "action",
         cost: 5,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             draw(player, 2);
             player.actions += 1;
@@ -286,7 +286,7 @@ cards = {
         type: "action",
         cost: 5,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             draw(player, 1);
             player.buys += 1;
@@ -301,7 +301,7 @@ cards = {
         type: "action victory",
         cost: 3,
         value: 0,
-        victory: 1,
+        victory: function(player) { return 1; },
         action: function(player) {
             draw(player, 1);
             player.actions += 1;
@@ -314,7 +314,7 @@ cards = {
         type: "action",
         cost: 3,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             player.actions += 2;
             //Still needs reveal function
@@ -332,7 +332,7 @@ cards = {
         type: "action",
         cost: 4,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
@@ -371,7 +371,7 @@ cards = {
         type: "action",
         cost: 3,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             player.coins += 2;
             gameState.phase = "choose";
@@ -400,7 +400,7 @@ cards = {
         type: "action",
         cost: 2,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             gameState.phase = "choose";
             gameState.queryData = {
@@ -438,7 +438,7 @@ cards = {
         type: "action",
         cost: 3,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             gameState.phase = "choose";
             gameState.queryData = {
@@ -496,7 +496,7 @@ cards = {
         type: "action",
         cost: 4,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
@@ -547,7 +547,7 @@ cards = {
         type: "action",
         cost: 4,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             draw(player, 1);
             player.actions += 2;
@@ -576,7 +576,7 @@ cards = {
         type: "action",
         cost: 4,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             draw(player, 1);
             player.actions += 1;
@@ -628,7 +628,7 @@ cards = {
         type: "action victory",
         cost: 6,
         value: 0,
-        victory: 2,
+        victory: function(player) { return 2; },
         action: function(player) {
             gameState.phase = "choose";
             gameState.queryData = {
@@ -658,7 +658,7 @@ cards = {
         type: "treasure victory",
         cost: 6,
         value: 2,
-        victory: 2,
+        victory: function(player) { return 2; },
         action: function(player) {
             player.coins += this.value;
             io.sockets.emit("log", " ... and gets 2 coins");
@@ -672,7 +672,7 @@ cards = {
         type: "action",
         cost: 5,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             draw(player, 4);
             player.buys += 1;
@@ -690,7 +690,7 @@ cards = {
         type: "action",
         cost: 4,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             player.coins += 2;
             io.sockets.emit("log", " ... and gets 2 coins");
@@ -712,7 +712,7 @@ cards = {
         type: "action attack",
         cost: 4,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             // save current player id so we know when all players have been attacked
             var currentPlayer = gameState.activePlayer;
@@ -766,7 +766,7 @@ cards = {
         type: "action",
         cost: 6,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             var revealedTreasures = 0;
             var revealedCard;
@@ -823,7 +823,7 @@ cards = {
         type: "action",
         cost: 2,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
@@ -860,7 +860,7 @@ cards = {
         type: "action",
         cost: 4,
         value: 0,
-        victory: 0,
+        victory: function(player) { return 0; },
         action: function(player) {
             player.actions += 1;
             var victoryCount = 0;
@@ -915,6 +915,16 @@ cards = {
             }
             if (victoryCount > 0) gameState.queryData.message = "Put revealed Victory cards into hand.";
             else gameState.queryData.message = "No Victory cards were revealed.";
+        }
+    },
+    "gardens": {
+        description: "Worth 1 Victory for every 10 cards in your deck (rounded down).",
+        name: "Gardens",
+        type: "victory",
+        cost: 4,
+        value: 0,
+        victory: function(player) {
+            return Math.floor(player.deck.length / 10);
         }
     },
 };

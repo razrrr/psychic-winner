@@ -454,7 +454,7 @@ function countVictoryPoints() {
         for (var c in player.deck) {
             var card = cards[player.deck[c].id];
             if (card.type.indexOf("victory") >= 0) {
-                totalVictoryPoints += card.victory;
+                totalVictoryPoints += card.victory(player);
             }
         }
 
