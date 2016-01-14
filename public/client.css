@@ -286,18 +286,16 @@ h4 {
     padding-top: 20px;
 }
 
-
-/*
 .animation {
-    -webkit-transition: 0.5s;
+    -webkit-transition: 0.2s;
     opacity: 1;
     transform-origin: 0% 100%;
+    transform-style: preserve-3d;
     -webkit-transform: rotateY(0deg);
 }
-
 .animation.ng-enter {
     opacity: 0;
-    -webkit-transform: rotateY(120deg);
+    -webkit-transform: rotateY(90deg);
 }
 
 .animation.ng-enter-stagger {
@@ -306,6 +304,11 @@ h4 {
 }
 
 .animation.ng-leave {
-    opacity: 0;
-    -webkit-transform: rotateY(0deg);
+    -webkit-transition: 0s;
+}
+/*
+.animation.ng-leave-active {
+    opacity: 0.5;
+    -webkit-transition: 0s;
+    -webkit-transform: rotateY(50deg);
 }*/
