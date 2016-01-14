@@ -141,13 +141,13 @@ io.sockets.on("connection", function(socket) {
         gameState.board = initBoard();
 
         // !! <DEBUG> Put all cards into play. Delete this section later.
-     /*   gameState.board = [];
+        gameState.board = [];
         for (var key in cards) {
             var newCard = createCard(key);
             newCard.supply = 10;
             gameState.board.push(newCard);
             cards[key].bankVersion = newCard;
-        }*/
+        }
 
         io.sockets.emit("gameState", gameState);
     });
@@ -212,9 +212,9 @@ function createCard(id) {
 // reset player properties at the end of their turn
 function endTurn(player) {
     io.sockets.emit("log", player.id + " ends their turn");
-    player.actions = 1;
-    player.buys = 1;
-    player.coins = 0;
+    player.actions = 100;
+    player.buys = 100;
+    player.coins = 100;
     clear(player);
     io.sockets.emit("gameState", gameState);
     draw(player, 5);

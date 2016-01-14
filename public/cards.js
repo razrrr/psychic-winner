@@ -939,4 +939,59 @@ cards = {
             return Math.floor(player.deck.length / 10);
         }
     },
+    "wishing well": {
+        expansion: "Intrigue",
+        name: "Wishing Well",
+        description: "+1 Card, +1 Action, Name a card, then reveal the top card of your deck. If it is the named card, put it in your hand.",
+        type: "action",
+        cost: 3,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            var namedCard;
+            draw(player, 1);
+            player.actions += 1
+            if (player.deck.length <= 0) reload(player);
+
+            gameState.phase = "select";
+            gameState.queryData = {
+                eligible: ".buyable .card",
+                message: "Name a card by selecting from the Bank.",
+                number: 1,
+                unique: true,
+                exact: true,
+                selected: [],
+                callback: function(data) {
+                    var revealedCard = player.deck.pop();
+                    gameState.revealed.push(revealedCard);
+                    console.log(revealedCard);
+                    console.log(data);
+                    namedCard = cards[data[0].card.id].name;
+                    
+                    gameState.phase = "choose";
+                    gameState.queryData = {
+                        number: 1,
+                        exact: true,
+                        message: cards[revealedCard.id].name + " was revealed.",
+                        choices: ["OK"],
+                        selected: [],
+                        callback: function() {
+
+                            if (cards[revealedCard.id].name === namedCard) {
+                                io.sockets.emit("log", " named correctly and drew " + namedCard + ".");
+                                player.hand.push(gameState.revealed.pop());
+                            }
+                            else {
+                                player.deck.push(gameState.revealed.pop());
+                                io.sockets.emit("log", " you named incorrectly.");
+                            }
+                            gameState.phase = "action";
+                            io.sockets.emit("gameState", gameState);
+                        }
+                    }
+                    io.sockets.emit("gameState", gameState);
+                }        
+            }
+        }                    
+    },
 };
