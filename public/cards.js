@@ -3,8 +3,9 @@ cards = {
         expansion: "Core",
         name: "Copper",
         type: "treasure",
-        cost: 0,
         image: "http://i.imgur.com/8jlCjyp.png",
+        description: "+1 Coins.",
+        cost: 0,
         value: 10,
         victory: 0,
         action: function(player) {
@@ -16,7 +17,9 @@ cards = {
     "silver": {
         expansion: "Core",
         name: "Silver",
+        image: "http://i.imgur.com/8jlCjyp.png",
         type: "treasure",
+        description: "+2 Coins.",
         cost: 3,
         value: 2,
         victory: 0,
@@ -29,7 +32,9 @@ cards = {
     "gold": {
         expansion: "Core",
         name: "Gold",
+        image: "http://i.imgur.com/8jlCjyp.png",
         type: "treasure",
+        description: "+3 Coins.",
         cost: 6,
         value: 3,
         victory: 0,
@@ -42,7 +47,9 @@ cards = {
     "estate": {
         expansion: "Core",
         name: "Estate",
+        image: "http://i.imgur.com/z5FAZ4K.jpg",
         type: "victory",
+        description: "+1 Victory.",
         cost: 2,
         value: 0,
         victory: 1
@@ -50,7 +57,9 @@ cards = {
     "duchy": {
         expansion: "Core",
         name: "Duchy",
+        image: "http://i.imgur.com/z5FAZ4K.jpg",
         type: "victory",
+        description: "+3 Victory.",
         cost: 5,
         value: 0,
         victory: 3
@@ -58,7 +67,9 @@ cards = {
     "province": {
         expansion: "Core",
         name: "Province",
+        image: "http://i.imgur.com/z5FAZ4K.jpg",
         type: "victory",
+        description: "+6 Victory.",
         cost: 8,
         value: 0,
         victory: 6
@@ -67,6 +78,7 @@ cards = {
         expansion: "Core",
         name: "Curse",
         type: "curse",
+        description: "-1 Victory.",
         cost: 0,
         value: 0,
         victory: -1
