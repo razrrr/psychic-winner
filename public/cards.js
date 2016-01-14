@@ -939,4 +939,61 @@ cards = {
             return Math.floor(player.deck.length / 10);
         }
     },
+    "baron": {
+        id: "baron",
+        expansion: "Intrigue",
+        description: "+1 Buy, you may discard an Estate card. If you do, +4 coins. Otherwise, gain an Estate card.",
+        name: "Baron",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,        
+        action: function(player) {
+            var estateNotFound = true;
+            player.buys += 1;
+            for (var i = 0; i < player.hand.length; i++) {
+                if (player.hand[i].id === "estate") {
+                    estateNotFound = false;
+                    i = player.hand.length;
+                    gameState.phase = "choose";
+                    gameState.queryData = {
+                        number: 1,
+                        exact: true,
+                        message: "Choose one.",
+                        choices: ["Discard an Estate and +4 Coins", "Gain an Estate"],
+                        selected: [],
+                        callback: function(choiceIndexArray) {
+                            if (choiceIndexArray[0] === 0) {
+                                for (var j = 0; j < player.hand.length; j++) {
+                                    if (player.hand[j].id === "estate") {
+                                        player.discarded.push(player.hand[j]);
+                                        player.hand.splice(j, 1);
+                                        j = player.hand.length;
+                                    }
+                                }
+                                player.coins += 4;
+                                io.sockets.emit("log", " discards an Estate and gains +4 Coins.")
+                                gameState.phase = "action";
+                                io.sockets.emit("gameState", gameState);
+                            }
+                            else if (choiceIndexArray[0] === 1) {
+                                var acquiredCard = acquire(player, "estate");
+                                player.discarded.push(acquiredCard);
+                                io.sockets.emit("log", " gains an Estate.");
+                                gameState.phase = "action";
+                                io.sockets.emit("gameState", gameState);
+                            }
+                        }    
+                    }
+                }   
+            };
+            if (estateNotFound) {
+                var acquiredCard = acquire(player, "estate");
+                player.discarded.push(acquiredCard);
+                io.sockets.emit("log", " gains an Estate.");
+                gameState.phase = "action";
+                io.sockets.emit("gameState", gameState);
+            }
+        }
+    },
 };
