@@ -917,4 +917,32 @@ cards = {
             else gameState.queryData.message = "No Victory cards were revealed.";
         }
     },
+     "courtyard": {
+        description: "+3 Cards, Put a card from your hand on top of your deck.",
+        name: "Courtyard",
+        type: "action",
+        cost: 2,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            draw(player, 3);     
+            gameState.phase = "select";
+            gameState.queryData = {
+                eligible: ".your.player .hand .card",
+                message: "Select a card from your hand on top of your deck."
+                number: 1,
+                unique: true,
+                exact: true,
+                selected: [],
+                callback: function(data) {
+                    player.deck.push(cards[data[0].card.id]);
+                    player.hand.splice(data[0].index, 1);
+                    io.sockets.emit("log", "... and puts 1 card from hand on top of deck.");
+                    gameState.phase = "action";
+                    io.sockets.emit("gameState", gameState);
+                }    
+            }       
+        }
+    },
+
 };
