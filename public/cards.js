@@ -1080,7 +1080,6 @@ var cards = {
     },
      "witch": {
         expansion: "Base",
-        id: "witch",
         description: "+2 Cards, Each other player gains a Curse card.",
         name: "Witch",
         type: "action",
