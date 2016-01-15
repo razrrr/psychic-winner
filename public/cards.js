@@ -1,4 +1,4 @@
-cards = {
+var cards = {
     "copper": {
         expansion: "Core",
         name: "Copper",
@@ -1088,7 +1088,7 @@ cards = {
         value: 0,
         victory: 0,
         action: function(player) {
-            draw(player, 2)
+            draw(player, 2);
             for (var pid in gameState.players) {
                 var aPlayer = gameState.players[pid];
                 if (aPlayer.id != player.id) {

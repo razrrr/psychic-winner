@@ -1,5 +1,13 @@
 "use strict";
 
+// load card data from external file - there might be a better way to do this
+var cards;
+var fs = require("fs");
+cards = eval(fs.readFileSync("./public/cards.js", "utf8"));
+for (var id in cards) {
+    cards[id].id = id;
+}
+
 // ===============
 // game variables
 // ===============
@@ -8,7 +16,7 @@ var gameState = {
     phase: "action",
     players: {},
     board: [],
-    revealed : [],
+    revealed: [],
     trash: [],
     activePlayer: 0,
     playerOrder: [],
@@ -35,14 +43,6 @@ app.use(express.static(path.join(__dirname, "public")));
 var server = require("http").createServer(app).listen(process.env.PORT || 8081);
 var io = require("socket.io").listen(server);
 
-// load card data from external file
-var cards;
-var fs = require("fs");
-cards = require("./public/cards").cards;
-for (var id in cards) {
-    cards[id].id = id;
-}
-
 // ===============
 // listen for connections
 // ===============
@@ -56,8 +56,7 @@ io.sockets.on("connection", function(socket) {
         if (gameOver()) {
             countVictoryPoints();
             io.sockets.emit("gameOver", gameState);
-        }
-        else {
+        } else {
             // move to next player
             endTurn(gameState.players[socket.id]);
             gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
@@ -86,8 +85,7 @@ io.sockets.on("connection", function(socket) {
 
                     // add to discard pile
                     player.discarded.push(acquiredCard);
-                }
-                else {
+                } else {
                     // notify user there are no more cards
                 }
             }
@@ -182,8 +180,10 @@ io.sockets.on("connection", function(socket) {
 
 // generates unique identifiers
 var uniqueID = (function() {
-   var id = 0;
-   return function() { return id++; };
+    var id = 0;
+    return function() {
+        return id++;
+    };
 })();
 
 
@@ -195,8 +195,7 @@ function acquire(player, cardID) {
         cards[cardID].bankVersion.supply--;
 
         return newCard;
-    }
-    else {
+    } else {
         return false;
     }
 }
@@ -212,9 +211,9 @@ function createCard(id) {
 // reset player properties at the end of their turn
 function endTurn(player) {
     io.sockets.emit("log", player.id + " ends their turn");
-    player.actions = 100;
-    player.buys = 100;
-    player.coins = 100;
+    player.actions = 11111;
+    player.buys = 11111;
+    player.coins = 11110;
     clear(player);
     io.sockets.emit("gameState", gameState);
     draw(player, 5);
@@ -235,18 +234,15 @@ function initBoard() {
             var newCard = createCard(key);
             newCard.supply = supplySize[key];
             treasureCards.push(newCard);
-        }
-        else if (key === "estate" || key === "duchy" || key === "province") {
+        } else if (key === "estate" || key === "duchy" || key === "province") {
             var newCard = createCard(key);
             newCard.supply = supplySize[key];
             victoryCards.push(newCard);
-        }
-        else if (key === "curse") {
+        } else if (key === "curse") {
             var newCard = createCard(key);
             newCard.supply = supplySize[key];
             curseCards.push(newCard);
-        }
-        else {
+        } else {
             var newCard = createCard(key);
             if (cards[key].type === "victory") // e.g. gardens, duke
                 newCard.supply = supplySize.estate;
@@ -363,7 +359,7 @@ function getSupplySize(numPlayers) {
             supplySize.province = 8;
             supplySize.colony = 8;
             supplySize.curse = 10;
-            supplySize.copper = (60 - 7*numPlayers);
+            supplySize.copper = (60 - 7 * numPlayers);
             supplySize.silver = 40;
             supplySize.gold = 30;
             break;
@@ -373,7 +369,7 @@ function getSupplySize(numPlayers) {
             supplySize.province = 12;
             supplySize.colony = 12;
             supplySize.curse = 20;
-            supplySize.copper = (60 - 7*numPlayers);
+            supplySize.copper = (60 - 7 * numPlayers);
             supplySize.silver = 40;
             supplySize.gold = 30;
             break;
@@ -383,7 +379,7 @@ function getSupplySize(numPlayers) {
             supplySize.province = 12;
             supplySize.colony = 12;
             supplySize.curse = 30;
-            supplySize.copper = (60 - 7*numPlayers);
+            supplySize.copper = (60 - 7 * numPlayers);
             supplySize.silver = 40;
             supplySize.gold = 30;
             break;
@@ -393,7 +389,7 @@ function getSupplySize(numPlayers) {
             supplySize.province = 15;
             supplySize.colony = 12;
             supplySize.curse = 40;
-            supplySize.copper = (120 - 7*numPlayers);
+            supplySize.copper = (120 - 7 * numPlayers);
             supplySize.silver = 80;
             supplySize.gold = 60;
             break;
@@ -403,7 +399,7 @@ function getSupplySize(numPlayers) {
             supplySize.province = 18;
             supplySize.colony = 12;
             supplySize.curse = 50;
-            supplySize.copper = (120 - 7*numPlayers);
+            supplySize.copper = (120 - 7 * numPlayers);
             supplySize.silver = 80;
             supplySize.gold = 60;
             break;
@@ -417,8 +413,8 @@ function getSupplySize(numPlayers) {
 
 function gameOver() {
     // end game conditions
-        // 2-4 players - 3 piles are empty
-        // 5-6 players - 4 piles are empty
+    // 2-4 players - 3 piles are empty
+    // 5-6 players - 4 piles are empty
     // provinces are gone
     // colonies are gone
 
@@ -461,8 +457,7 @@ function countVictoryPoints() {
                         name: card.id,
                         count: 1,
                     };
-                }
-                else {
+                } else {
                     victoryCards[card.id].count++;
                 }
 
@@ -477,8 +472,7 @@ function countVictoryPoints() {
             winners = [];
             winners.push(player.id);
             winnerScore = totalVictoryPoints;
-        }
-        else if (totalVictoryPoints === winnerScore) {
+        } else if (totalVictoryPoints === winnerScore) {
             winners.push(player.id);
         }
 
