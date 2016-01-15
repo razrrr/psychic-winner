@@ -6,7 +6,7 @@ app.run(function($rootScope) {
     var playerID;
     $rootScope.gameState = {};
     $rootScope.cards = cards;
-    $rootScope.physicalCards = [];
+    
     socket.on("log", function(msg) {
         $("#output").append("<br/>" + msg);
         $("#output")[0].scrollTop = $("#output")[0].scrollHeight;
@@ -19,29 +19,6 @@ app.run(function($rootScope) {
         playerID = "/#" + socket.id;
         $rootScope.gameState = update;
         $rootScope.clientPlayer = $rootScope.gameState.players[playerID];
-
-        $rootScope.$watch("clientPlayer.coins", function() {
-            $(".buyable .card").addClass("disabled");
-            if ($rootScope.clientPlayer.buys === 0) return;
-            if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
-            for (var i = 0; i <= $rootScope.clientPlayer.coins; i++) {
-                $(".buyable .card.COST" + i).removeClass("disabled");
-            }
-        });
-        $rootScope.$watch("gameState.phase", function() {
-            if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
-            $(".your.player .hand .action").addClass("disabled");
-            if ($rootScope.gameState.phase == "action" && $rootScope.clientPlayer.actions > 0) $(".your.player .hand .action").removeClass("disabled");
-        });
-        // UI stuff
-        /*$rootScope.physicalCards = [];
-        for (var playerID in $rootScope.gameState.players) {
-            var player = $rootScope.gameState.players[playerID];
-            $rootScope.physicalCards = $rootScope.physicalCards.concat(player.hand);
-            $rootScope.physicalCards = $rootScope.physicalCards.concat(player.deck);
-            $rootScope.physicalCards = $rootScope.physicalCards.concat(player.discard);
-        }*/
-        // end UI stuff
 
         // apply gameState changes to UI
         $rootScope.$apply();
@@ -89,7 +66,7 @@ app.run(function($rootScope) {
                 playerID: playerID
             });
         }
-        if ($rootScope.gameState.phase === "buy" && zone == "hand" && cards[card.id].type === "treasure") {
+        if ($rootScope.gameState.phase === "buy" && zone == "hand" && cards[card.id].type.indexOf("treasure") >= 0) {
             socket.emit("play", {
                 cardID: card.id,
                 cardIndex: index,
@@ -122,7 +99,23 @@ app.run(function($rootScope) {
         }
     };
     $rootScope.startGame = function() {
+        for (var id in cards) {
+            cards[id].id = id;
+        }
         $(".start.button").hide();
+        $rootScope.$watch("clientPlayer.coins", function() {
+            $(".buyable .card").addClass("disabled");
+            if ($rootScope.clientPlayer.buys === 0) return;
+            if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
+            for (var i = 0; i <= $rootScope.clientPlayer.coins; i++) {
+                $(".buyable .card.COST" + i).removeClass("disabled");
+            }
+        });
+        $rootScope.$watch("gameState.phase", function() {
+            if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
+            $(".your.player .hand .action").addClass("disabled");
+            if ($rootScope.gameState.phase == "action" && $rootScope.clientPlayer.actions > 0) $(".your.player .hand .action").removeClass("disabled");
+        });
         socket.emit("startGame");
     };
     $rootScope.submit = function() {

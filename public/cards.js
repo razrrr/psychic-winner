@@ -1,4 +1,4 @@
-cards = {
+var cards = {
     "copper": {
         expansion: "Core",
         name: "Copper",
@@ -219,7 +219,7 @@ cards = {
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
-                eligible: ".your.player .hand .card.ID1",
+                eligible: ".your.player .hand .card.IDcopper",
                 number: 1,
                 unique: true,
                 exact: false,
@@ -929,6 +929,33 @@ cards = {
             else gameState.queryData.message = "No Victory cards were revealed.";
         }
     },
+    "courtyard": {
+        description: "+3 Cards, Put a card from your hand on top of your deck.",
+        name: "Courtyard",
+        type: "action",
+        cost: 2,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            draw(player, 3);
+            gameState.phase = "select";
+            gameState.queryData = {
+                eligible: ".your.player .hand .card",
+                message: "Select a card from your hand on top of your deck.",
+                number: 1,
+                unique: true,
+                exact: true,
+                selected: [],
+                callback: function(data) {
+                    player.deck.push(cards[data[0].card.id]);
+                    player.hand.splice(data[0].index, 1);
+                    io.sockets.emit("log", "... and puts 1 card from hand on top of deck.");
+                    gameState.phase = "action";
+                    io.sockets.emit("gameState", gameState);
+                }
+            }
+        }
+    },
     "gardens": {
         description: "Worth 1 Victory for every 10 cards in your deck (rounded down).",
         name: "Gardens",
@@ -939,4 +966,140 @@ cards = {
             return Math.floor(player.deck.length / 10);
         }
     },
+    "baron": {
+        id: "baron",
+        expansion: "Intrigue",
+        description: "+1 Buy, you may discard an Estate card. If you do, +4 coins. Otherwise, gain an Estate card.",
+        name: "Baron",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            var estateNotFound = true;
+            player.buys += 1;
+            for (var i = 0; i < player.hand.length; i++) {
+                if (player.hand[i].id === "estate") {
+                    estateNotFound = false;
+                    i = player.hand.length;
+                    gameState.phase = "choose";
+                    gameState.queryData = {
+                        number: 1,
+                        exact: true,
+                        message: "Choose one.",
+                        choices: ["Discard an Estate and +4 Coins", "Gain an Estate"],
+                        selected: [],
+                        callback: function(choiceIndexArray) {
+                            if (choiceIndexArray[0] === 0) {
+                                for (var j = 0; j < player.hand.length; j++) {
+                                    if (player.hand[j].id === "estate") {
+                                        player.discarded.push(player.hand[j]);
+                                        player.hand.splice(j, 1);
+                                        j = player.hand.length;
+                                    }
+                                }
+                                player.coins += 4;
+                                io.sockets.emit("log", " discards an Estate and gains +4 Coins.")
+                                gameState.phase = "action";
+                                io.sockets.emit("gameState", gameState);
+                            }
+                            else if (choiceIndexArray[0] === 1) {
+                                var acquiredCard = acquire(player, "estate");
+                                player.discarded.push(acquiredCard);
+                                io.sockets.emit("log", " gains an Estate.");
+                                gameState.phase = "action";
+                                io.sockets.emit("gameState", gameState);
+                            }
+                        }
+                    }
+                }
+            };
+            if (estateNotFound) {
+                var acquiredCard = acquire(player, "estate");
+                player.discarded.push(acquiredCard);
+                io.sockets.emit("log", " gains an Estate.");
+                gameState.phase = "action";
+                io.sockets.emit("gameState", gameState);
+            }
+        }
+    },
+    "wishing well": {
+        expansion: "Intrigue",
+        name: "Wishing Well",
+        description: "+1 Card, +1 Action, Name a card, then reveal the top card of your deck. If it is the named card, put it in your hand.",
+        type: "action",
+        cost: 3,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            var namedCard;
+            draw(player, 1);
+            player.actions += 1
+            if (player.deck.length <= 0) reload(player);
+
+            gameState.phase = "select";
+            gameState.queryData = {
+                eligible: ".buyable .card",
+                message: "Name a card by selecting from the Bank.",
+                number: 1,
+                unique: true,
+                exact: true,
+                selected: [],
+                callback: function(data) {
+                    var revealedCard = player.deck.pop();
+                    gameState.revealed.push(revealedCard);
+                    console.log(revealedCard);
+                    console.log(data);
+                    namedCard = cards[data[0].card.id].name;
+
+                    gameState.phase = "choose";
+                    gameState.queryData = {
+                        number: 1,
+                        exact: true,
+                        message: cards[revealedCard.id].name + " was revealed.",
+                        choices: ["OK"],
+                        selected: [],
+                        callback: function() {
+
+                            if (cards[revealedCard.id].name === namedCard) {
+                                io.sockets.emit("log", " named correctly and drew " + namedCard + ".");
+                                player.hand.push(gameState.revealed.pop());
+                            }
+                            else {
+                                player.deck.push(gameState.revealed.pop());
+                                io.sockets.emit("log", " you named incorrectly.");
+                            }
+                            gameState.phase = "action";
+                            io.sockets.emit("gameState", gameState);
+                        }
+                    }
+                    io.sockets.emit("gameState", gameState);
+                }
+            }
+        }
+    },
+     "witch": {
+        expansion: "Base",
+        description: "+2 Cards, Each other player gains a Curse card.",
+        name: "Witch",
+        type: "action",
+        cost: 5,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            draw(player, 2);
+            for (var pid in gameState.players) {
+                var aPlayer = gameState.players[pid];
+                if (aPlayer.id != player.id) {
+                    var acquiredCurse = acquire(aPlayer, "curse");
+                    aPlayer.discarded.push(acquiredCurse);
+                }
+            }
+            io.sockets.emit("log", " Each other player gained a Curse!");
+            gameState.phase = "action";
+            io.sockets.emit("gameState", gameState);
+        }
+    },  
 };
+
+exports.cards = cards;
