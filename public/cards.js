@@ -1100,6 +1100,23 @@ var cards = {
             io.sockets.emit("gameState", gameState);
         }
     },  
+    "duke": {
+        description: "Worth 1 Victory per Duchy you have.",
+        name: "Duke",
+        type: "victory",
+        cost: 5,
+        value: 0,
+        victory: function(player) {
+            var duchyCount = 0;
+            for (var i = 0; i < player.deck.length; i++) {
+                if (player.deck[1].name === "Duchy") duchyCount++;
+            }
+            for (var i = 0; i < player.hand.length; i++) {
+                if (player.hand[1].name === "Duchy") duchyCount++;
+            }
+            return duchyCount;
+        }
+    },
 };
 
 exports.cards = cards;
