@@ -1078,6 +1078,29 @@ cards = {
             }
         }
     },
+     "witch": {
+        expansion: "Base",
+        id: "witch",
+        description: "+2 Cards, Each other player gains a Curse card.",
+        name: "Witch",
+        type: "action",
+        cost: 5,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            draw(player, 2)
+            for (var pid in gameState.players) {
+                var aPlayer = gameState.players[pid];
+                if (aPlayer.id != player.id) {
+                    var acquiredCurse = acquire(aPlayer, "curse");
+                    aPlayer.discarded.push(acquiredCurse);
+                }
+            }
+            io.sockets.emit("log", " Each other player gained a Curse!");
+            gameState.phase = "action";
+            io.sockets.emit("gameState", gameState);
+        }
+    },  
 };
 
 exports.cards = cards;
