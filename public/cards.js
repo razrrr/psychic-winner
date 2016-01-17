@@ -1109,10 +1109,7 @@ var cards = {
         victory: function(player) {
             var duchyCount = 0;
             for (var i = 0; i < player.deck.length; i++) {
-                if (player.deck[1].name === "Duchy") duchyCount++;
-            }
-            for (var i = 0; i < player.hand.length; i++) {
-                if (player.hand[1].name === "Duchy") duchyCount++;
+                if (cards[player.deck[i].id].name === "Duchy") duchyCount++;
             }
             return duchyCount;
         }
