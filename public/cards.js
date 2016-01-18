@@ -1176,6 +1176,7 @@ cards = {
                 if (cards[player.deck[i].id].name === "Duchy") duchyCount++;
             }
             return duchyCount;
+        }
     },
     "library": {
         expansion: "Base",
@@ -1202,7 +1203,7 @@ cards = {
                             callback: function (choiceIndexArray) {
                                 if (choiceIndexArray[0] === 1) {
                                     gameState.revealed.push(player.hand.pop());
-                                    io.sockets.emit("log", " sets aside " + cards[lastDraw.id].name + ".")
+                                    io.sockets.emit("log", " sets aside " + cards[lastDraw.id].name + ".");
                                 }
 
                                 libDraw();
