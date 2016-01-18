@@ -1164,6 +1164,19 @@ cards = {
             io.sockets.emit("log", " Each other player gained a Curse!");
         }
     },
+    "duke": {
+        description: "Worth 1 Victory per Duchy you have.",
+        name: "Duke",
+        type: "victory",
+        cost: 5,
+        value: 0,
+        victory: function(player) {
+            var duchyCount = 0;
+            for (var i = 0; i < player.deck.length; i++) {
+                if (cards[player.deck[i].id].name === "Duchy") duchyCount++;
+            }
+            return duchyCount;
+    },
     "library": {
         expansion: "Base",
         description: "Draw until you have 7 cards in hand, you may set aside any Action cards drawn this way. Once you have finished drawing, discard all set aside Action cards.",
@@ -1191,18 +1204,18 @@ cards = {
                                     gameState.revealed.push(player.hand.pop());
                                     io.sockets.emit("log", " sets aside " + cards[lastDraw.id].name + ".")
                                 }
-                                
+
                                 libDraw();
                             }
                         }
                         io.sockets.emit("gameState", gameState);
                     }
-                    else libDraw();    
+                    else libDraw();
                 }
                 else {
                     var revealedLength = gameState.revealed.length;
                     for (var i = 0; i < revealedLength; i++) {
-                        player.discarded.push(gameState.revealed.pop(i));    
+                        player.discarded.push(gameState.revealed.pop(i));
                     }
                     gameState.phase = "action";
                     io.sockets.emit("gameState", gameState);
