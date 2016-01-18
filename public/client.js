@@ -4,9 +4,12 @@ var cards;
 app.run(function($rootScope) {
     var socket = io.connect();
     var playerID;
-    $rootScope.gameState = {};
+    $rootScope.gameState = {
+        playerOrder: []
+    };
     $rootScope.cards = cards;
-    
+    $rootScope.clientPlayer = {};
+
     socket.on("log", function(msg) {
         $("#output").append("<br/>" + msg);
         $("#output")[0].scrollTop = $("#output")[0].scrollHeight;
@@ -19,7 +22,6 @@ app.run(function($rootScope) {
         playerID = "/#" + socket.id;
         $rootScope.gameState = update;
         $rootScope.clientPlayer = $rootScope.gameState.players[playerID];
-
         // apply gameState changes to UI
         $rootScope.$apply();
 
@@ -56,7 +58,6 @@ app.run(function($rootScope) {
         }
     }
     $rootScope.select = function(card, index, zone, event) { // user clicked on a card
-        console.log(event);
         if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
 
         if ($rootScope.gameState.phase === "action" && zone == "hand") {
@@ -90,7 +91,6 @@ app.run(function($rootScope) {
                 index: index,
                 zone: zone,
             };
-            console.log(data)
             $rootScope.gameState.queryData.selected.push(data);
             if ($rootScope.gameState.queryData.number === $rootScope.gameState.queryData.selected.length) {
                 $(".selectable").removeClass("selectable");
@@ -107,7 +107,11 @@ app.run(function($rootScope) {
             $(".buyable .card").addClass("disabled");
             if ($rootScope.clientPlayer.buys === 0) return;
             if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
-            for (var i = 0; i <= $rootScope.clientPlayer.coins; i++) {
+            var maxBuyable = $rootScope.clientPlayer.coins;
+            //var highestCost = cards[$rootScope.gameState.board[$rootScope.gameState.board.length - 1].id] && cards[$rootScope.gameState.board[$rootScope.gameState.board.length - 1].id].cost;
+            if (maxBuyable > 10) maxBuyable = 10;
+            console.log(maxBuyable, $rootScope.gameState);
+            for (var i = 0; i <= maxBuyable; i++) {
                 $(".buyable .card.COST" + i).removeClass("disabled");
             }
         });
