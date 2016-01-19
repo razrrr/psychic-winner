@@ -1164,7 +1164,68 @@ cards = {
             io.sockets.emit("log", " Each other player gained a Curse!");
         }
     },
-     "tribute": {
+    "duke": {
+        description: "Worth 1 Victory per Duchy you have.",
+        name: "Duke",
+        type: "victory",
+        cost: 5,
+        value: 0,
+        victory: function(player) {
+            var duchyCount = 0;
+            for (var i = 0; i < player.deck.length; i++) {
+                if (cards[player.deck[i].id].name === "Duchy") duchyCount++;
+            }
+            return duchyCount;
+        }
+    },
+    "library": {
+        expansion: "Base",
+        description: "Draw until you have 7 cards in hand, you may set aside any Action cards drawn this way. Once you have finished drawing, discard all set aside Action cards.",
+        name: "Library",
+        type: "action",
+        cost: 5,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            var libDraw = function() {
+                var lastDraw;
+                if (player.hand.length < 7) {
+                    draw(player, 1);
+                    lastDraw = player.hand[player.hand.length - 1];
+                    if (cards[lastDraw.id].type.indexOf("action") >= 0) {
+                        gameState.phase = "choose";
+                        gameState.queryData = {
+                            number: 1,
+                            exact: true,
+                            message: "Choose what you would like to do with " + cards[lastDraw.id].name + ".",
+                            choices: ["Put into hand", "Set aside"],
+                            selected: [],
+                            callback: function (choiceIndexArray) {
+                                if (choiceIndexArray[0] === 1) {
+                                    gameState.revealed.push(player.hand.pop());
+                                    io.sockets.emit("log", " sets aside " + cards[lastDraw.id].name + ".");
+                                }
+
+                                libDraw();
+                            }
+                        }
+                        io.sockets.emit("gameState", gameState);
+                    }
+                    else libDraw();
+                }
+                else {
+                    var revealedLength = gameState.revealed.length;
+                    for (var i = 0; i < revealedLength; i++) {
+                        player.discarded.push(gameState.revealed.pop(i));
+                    }
+                    gameState.phase = "action";
+                    io.sockets.emit("gameState", gameState);
+                }
+            }
+            libDraw();
+        }
+    },
+    "tribute": {
         expansion: "Intrigue",
         description: "The player to your left reveals then discards the top 2 cards of his deck. For each differently named card revealed, if it is an... Action Card, +2 Actions; Treasure Card, +2 Coins; Victory Card, +2 Cards.",
         name: "Tribute",
@@ -1175,7 +1236,7 @@ cards = {
         action: function(player) {
             var leftPid;
             for (var pid in gameState.playerOrder) {
-                if (gameState.playerOrder[pid] === player.id) { 
+                if (gameState.playerOrder[pid] === player.id) {
                     leftPid = gameState.playerOrder[(pid + 1) % gameState.playerOrder.length]; //Does this id the person after you?
                     for (var i = 0; i < 2; i++) {
                         if (gameState.players[leftPid].deck.length <= 0) reload(gameState.players[leftPid]);
@@ -1209,16 +1270,16 @@ cards = {
                             }
                             for (var i = 0; i < gameState.revealed.length; i++) {
                                 gameState.players[leftPid].discarded.push(gameState.revealed.pop());
-                                i--; 
-                            } 
-                            gameState.phase = "action"; 
-                            io.sockets.emit("gameState", gameState);    
+                                i--;
+                            }
+                            gameState.phase = "action";
+                            io.sockets.emit("gameState", gameState);
                         }
                     }
                     io.sockets.emit("gameState", gameState);
-                }   
+                }
             }
-            
+
         }
-    }, 
+    },
 };
