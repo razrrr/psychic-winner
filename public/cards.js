@@ -1279,7 +1279,6 @@ cards = {
                     io.sockets.emit("gameState", gameState);
                 }
             }
-
         }
     },
 };
