@@ -1162,8 +1162,63 @@ cards = {
                 }
             }
             io.sockets.emit("log", " Each other player gained a Curse!");
-            gameState.phase = "action";
-            io.sockets.emit("gameState", gameState);
         }
-    }
+    },
+     "tribute": {
+        expansion: "Intrigue",
+        description: "The player to your left reveals then discards the top 2 cards of his deck. For each differently named card revealed, if it is an... Action Card, +2 Actions; Treasure Card, +2 Coins; Victory Card, +2 Cards.",
+        name: "Tribute",
+        type: "action",
+        cost: 5,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            var leftPid;
+            for (var pid in gameState.playerOrder) {
+                if (gameState.playerOrder[pid] === player.id) { 
+                    leftPid = gameState.playerOrder[(pid + 1) % gameState.playerOrder.length]; //Does this id the person after you?
+                    for (var i = 0; i < 2; i++) {
+                        if (gameState.players[leftPid].deck.length <= 0) reload(gameState.players[leftPid]);
+                        gameState.revealed.push(gameState.players[leftPid].deck.pop()); //How do i do player.deck for someone else?
+                    }
+                    gameState.phase = "choose";
+                    gameState.queryData = {
+                        number: 1,
+                        exact: true,
+                        message: "swag",
+                        choices: ["OK"],
+                        selected: [],
+                        callback: function() {
+                            var cardCheck;
+                            for (var j = 0; j < 2; j++) {
+                                if (gameState.revealed[j].id != cardCheck) {
+                                    cardCheck = gameState.revealed[j].id;
+                                    if (cards[gameState.revealed[j].id].type.indexOf("action") >= 0) {
+                                        player.actions += 2;
+                                        io.sockets.emit("log", " gains +2 Actions from the revealed Action.");
+                                    }
+                                    if (cards[gameState.revealed[j].id].type.indexOf("treasure") >= 0) {
+                                        player.coins += 2;
+                                        io.sockets.emit("log", " gains +2 Coins from the revealed Treasure.");
+                                    }
+                                    if (cards[gameState.revealed[j].id].type.indexOf("victory") >= 0) {
+                                        io.sockets.emit("log", " draws 2 Cards from the revealed Victory.");
+                                        draw(player, 2);
+                                    }
+                                }
+                            }
+                            for (var i = 0; i < gameState.revealed.length; i++) {
+                                gameState.players[leftPid].discarded.push(gameState.revealed.pop());
+                                i--; 
+                            } 
+                            gameState.phase = "action"; 
+                            io.sockets.emit("gameState", gameState);    
+                        }
+                    }
+                    io.sockets.emit("gameState", gameState);
+                }   
+            }
+            
+        }
+    }, 
 };
