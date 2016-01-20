@@ -1281,4 +1281,32 @@ cards = {
             }
         }
     },
+    "feast": {
+        expansion: "Base",
+        description: "Trash this card. Gain a card costing up to 5.",
+        name: "Feast",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            gameState.phase = "select";
+            gameState.queryData = {
+                eligible: ".buyable .card.COST5, .buyable .card.COST4, .buyable .card.COST3, .buyable .card.COST2, .buyable .card.COST1, .buyable .card.COST0",
+                message: "Select a card costing up to 5."
+                number: 1,
+                unique: true,
+                exact: true,
+                selected: [],
+                callback: function(data) {
+                    var acquiredCard = acquire(player, data[0].card.id);
+                    io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
+                    player.discarded.push(acquiredCard);
+                    gameState.trash.push(player.played.pop());
+                    gameState.phase = "action";
+                    io.sockets.emit("gameState", gameState);
+                }
+            };
+        }
+    }
 };
