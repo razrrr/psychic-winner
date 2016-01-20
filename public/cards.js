@@ -1293,7 +1293,7 @@ cards = {
             gameState.phase = "select";
             gameState.queryData = {
                 eligible: ".buyable .card.COST5, .buyable .card.COST4, .buyable .card.COST3, .buyable .card.COST2, .buyable .card.COST1, .buyable .card.COST0",
-                message: "Select a card costing up to 5."
+                message: "Select a card costing up to 5.",
                 number: 1,
                 unique: true,
                 exact: true,
@@ -1308,5 +1308,5 @@ cards = {
                 }
             };
         }
-    }
+    },
 };
