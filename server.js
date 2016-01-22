@@ -12,7 +12,7 @@ for (var id in cards) {
 // ===============
 var gameStart = false;
 var gameState = {
-    phase: "action",
+    phase: "pregame",
     players: {},
     board: [],
     revealed: [],
@@ -47,6 +47,11 @@ var io = require("socket.io").listen(server);
 // ===============
 io.sockets.on("connection", function(socket) {
     io.sockets.emit("log", socket.id + " connected");
+    if (gameState.phase === "pregame") {
+        gameState.players[socket.id] = new Player(socket.id);
+        gameState.playerOrder.push(socket.id);
+    }
+    io.sockets.emit("gameState", gameState);
     // ----------------
     // Received endTurn message from client
     // ----------------
@@ -123,14 +128,19 @@ io.sockets.on("connection", function(socket) {
         gameStart = true;
         io.sockets.emit("log", "game started");
 
-        gameState.playerOrder = [];
-        gameState.players = {};
+        // gameState.playerOrder = [];
+        // gameState.players = {};
         gameState.trash = [];
-        for (var id in io.sockets.clients().sockets) {
+        /*for (var id in io.sockets.clients().sockets) {
             gameState.players[id] = new Player(id, createStartingHand());
             shuffle(gameState.players[id].deck);
             draw(gameState.players[id], 5);
             gameState.playerOrder.push(id);
+        }*/
+        for (var id in gameState.players) {
+            gameState.players[id].deck = createStartingHand();
+            shuffle(gameState.players[id].deck);
+            draw(gameState.players[id], 5);
         }
 
         // initialize board
@@ -145,7 +155,7 @@ io.sockets.on("connection", function(socket) {
             gameState.board.push(newCard);
             cards[key].bankVersion = newCard;
         }
-
+        gameState.phase = "action";
         io.sockets.emit("gameState", gameState);
     });
     // ----------------
@@ -166,10 +176,11 @@ io.sockets.on("connection", function(socket) {
     // Received disconnect message from client
     // ----------------
     socket.on("disconnect", function() {
-        io.sockets.emit("message", {
-            msg: socket.id,
-            id: "server : disconnect"
-        });
+        io.sockets.emit("log", socket.id + " disconnected");
+        if (gameState.phase != "pregame") return;
+        delete gameState.players[socket.id];
+        gameState.playerOrder.splice(gameState.playerOrder.indexOf(socket.id), 1);
+        io.sockets.emit("gameState", gameState);
     });
 });
 
