@@ -1,9 +1,8 @@
 "use strict";
 
 // load card data from external file - there might be a better way to do this
-var cards;
 var fs = require("fs");
-cards = eval(fs.readFileSync("./public/cards.js", "utf8"));
+var cards = eval(fs.readFileSync("./public/cards.js", "utf8"));
 for (var id in cards) {
     cards[id].id = id;
 }
@@ -211,9 +210,9 @@ function createCard(id) {
 // reset player properties at the end of their turn
 function endTurn(player) {
     io.sockets.emit("log", player.id + " ends their turn");
-    player.actions = 11111;
-    player.buys = 11111;
-    player.coins = 11110;
+    player.actions = 111;
+    player.buys = 111;
+    player.coins = 110;
     clear(player);
     io.sockets.emit("gameState", gameState);
     draw(player, 5);
