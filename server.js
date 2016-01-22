@@ -23,6 +23,7 @@ var gameState = {
 
 function Player(id, deck) {
     this.id = id;
+    this.connected = true;
     this.hand = [];
     this.discarded = [];
     this.played = [];
@@ -50,6 +51,20 @@ io.sockets.on("connection", function(socket) {
     if (gameState.phase === "pregame") {
         gameState.players[socket.id] = new Player(socket.id);
         gameState.playerOrder.push(socket.id);
+    } else {
+        for (var id in gameState.players) {
+            if (gameState.players[id].connected === false) {
+                if (gameState.playerOrder[gameState.activePlayer] === gameState.players[id]) gameState.playerOrder[gameState.activePlayer] = socket.id;
+                for (var i in gameState.playerOrder) {
+                    if (gameState.playerOrder[i] === id) gameState.playerOrder[i] = socket.id;
+                }
+                gameState.players[socket.id] = gameState.players[id];
+                gameState.players[socket.id].connected = true;
+                gameState.players[socket.id].id = socket.id;
+                delete gameState.players[id];
+                break;
+            }
+        }
     }
     io.sockets.emit("gameState", gameState);
     // ----------------
@@ -149,6 +164,7 @@ io.sockets.on("connection", function(socket) {
             cards[key].bankVersion = newCard;
         }
         gameState.phase = "action";
+        io.sockets.emit("gameStart");
         io.sockets.emit("gameState", gameState);
     });
     // ----------------
@@ -170,10 +186,14 @@ io.sockets.on("connection", function(socket) {
     // ----------------
     socket.on("disconnect", function() {
         io.sockets.emit("log", socket.id + " disconnected");
-        if (gameState.phase != "pregame") return;
-        delete gameState.players[socket.id];
-        gameState.playerOrder.splice(gameState.playerOrder.indexOf(socket.id), 1);
-        io.sockets.emit("gameState", gameState);
+        if (gameState.phase != "pregame") {
+            gameState.players[socket.id].connected = false;
+            io.sockets.emit("gameState", gameState);
+        } else {
+            delete gameState.players[socket.id];
+            gameState.playerOrder.splice(gameState.playerOrder.indexOf(socket.id), 1);
+            io.sockets.emit("gameState", gameState);
+        }
     });
 });
 
@@ -219,7 +239,7 @@ function endTurn(player) {
     io.sockets.emit("gameState", gameState);
     draw(player, 5);
     gameState.phase = "action";
-    io.sockets.emit("log", gameState.players[gameState.playerOrder[gameState.activePlayer]].id + "'s turn");
+    io.sockets.emit("log", gameState.players[gameState.playerOrder[(gameState.activePlayer + 1) % gameState.playerOrder.length]].id + "'s turn");
 }
 
 // initialize game board
