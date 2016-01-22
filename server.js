@@ -48,7 +48,7 @@ var io = require("socket.io").listen(server);
 io.sockets.on("connection", function(socket) {
     io.sockets.emit("log", socket.id + " connected");
     // ----------------
-    // Received endTurn message from client
+    // Received endTurn message from client. User ended their turn
     // ----------------
     socket.on("endTurn", function() {
         // !! need to validate active player
@@ -64,7 +64,7 @@ io.sockets.on("connection", function(socket) {
         io.sockets.emit("gameState", gameState);
     });
     // ----------------
-    // Received buy message from client
+    // Received buy message from client. User bought a card from the bank
     // ----------------
     socket.on("buy", function(data) {
         // need to validate active player
@@ -93,7 +93,7 @@ io.sockets.on("connection", function(socket) {
         }
     });
     // ----------------
-    // Received action message from client
+    // Received play message from client. User played a card (action/treasure)
     // ----------------
     socket.on("play", function(data) {
         // need to validate active player
@@ -117,12 +117,13 @@ io.sockets.on("connection", function(socket) {
         }
     });
     // ----------------
-    // Received startGame message from client
+    // Received startGame message from client. User started the game
     // ----------------
     socket.on("startGame", function() {
         gameStart = true;
         io.sockets.emit("log", "game started");
 
+        // determine player order
         gameState.playerOrder = [];
         gameState.players = {};
         gameState.trash = [];
@@ -149,7 +150,7 @@ io.sockets.on("connection", function(socket) {
         io.sockets.emit("gameState", gameState);
     });
     // ----------------
-    // Received select message from client
+    // Received select message from client. User made an option from the "select" menu
     // ----------------
     socket.on("select", function(data) {
         // need to validate active player
@@ -163,7 +164,7 @@ io.sockets.on("connection", function(socket) {
         gameState.queryData.callback(data);
     });
     // ----------------
-    // Received disconnect message from client
+    // Received disconnect message from client.
     // ----------------
     socket.on("disconnect", function() {
         io.sockets.emit("message", {
@@ -176,7 +177,6 @@ io.sockets.on("connection", function(socket) {
 // ===============
 // utility functions
 // ===============
-
 // generates unique identifiers
 var uniqueID = (function() {
     var id = 0;
@@ -185,12 +185,11 @@ var uniqueID = (function() {
     };
 })();
 
-
+// acquire a card from the bank
 function acquire(player, cardID) {
     if (cards[cardID].bankVersion.supply > 0) {
+        // generate a card. decrease supply from bank
         var newCard = createCard(cardID);
-
-        // decrease supply
         cards[cardID].bankVersion.supply--;
 
         return newCard;
@@ -255,16 +254,18 @@ function initBoard() {
     victoryCards.sort(sortCost);
     curseCards.sort(sortCost);
 
+    // select 10 random cards for the bank
     shuffle(kingdomCards);
     kingdomCards = kingdomCards.splice(0, 10);
     kingdomCards.sort(sortCost);
 
-    // add references to the "board" version of the card in the global cards variable
-    var boardCards = treasureCards.concat(victoryCards, curseCards, kingdomCards);
-    for (var i in boardCards) {
-        cards[boardCards[i].id].bankVersion = boardCards[i];
+    // add references to the "bank" version of the card in the global cards variable
+    var bankCards = treasureCards.concat(victoryCards, curseCards, kingdomCards);
+    for (var i in bankCards) {
+        cards[bankCards[i].id].bankVersion = bankCards[i];
     }
-    return boardCards;
+
+    return bankCards;
 }
 
 // helper function to sort cards by cost
@@ -410,12 +411,13 @@ function getSupplySize(numPlayers) {
     return supplySize;
 }
 
+// check end game conditions
 function gameOver() {
     // end game conditions
-    // 2-4 players - 3 piles are empty
-    // 5-6 players - 4 piles are empty
-    // provinces are gone
-    // colonies are gone
+    // - 2-4 players - 3 piles are empty
+    // - 5-6 players - 4 piles are empty
+    // - provinces are gone
+    // - colonies are gone
 
     var numPlayers = gameState.playerOrder.length;
     var pileLimit;
@@ -424,6 +426,7 @@ function gameOver() {
     else
         pileLimit = 4;
 
+    // count number of empty piles
     var pileCount = 0;
     for (var i in gameState.board) {
         if (gameState.board[i].supply === 0) {
@@ -437,6 +440,7 @@ function gameOver() {
     return false;
 }
 
+// calculate number of victory points for each player
 function countVictoryPoints() {
     var winners = [];
     var winnerScore = 0;
@@ -493,4 +497,11 @@ function countVictoryPoints() {
     for (var i in winners) {
         io.sockets.emit("log", winners[i] + " wins!");
     }
+}
+
+// sends clients updated gamestates. filters out data that other clients should not see
+function sendGameState() {
+    // note. make copies of gamestates
+
+    io.sockets.emit("gameState", gameState);
 }
