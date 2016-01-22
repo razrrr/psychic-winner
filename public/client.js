@@ -15,12 +15,14 @@ app.run(function($rootScope) {
         $("#output")[0].scrollTop = $("#output")[0].scrollHeight;
     });
     socket.on("gameState", function(update) {
-        $(".start.button").hide();
+        console.log(update);
+        $rootScope.gameState = update;
+        $rootScope.$apply();
+        if ($rootScope.gameState.phase == "pregame") return;
         $rootScope.you = {
             id: "/#" + socket.id
         };
         playerID = "/#" + socket.id;
-        $rootScope.gameState = update;
         $rootScope.clientPlayer = $rootScope.gameState.players[playerID];
         // apply gameState changes to UI
         $rootScope.$apply();
@@ -42,7 +44,6 @@ app.run(function($rootScope) {
         if ($rootScope.gameState.phase === "choose") {
 
         }
-
     });
     $rootScope.endTurn = function() {
         if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;

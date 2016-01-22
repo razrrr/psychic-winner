@@ -20,6 +20,16 @@
             <span class="card-cost">{{ cards[card.id].cost }}</span>
             <span style="background: rgba(255,255,255,0.8);" class="card-description">{{ cards[card.id].description }}</span>
         </script>
+        <div>
+            <div>players: {{gameState.playerOrder.length}}</div>
+            <ul>
+                <li ng-repeat="player in gameState.players">
+                    {{ player.name || player.id }}
+                </li>
+            </ul>
+            <div ng-click="startGame()" class="start button">Start game</div>
+        </div>
+
         <div class="board">
             <ul class="buyable">
                 <li ng-click="select(card, $index, 'buy', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type]" class="card" ng-repeat="card in gameState.board track by $index">
@@ -27,7 +37,6 @@
                     <div style="position: absolute; background: white; width: 18px; height: 15px; line-height:15px; border: 2px solid black; text-align: center; top: -4px; left: -4px;">{{card.supply}}</div>
                 </li>
             </ul>
-            <div ng-click="startGame()" class="start button">Start game</div>
             <div style="clear:both;"></div>
         </div>
         <div class="played-zone">
