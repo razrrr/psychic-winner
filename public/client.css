@@ -18,36 +18,50 @@ body {
     position: relative;
     margin-top: -400px;
     top: 50%;
+    background: black;
 }
+
+.small.card {
+    height: 70px;
+    width: 50px;
+}
+.small.card .card-description, .small.card .card-type, .small.card .card-cost {
+    display: none;
+}
+
 .opponents {
-    height: 220px;
+    height: 250px;
     background: #555;
 }
 .opponents .player {
     float: left;
     background: #444;
     display: block;
-    height: 200px;
+    height: 240px;
     width: 200px;
     position: relative;
     margin: 5px;
 }
 .opponents .player .card {
-    height: 50px;
-    width: 30px;
     border-radius: 3px;
-    margin-right: -20px;
+    margin-right: -40px;
 }
 .opponents .player .deck .card, .opponents .player .discarded .card {
-    margin-right: -28px !important;
+    margin-right: -49px !important;
 }
 .opponents .player .deck {
-    top: 100px;
+    bottom: 5px;
+    left: 5px;
     position: absolute;
 }
 .opponents .player .discarded {
-    top: 100px;
+    bottom: 5px;
     left: 100px;
+    position: absolute;
+}
+.opponents .player .hand {
+    bottom: 105px;
+    left: 5px;
     position: absolute;
 }
 
@@ -85,22 +99,41 @@ body {
 .you {
     background: #888;
     position: relative;
-    height: 250px;
+    height: 220px;
+    box-sizing: border-box;
+}
+.you .player {
+    background: #888;
+    height: 220px;
+    position: relative;
 }
 .you .hand {
     position: absolute;
-    bottom: 0px;
-    left: 300px;
+    bottom: 5px;
+    left: 190px;
 }
 .you .deck {
     position: absolute;
-    bottom: 0px;
-    left: 0px;
+    bottom: 5px;
+    left: 5px;
 }
 .you .discarded {
     position: absolute;
-    bottom: 0px;
-    left: 150px;
+    bottom: 5px;
+    left: 100px;
+}
+.you .deck .card, .you .discarded .card {
+    margin-right: -49px !important;
+}
+
+.active.player {
+    opacity: 1;
+    box-shadow: 0px 0px 2px 5px red;
+}
+.player {
+    opacity: 0.2;
+    transition: 0.5s all;
+    box-shadow: 0px 0px 0px 0px rgba(0,0,0,0);
 }
 
 
@@ -184,13 +217,12 @@ body {
     border: 1px solid rgba(0, 0, 0, 0.3);
     padding: 5px;
     margin-right: 5px;
-    margin-bottom: 10px;
     list-style: none;
     display: block;
     width: 100px;
     height: 140px;
     border-radius: 5px;
-    box-shadow: 0px 0px 4px 2px rgba(0, 0, 0, 0.23);
+   // box-shadow: 0px 0px 4px 2px rgba(0, 0, 0, 0.23);
     float: left;
     box-sizing: border-box;
     background: #aaa;
@@ -373,7 +405,6 @@ ul {
     clear: both;
     margin: 0px;
     padding: 0px;
-    padding-bottom: 10px;
 }
 li {
     list-style: none;
