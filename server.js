@@ -75,13 +75,13 @@ io.sockets.on("connection", function(socket) {
         gameState.board = initBoard();
 
         // !! <DEBUG> Put all cards into play. Delete this section later.
-        // gameState.board = [];
-        // for (var key in cards) {
-        //     var newCard = createCard(key);
-        //     newCard.supply = 10;
-        //     gameState.board.push(newCard);
-        //     cards[key].bankVersion = newCard;
-        // }
+        gameState.board = [];
+        for (var key in cards) {
+            var newCard = createCard(key);
+            newCard.supply = 10;
+            gameState.board.push(newCard);
+            cards[key].bankVersion = newCard;
+        }
 
         gameState.phase = "action";
         sendGameStates();

@@ -119,9 +119,9 @@ cards = {
                     for (var i in data) {
                         var cardIndex = data[0].index;
                         var cost = cards[player.hand[cardIndex].id].cost;
-                        var query = ".buyable .card.treasure.COST0";
+                        var query = ".bank .buyable .card.treasure.COST0";
                         for (var j = 1; j <= cost + 3; j++) {
-                            query += ", .buyable .card.treasure.COST" + j;
+                            query += ",.bank .buyable .card.treasure.COST" + j;
                         }
                         gameState.trash.push(player.hand[cardIndex]);
                         player.hand.splice(cardIndex, 1);
@@ -1348,11 +1348,11 @@ cards = {
                             playSpy(playerID);
                         }
                     }
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
                 else {
                     gameState.phase = "action";
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
             }
             for (var pid in gameState.playerOrder) { //playSpy on player first
