@@ -110,7 +110,7 @@ cards = {
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
-                eligible: ".your.player .hand .card.treasure",
+                eligible: ".you .player .hand .card.treasure",
                 number: 1,
                 unique: true,
                 exact: false,
@@ -205,7 +205,7 @@ cards = {
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
-                eligible: ".your.player .hand .card",
+                eligible: ".you .player .hand .card",
                 number: 4,
                 unique: true,
                 exact: false,
@@ -243,7 +243,7 @@ cards = {
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
-                eligible: ".your.player .hand .card.IDcopper",
+                eligible: ".you .player .hand .card.IDcopper",
                 number: 1,
                 unique: true,
                 exact: false,
@@ -517,7 +517,7 @@ cards = {
                         } else if (choiceIndexArray[i] === 2) {
                             gameState.phase = "select";
                             gameState.queryData = {
-                                eligible: ".your.player .hand .card",
+                                eligible: ".you .player .hand .card",
                                 number: 2,
                                 unique: true,
                                 exact: true,
@@ -560,7 +560,7 @@ cards = {
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
-                eligible: ".your.player .hand .card",
+                eligible: ".you .player .hand .card",
                 number: 1,
                 unique: true,
                 exact: false,
@@ -646,7 +646,7 @@ cards = {
             player.actions += 1;
             gameState.phase = "select";
             gameState.queryData = {
-                eligible: ".your.player .hand .card",
+                eligible: ".you .player .hand .card",
                 number: 1,
                 unique: true,
                 exact: false,
@@ -798,7 +798,7 @@ cards = {
                 var discardTo = playerData.hand.length - 3;
                 if (discardTo < 0) discardTo = 0;
                 gameState.queryData = {
-                    eligible: ".your.player .hand .card",
+                    eligible: ".you .player .hand .card",
                     number: discardTo,
                     unique: true,
                     exact: true,
@@ -905,7 +905,7 @@ cards = {
         action: function(player) {
             gameState.phase = "select";
             gameState.queryData = {
-                eligible: ".your.player .hand .card",
+                eligible: ".you .player .hand .card",
                 number: player.hand.length,
                 unique: true,
                 exact: false,
@@ -1008,7 +1008,7 @@ cards = {
             draw(player, 3);
             gameState.phase = "select";
             gameState.queryData = {
-                eligible: ".your.player .hand .card",
+                eligible: ".you .player .hand .card",
                 message: "Select a card from your hand on top of your deck.",
                 number: 1,
                 unique: true,
