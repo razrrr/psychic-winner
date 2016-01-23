@@ -15,13 +15,14 @@ app.run(function($rootScope) {
         $("#output")[0].scrollTop = $("#output")[0].scrollHeight;
     });
     socket.on("gameState", function(update) {
-        console.log(update);
-        $rootScope.gameState = update;
-        $rootScope.$apply();
-        if ($rootScope.gameState.phase == "pregame") return;
         $rootScope.you = {
             id: "/#" + socket.id
         };
+       
+        $rootScope.gameState = update;
+        $rootScope.$apply();
+        if ($rootScope.gameState.phase == "pregame") return;
+        
         playerID = "/#" + socket.id;
         $rootScope.clientPlayer = $rootScope.gameState.players[playerID];
         // apply gameState changes to UI
@@ -111,7 +112,6 @@ app.run(function($rootScope) {
             var maxBuyable = $rootScope.clientPlayer.coins;
             //var highestCost = cards[$rootScope.gameState.board[$rootScope.gameState.board.length - 1].id] && cards[$rootScope.gameState.board[$rootScope.gameState.board.length - 1].id].cost;
             if (maxBuyable > 10) maxBuyable = 10;
-            console.log(maxBuyable, $rootScope.gameState);
             for (var i = 0; i <= maxBuyable; i++) {
                 $(".buyable .card.COST" + i).removeClass("disabled");
             }

@@ -135,14 +135,14 @@ cards = {
                             callback: function(data) {
                                 player.hand.push(data[0].card);
                                 gameState.phase = "action";
-                                io.sockets.emit("gameState", gameState);
+                                sendGameStates();
                             }
                         };
-                        io.sockets.emit("gameState", gameState);
+                        sendGameStates();
                     }
                     if (data.length === 0) {
                         gameState.phase = "action";
-                        io.sockets.emit("gameState", gameState);
+                        sendGameStates();
                     }
                 }
             };
@@ -187,7 +187,7 @@ cards = {
                     io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
                     player.discarded.push(acquiredCard);
                     gameState.phase = "action";
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
             };
         }
@@ -225,7 +225,7 @@ cards = {
                         player.hand.splice(cardIndex, 1);
                     }
                     gameState.phase = "action";
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
             };
         }
@@ -257,7 +257,7 @@ cards = {
                         player.coins += 3;
                     }
                     gameState.phase = "action";
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
             };
         }
@@ -411,7 +411,7 @@ cards = {
                         draw(player, 1);
                         io.sockets.emit("log", " ... and gets +1 Card");
                     }
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
             };
         }
@@ -442,7 +442,7 @@ cards = {
                         }
                     };
                     gameState.phase = "action";
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
             };
         }
@@ -481,7 +481,7 @@ cards = {
                             io.sockets.emit("log", " gains +1 Coin.");
                         }
                         gameState.phase = "action";
-                        io.sockets.emit("gameState", gameState);
+                        sendGameStates();
                     }
                 }
             };
@@ -537,11 +537,11 @@ cards = {
                                         player.hand.splice(cardIndex, 1);
                                     }
                                     gameState.phase = "action";
-                                    io.sockets.emit("gameState", gameState);
+                                    sendGameStates();
                                 }
                             }
                         }
-                        io.sockets.emit("gameState", gameState);
+                        sendGameStates();
                     }
                 }
             };
@@ -587,14 +587,14 @@ cards = {
                                 io.sockets.emit("log", " ... and gets " + data[0].card.name);
                                 player.discarded.push(data[0].card);
                                 gameState.phase = "action";
-                                io.sockets.emit("gameState", gameState);
+                                sendGameStates();
                             }
                         };
-                        io.sockets.emit("gameState", gameState);
+                        sendGameStates();
                     }
                     if (data.length === 0) {
                         gameState.phase = "action";
-                        io.sockets.emit("gameState", gameState);
+                        sendGameStates();
                     }
                 }
             };
@@ -626,7 +626,7 @@ cards = {
                         player.coins += 2;
                     };
                     gameState.phase = "action";
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
             };
         }
@@ -672,14 +672,14 @@ cards = {
                                     player.discarded.push(data[0].card);
                                 }
                                 gameState.phase = "action";
-                                io.sockets.emit("gameState", gameState);
+                                sendGameStates();
                             }
                         };
-                        io.sockets.emit("gameState", gameState);
+                        sendGameStates();
                     }
                     if (data.length === 0) {
                         gameState.phase = "action";
-                        io.sockets.emit("gameState", gameState);
+                        sendGameStates();
                     }
                 }
             };
@@ -711,7 +711,7 @@ cards = {
                             io.sockets.emit("log", " gains +2 Actions.");
                         }
                         gameState.phase = "action";
-                        io.sockets.emit("gameState", gameState);
+                        sendGameStates();
                     }
                 }
             };
@@ -822,10 +822,10 @@ cards = {
                         if (gameState.activePlayer === currentPlayer) {
                             player.coins += 2;
                             gameState.phase = "action";
-                            io.sockets.emit("gameState", gameState);
+                            sendGameStates();
                         } else {
                             attack();
-                            io.sockets.emit("gameState", gameState);
+                            sendGameStates();
                         }
                     }
                 };
@@ -871,11 +871,11 @@ cards = {
                                         player.discarded.push(gameState.revealed.pop());
                                     }
                                     gameState.phase = "action";
-                                    io.sockets.emit("gameState", gameState);
+                                    sendGameStates();
                                 }
                             }
                         };
-                        io.sockets.emit("gameState", gameState);
+                        sendGameStates();
                     } else {
                         gameState.revealed.push(revealedCard);
                         io.sockets.emit("log", " ... reveals " + cards[revealedCard.id].name);
@@ -927,7 +927,7 @@ cards = {
                     draw(player, data.length);
                     player.actions += 1;
                     gameState.phase = "action";
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
             }
         }
@@ -986,11 +986,11 @@ cards = {
                                 }
                                 gameState.revealed = [];
                                 gameState.phase = "action";
-                                io.sockets.emit("gameState", gameState);
+                                sendGameStates();
                             }
                         }
                     } else gameState.phase = "action";
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
             }
             if (victoryCount > 0) gameState.queryData.message = "Put revealed Victory cards into hand.";
@@ -1019,7 +1019,7 @@ cards = {
                     player.hand.splice(data[0].index, 1);
                     io.sockets.emit("log", "... and puts 1 card from hand on top of deck.");
                     gameState.phase = "action";
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
             }
         }
@@ -1069,13 +1069,13 @@ cards = {
                                 player.coins += 4;
                                 io.sockets.emit("log", " discards an Estate and gains +4 Coins.")
                                 gameState.phase = "action";
-                                io.sockets.emit("gameState", gameState);
+                                sendGameStates();
                             } else if (choiceIndexArray[0] === 1) {
                                 var acquiredCard = acquire(player, "estate");
                                 player.discarded.push(acquiredCard);
                                 io.sockets.emit("log", " gains an Estate.");
                                 gameState.phase = "action";
-                                io.sockets.emit("gameState", gameState);
+                                sendGameStates();
                             }
                         }
                     }
@@ -1086,7 +1086,7 @@ cards = {
                 player.discarded.push(acquiredCard);
                 io.sockets.emit("log", " gains an Estate.");
                 gameState.phase = "action";
-                io.sockets.emit("gameState", gameState);
+                sendGameStates();
             }
         }
     },
@@ -1136,10 +1136,10 @@ cards = {
                                 io.sockets.emit("log", " you named incorrectly.");
                             }
                             gameState.phase = "action";
-                            io.sockets.emit("gameState", gameState);
+                            sendGameStates();
                         }
                     }
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
             }
         }
@@ -1209,7 +1209,7 @@ cards = {
                                 libDraw();
                             }
                         }
-                        io.sockets.emit("gameState", gameState);
+                        sendGameStates();
                     }
                     else libDraw();
                 }
@@ -1219,7 +1219,7 @@ cards = {
                         player.discarded.push(gameState.revealed.pop(i));
                     }
                     gameState.phase = "action";
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
             }
             libDraw();
@@ -1273,10 +1273,10 @@ cards = {
                                 i--;
                             }
                             gameState.phase = "action";
-                            io.sockets.emit("gameState", gameState);
+                            sendGameStates();
                         }
                     }
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
             }
         }
@@ -1304,7 +1304,7 @@ cards = {
                     player.discarded.push(acquiredCard);
                     gameState.trash.push(player.played.pop());
                     gameState.phase = "action";
-                    io.sockets.emit("gameState", gameState);
+                    sendGameStates();
                 }
             };
         }
