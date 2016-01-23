@@ -1309,4 +1309,59 @@ cards = {
             };
         }
     },
+    "spy": {
+        expansion: "Base",
+        description: "+1 Card, +1 Action. Each player (including you) reveals the top card of his deck and either discards it or puts it back, your choice.",
+        name: "Spy",
+        type: "action",
+        cost: 4,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            draw(player, 1);
+            player.actions += 1;
+            var currentPid;
+            var endLoop = 0;
+            var playSpy = function (playerID) {
+                if (endLoop < gameState.playerOrder.length) {
+                    if (gameState.players[currentPid].deck.length <= 0) reload(gameState.players[currentPid]);
+                    gameState.revealed.push(gameState.players[currentPid].deck.pop());
+                    gameState.phase = "choose";
+                    gameState.queryData = {
+                        number: 1,
+                        exact: true,
+                        message: "Choose one",
+                        choices: ["Return to top of deck", "discard"],
+                        selected: [],
+                        callback: function(choiceIndexArray) {
+                            if (choiceIndexArray[0] === 0) {
+                                io.sockets.emit("log", cards[gameState.revealed[0].id].name + " was returned to the top of ");
+                                gameState.players[currentPid].deck.push(gameState.revealed.pop());
+                            }
+                            else if (choiceIndexArray[0] === 1) {
+                                io.sockets.emit("log", cards[gameState.revealed[0].id].name + " was discarded.");
+                                gameState.players[currentPid].discarded.push(gameState.revealed.pop());
+                            }
+                            playerID = (playerID + 1) % gameState.playerOrder.length;
+                            currentPid = gameState.playerOrder[playerID];
+                            endLoop++;
+                            playSpy(playerID);
+                        }
+                    }
+                    io.sockets.emit("gameState", gameState);
+                }
+                else {
+                    gameState.phase = "action";
+                    io.sockets.emit("gameState", gameState);
+                }
+            }
+            for (var pid in gameState.playerOrder) { //playSpy on player first
+                if (gameState.playerOrder[pid] === player.id) {
+                    console.log("playspy on player");
+                    currentPid = gameState.playerOrder[pid];
+                    playSpy(pid);
+                }
+            }
+        }
+    },
 };
