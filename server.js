@@ -21,13 +21,12 @@ var gameState = {
     playerOrder: [],
 };
 
-function Player(id, deck) {
+function Player(id) {
     this.id = id;
-    this.connected = true;
     this.hand = [];
     this.discarded = [];
     this.played = [];
-    this.deck = deck;
+    this.deck = [];
     this.coins = 0;
     this.actions = 1;
     this.buys = 1;
@@ -51,22 +50,42 @@ io.sockets.on("connection", function(socket) {
     if (gameState.phase === "pregame") {
         gameState.players[socket.id] = new Player(socket.id);
         gameState.playerOrder.push(socket.id);
-    } else {
-        for (var id in gameState.players) {
-            if (gameState.players[id].connected === false) {
-                if (gameState.playerOrder[gameState.activePlayer] === gameState.players[id]) gameState.playerOrder[gameState.activePlayer] = socket.id;
-                for (var i in gameState.playerOrder) {
-                    if (gameState.playerOrder[i] === id) gameState.playerOrder[i] = socket.id;
-                }
-                gameState.players[socket.id] = gameState.players[id];
-                gameState.players[socket.id].connected = true;
-                gameState.players[socket.id].id = socket.id;
-                delete gameState.players[id];
-                break;
-            }
-        }
     }
-    io.sockets.emit("gameState", gameState);
+    sendGameStates();
+
+    // ===============
+    // Define client message responses
+    // ===============
+    // ----------------
+    // Received startGame message from client. User started the game
+    // ----------------
+    socket.on("startGame", function() {
+        gameStart = true;
+        io.sockets.emit("log", "game started");
+
+        gameState.trash = [];
+
+        for (var id in gameState.players) {
+            gameState.players[id].deck = createStartingHand();
+            shuffle(gameState.players[id].deck);
+            draw(gameState.players[id], 5);
+        }
+
+        // initialize board - select 10 random action cards
+        gameState.board = initBoard();
+
+        // !! <DEBUG> Put all cards into play. Delete this section later.
+        // gameState.board = [];
+        // for (var key in cards) {
+        //     var newCard = createCard(key);
+        //     newCard.supply = 10;
+        //     gameState.board.push(newCard);
+        //     cards[key].bankVersion = newCard;
+        // }
+
+        gameState.phase = "action";
+        sendGameStates();
+    });
     // ----------------
     // Received endTurn message from client. User ended their turn
     // ----------------
@@ -81,7 +100,7 @@ io.sockets.on("connection", function(socket) {
             gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
         }
 
-        io.sockets.emit("gameState", gameState);
+        sendGameStates();
     });
     // ----------------
     // Received buy message from client. User bought a card from the bank
@@ -109,7 +128,7 @@ io.sockets.on("connection", function(socket) {
                 }
             }
 
-            io.sockets.emit("gameState", gameState);
+            sendGameStates();
         }
     });
     // ----------------
@@ -125,7 +144,7 @@ io.sockets.on("connection", function(socket) {
             player.played.push(player.hand[data.cardIndex]);
             player.hand.splice(data.cardIndex, 1);
             card.action(player);
-            io.sockets.emit("gameState", gameState);
+            sendGameStates();
         }
         if (card.type.indexOf("treasure") >= 0) {
             io.sockets.emit("log", player.id + " plays " + card.name);
@@ -133,39 +152,8 @@ io.sockets.on("connection", function(socket) {
             player.played.push(player.hand[data.cardIndex]);
             player.hand.splice(data.cardIndex, 1);
             card.action(player);
-            io.sockets.emit("gameState", gameState);
+            sendGameStates();
         }
-    });
-    // ----------------
-    // Received startGame message from client. User started the game
-    // ----------------
-    socket.on("startGame", function() {
-        gameStart = true;
-        io.sockets.emit("log", "game started");
-
-        gameState.trash = [];
-
-        for (var id in gameState.players) {
-            gameState.players[id].deck = createStartingHand();
-            shuffle(gameState.players[id].deck);
-            draw(gameState.players[id], 5);
-        }
-
-        // initialize board
-        // select 10 random action cards
-        gameState.board = initBoard();
-
-        // !! <DEBUG> Put all cards into play. Delete this section later.
-        gameState.board = [];
-        for (var key in cards) {
-            var newCard = createCard(key);
-            newCard.supply = 10;
-            gameState.board.push(newCard);
-            cards[key].bankVersion = newCard;
-        }
-        gameState.phase = "action";
-        io.sockets.emit("gameStart");
-        io.sockets.emit("gameState", gameState);
     });
     // ----------------
     // Received select message from client. User made an option from the "select" menu
@@ -186,14 +174,10 @@ io.sockets.on("connection", function(socket) {
     // ----------------
     socket.on("disconnect", function() {
         io.sockets.emit("log", socket.id + " disconnected");
-        if (gameState.phase != "pregame") {
-            gameState.players[socket.id].connected = false;
-            io.sockets.emit("gameState", gameState);
-        } else {
-            delete gameState.players[socket.id];
-            gameState.playerOrder.splice(gameState.playerOrder.indexOf(socket.id), 1);
-            io.sockets.emit("gameState", gameState);
-        }
+        if (gameState.phase != "pregame") return;
+        delete gameState.players[socket.id];
+        gameState.playerOrder.splice(gameState.playerOrder.indexOf(socket.id), 1);
+        sendGameStates();
     });
 });
 
@@ -236,10 +220,10 @@ function endTurn(player) {
     player.buys = 111;
     player.coins = 110;
     clear(player);
-    io.sockets.emit("gameState", gameState);
+    sendGameStates();
     draw(player, 5);
     gameState.phase = "action";
-    io.sockets.emit("log", gameState.players[gameState.playerOrder[(gameState.activePlayer + 1) % gameState.playerOrder.length]].id + "'s turn");
+    io.sockets.emit("log", gameState.players[gameState.playerOrder[gameState.activePlayer]].id + "'s turn");
 }
 
 // initialize game board
@@ -522,9 +506,36 @@ function countVictoryPoints() {
     }
 }
 
-// sends clients updated gamestates. filters out data that other clients should not see
-function sendGameState() {
-    // note. make copies of gamestates
+// send clients updated gameStates
+function sendGameStates() {
+    for (var id in gameState.players) {
+        var pGameState = createPlayerGameState(id);
+        io.sockets.connected[id].emit("gameState", pGameState);
+    }
+}
 
-    io.sockets.emit("gameState", gameState);
+// create copies of gameStates to information about other player's cards
+function createPlayerGameState(player) {
+    var pGameState = JSON.parse(JSON.stringify(gameState));
+    for (var id in pGameState.players) {
+        var this_player = pGameState.players[id];
+
+        // hide other players information before sending to client
+        if (player != this_player.id) {
+            // hide hand
+            for (var c in this_player.hand) {
+                this_player.hand[c].id = '';
+            }
+            // hide deck
+            for (var c in this_player.deck) {
+                this_player.deck[c].id = '';
+            }
+            // hide discard
+            for (var c in this_player.discarded) {
+                this_player.discarded[c].id = '';
+            }
+        }
+    }
+
+    return pGameState;
 }
