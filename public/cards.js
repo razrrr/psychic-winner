@@ -1364,4 +1364,49 @@ cards = {
             }
         }
     },
+    "trading post": {
+        expansion: "Intrigue",
+        description: "Trash 2 cards from your hand. If you do, gain a silver card; put it into your hand.",
+        name: "Trading Post",
+        type: "action",
+        cost: 5,
+        value: 0,
+        victory: function(player) {
+            return 0;
+        },
+        action: function(player) {
+            var silverCount = 0;
+            gameState.phase = "select";
+            gameState.queryData = {
+                eligible: ".you .player .hand .card",
+                number: 2,
+                unique: true,
+                exact: false,
+                selected: [],
+                callback: function(data) {
+                    var targetCardIndices = [];
+                    for (var i in data) {
+                        targetCardIndices.push(data[i].index);
+                    }
+                    targetCardIndices.sort(function(a, b) {
+                        return b - a;
+                    });
+                    for (var i = 0; i < targetCardIndices.length; i++) {
+                        var cardIndex = targetCardIndices[i];
+                        io.sockets.emit("log", " ... and trashes " + cards[player.hand[cardIndex].id].name);
+                        gameState.trash.push(player.hand[cardIndex]);
+                        player.hand.splice(cardIndex, 1);
+                        silverCount++;
+                        if (silverCount === 2) {
+                            var acquiredCard = acquire(player, "silver");
+                            player.hand.push(acquiredCard);
+                            io.sockets.emit("log", " and acquires a Silver card into hand.")
+                        }
+                    }
+                    gameState.phase = "action";
+                    sendGameStates();
+                }
+            };
+        }
+    },
 };
