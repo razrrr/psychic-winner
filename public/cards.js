@@ -1313,7 +1313,7 @@ cards = {
         expansion: "Base",
         description: "+1 Card, +1 Action. Each player (including you) reveals the top card of his deck and either discards it or puts it back, your choice.",
         name: "Spy",
-        type: "action",
+        type: "action attack",
         cost: 4,
         value: 0,
         victory: 0,
@@ -1362,6 +1362,90 @@ cards = {
                     playSpy(pid);
                 }
             }
+        }
+    },
+    "torturer": {
+        expansion: "Intrigue",
+        description: "+3 Cards, Each other player chooses one: discard 2 Cards; or acquires a Curse card into hand.",
+        name: "Torturer",
+        type: "action attack",
+        cost: 5,
+        value: 0,
+        victory: function(player) {
+            return 0;
+        },
+        action: function(player) {
+            // save current player id so we know when all players have been attacked
+            var currentPlayer = gameState.activePlayer;
+            gameState.phase = "choose";
+            gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+            var attack = function() {
+                var playerData = gameState.players[gameState.playerOrder[gameState.activePlayer]];
+                var twoCounter = function () {
+                    if (playerData.hand.length < 2) return playerData.hand.length;
+                    else return 2;
+                }
+                gameState.queryData = {
+                    number: 1,
+                    exact: true,
+                    message: "Choose one.",
+                    choices: ["Discard 2 Cards", "Acquire curse to hand"],
+                    selected: [],
+                    callback: function(choiceIndexArray) {
+                        if (choiceIndexArray[0] === 0) {
+                            gameState.phase = "select";
+                            gameState.queryData = {
+                                eligible: ".you .player .hand .card",
+                                number: twoCounter(), 
+                                unique: true,
+                                exact: true,
+                                message: "Select cards to discard",
+                                selected: [],
+                                callback: function(data) {
+                                    var targetCardIndices = [];
+                                    for (var i in data) {
+                                        targetCardIndices.push(data[i].index);
+                                    }
+                                    targetCardIndices.sort(function(a, b) {
+                                        return b - a;
+                                    });
+                                    for (var i = 0; i < targetCardIndices.length; i++) {
+                                        var cardIndex = targetCardIndices[i];
+                                        playerData.discarded.push(playerData.hand[cardIndex]);
+                                        io.sockets.emit("log", " ... " + playerData.id + " discards " + cards[playerData.hand[cardIndex].id].name);
+                                        playerData.hand.splice(cardIndex, 1);
+                                    }
+                                    gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+                                    if (gameState.activePlayer === currentPlayer) {
+                                        draw(player, 3);
+                                        gameState.phase = "action";
+                                        sendGameStates();
+                                    } else {
+                                        gameState.phase = "choose";
+                                        attack();
+                                        sendGameStates();
+                                    }
+                                }
+                            }
+                        }
+                        else if (choiceIndexArray[0] === 1) {
+                            var acquiredCard = acquire(playerData, "curse");
+                            playerData.hand.push(acquiredCard);
+                            gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+                            if (gameState.activePlayer === currentPlayer) {
+                                draw(player, 3);
+                                gameState.phase = "action";
+                                sendGameStates();
+                            } else {
+                                attack();
+                                sendGameStates();
+                            }
+                        }
+                        sendGameStates();
+                    }
+                };
+            }
+            attack();
         }
     },
 };
