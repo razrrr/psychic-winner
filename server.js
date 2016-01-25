@@ -12,6 +12,7 @@ for (var id in cards) {
 // ===============
 var gameStart = false;
 var gameState = {
+    debug: false,
     phase: "pregame",
     players: {},
     board: [],
@@ -74,8 +75,11 @@ io.sockets.on("connection", function(socket) {
     // ----------------
     // Received startGame message from client. User started the game
     // ----------------
-    socket.on("startGame", function() {
+    socket.on("startGame", function(debugFlag) {
+        if (gameStart) return; // block malicious game restarts. change this when players are allowed to restart games.
+        
         gameStart = true;
+        gameState.debug = debugFlag;
         io.sockets.emit("log", "game started");
 
         gameState.trash = [];
@@ -89,13 +93,14 @@ io.sockets.on("connection", function(socket) {
         // initialize board - select 10 random action cards
         gameState.board = initBoard();
 
-        // !! <DEBUG> Put all cards into play. Delete this section later.
-        gameState.board = [];
-        for (var key in cards) {
-            var newCard = createCard(key);
-            newCard.supply = 10;
-            gameState.board.push(newCard);
-            cards[key].bankVersion = newCard;
+        if (gameState.debug) {
+            gameState.board = [];
+            for (var key in cards) {
+                var newCard = createCard(key);
+                newCard.supply = 10;
+                gameState.board.push(newCard);
+                cards[key].bankVersion = newCard;
+            }
         }
 
         gameState.phase = "action";
@@ -234,9 +239,14 @@ function createCard(id) {
 // reset player properties at the end of their turn
 function endTurn(player) {
     io.sockets.emit("log", player.id + " ends their turn");
-    player.actions = 111;
-    player.buys = 111;
-    player.coins = 110;
+    player.actions = 1;
+    player.buys = 1;
+    player.coins = 0;
+    if (gameState.debug) {
+        player.actions += 99;
+        player.buys += 99;
+        player.coins += 100;
+    }
     clear(player);
     sendGameStates();
     draw(player, 5);
@@ -272,7 +282,7 @@ function initBoard() {
             else
                 newCard.supply = supplySize.kingdomCard;
 
-            kingdomCards.push(newCard);;
+            kingdomCards.push(newCard);
         }
     }
     treasureCards.sort(sortCost);
@@ -536,6 +546,7 @@ function sendGameStates() {
 
 // create copies of gameStates to information about other player's cards
 function createPlayerGameState(player) {
+    if (gameState.debug) return gameState;
     var pGameState = JSON.parse(JSON.stringify(gameState));
     for (var id in pGameState.players) {
         var this_player = pGameState.players[id];

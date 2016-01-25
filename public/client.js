@@ -100,7 +100,7 @@ app.run(function($rootScope) {
             }
         }
     };
-    $rootScope.startGame = function() {
+    $rootScope.startGame = function(debugFlag) {
         for (var id in cards) {
             cards[id].id = id;
         }
@@ -121,7 +121,7 @@ app.run(function($rootScope) {
             $(".your.player .hand .action").addClass("disabled");
             if ($rootScope.gameState.phase == "action" && $rootScope.clientPlayer.actions > 0) $(".your.player .hand .action").removeClass("disabled");
         });
-        socket.emit("startGame");
+        socket.emit("startGame", debugFlag);
     };
     $rootScope.submit = function() {
         $(".selectable").removeClass("selectable");

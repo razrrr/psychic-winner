@@ -12,7 +12,7 @@
 </head>
 
 <body>
-    <div class="table" ng-class="['phase-'+gameState.phase]" ng-app="Dominion">
+    <div class="table" ng-class="{'debug' : gameState.debug}" ng-app="Dominion">
         <script type="text/ng-template" id="card.html">
             <img style="position: absolute; border:0px; width: 100%; height: 100%; top: 0px; left: 0px; opacity: 0.4" src="{{cards[card.id].image}}" />
             <span class="card-name">{{ cards[card.id].name }}</span>
@@ -55,6 +55,8 @@
                 </li>
             </ul>
             <div ng-click="startGame()" class="start button">Start game</div>
+            <div ng-click="startGame(true)" class="start button">Start dev game</div>
+
         </div>
 
         <div class="bank">
