@@ -23,6 +23,7 @@ var gameState = {
 
 function Player(id) {
     this.id = id;
+    this.connected = true;
     this.hand = [];
     this.discarded = [];
     this.played = [];
@@ -50,6 +51,20 @@ io.sockets.on("connection", function(socket) {
     if (gameState.phase === "pregame") {
         gameState.players[socket.id] = new Player(socket.id);
         gameState.playerOrder.push(socket.id);
+    } else {
+        for (var id in gameState.players) {
+            if (gameState.players[id].connected === false) {
+                if (gameState.playerOrder[gameState.activePlayer] === gameState.players[id]) gameState.playerOrder[gameState.activePlayer] = socket.id;
+                for (var i in gameState.playerOrder) {
+                    if (gameState.playerOrder[i] === id) gameState.playerOrder[i] = socket.id;
+                }
+                gameState.players[socket.id] = gameState.players[id];
+                gameState.players[socket.id].connected = true;
+                gameState.players[socket.id].id = socket.id;
+                delete gameState.players[id];
+                break;
+            }
+        }
     }
     sendGameStates();
 
@@ -174,9 +189,12 @@ io.sockets.on("connection", function(socket) {
     // ----------------
     socket.on("disconnect", function() {
         io.sockets.emit("log", socket.id + " disconnected");
-        if (gameState.phase != "pregame") return;
-        delete gameState.players[socket.id];
-        gameState.playerOrder.splice(gameState.playerOrder.indexOf(socket.id), 1);
+        if (gameState.phase != "pregame") {
+            gameState.players[socket.id].connected = false;
+        } else {
+            delete gameState.players[socket.id];
+            gameState.playerOrder.splice(gameState.playerOrder.indexOf(socket.id), 1);
+        }
         sendGameStates();
     });
 });
@@ -509,8 +527,10 @@ function countVictoryPoints() {
 // send clients updated gameStates
 function sendGameStates() {
     for (var id in gameState.players) {
-        var pGameState = createPlayerGameState(id);
-        io.sockets.connected[id].emit("gameState", pGameState);
+        if (gameState.players[id].connected) {
+            var pGameState = createPlayerGameState(id);
+            io.sockets.connected[id].emit("gameState", pGameState);
+        }
     }
 }
 
