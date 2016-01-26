@@ -43,7 +43,7 @@ app.run(function($rootScope) {
             }
         }
         if ($rootScope.gameState.phase === "choose") {
-
+            $(".choice-dialog .button").addClass("choosable");
         }
     });
     $rootScope.endTurn = function() {
@@ -53,6 +53,7 @@ app.run(function($rootScope) {
     };
     $rootScope.choose = function(index, event) {
         if ($(event.target).hasClass("choosable")) {
+            $(event.target).removeClass("choosable");
             $rootScope.gameState.queryData.selected.push(index);
             if ($rootScope.gameState.queryData.number === $rootScope.gameState.queryData.selected.length) {
                 socket.emit("callback", $rootScope.gameState.queryData.selected);

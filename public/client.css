@@ -19,6 +19,41 @@ body {
     top: 50%;
     background: black;
 }
+.table.select .bank .buyable .card, .table.select .you .hand .card, .table.select .played .card, .table.select .revealed .card {
+    opacity: 0.2;
+}
+.selectable {
+    opacity: 1 !important;
+    box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
+}
+.choosable {
+    opacity: 1 !important;
+    box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
+}
+
+.dialog {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    padding: 10px;
+    border: 1px solid black;
+    background: white;
+    width: 300px;
+    text-align: center;
+}
+.dialog .button {
+    padding: 10px;
+    border: 1px solid black;
+    margin: 10px;
+}
+.choice-dialog .button {
+    opacity: 0.2;
+}
+.select-dialog .button {
+     box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
+}
+
+
 
 .small.card {
     height: 70px;
@@ -84,6 +119,7 @@ body {
 }
 .bank .card {
     height: 50px;
+    transition: 0.5s all;
 }
 .bank .card .card-description {
     display: none;
@@ -351,11 +387,7 @@ body {
     margin-right: -98px;
 }
 
-.selectable {
-    opacity: 1 !important;
-}
-
-.button {
+.end.button, .start.button {
     border: 1px solid #444;
     padding: 5px;
     margin-right: 5px;
@@ -373,21 +405,6 @@ body {
 
 .select.button {
     display: none;
-}
-
-.choice-dialog {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    padding: 10px;
-    border: 1px solid black;
-}
-.select-dialog {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    padding: 10px;
-    border: 1px solid black;
 }
 .choice-dialog .message {
     text-align: center;

@@ -12,7 +12,7 @@
 </head>
 
 <body>
-    <div class="table" ng-class="{'debug' : gameState.debug}" ng-app="Dominion">
+    <div class="table" ng-class="{'debug' : gameState.debug, 'select' : gameState.phase === 'select'}" ng-app="Dominion">
         <script type="text/ng-template" id="card.html">
             <img style="position: absolute; border:0px; width: 100%; height: 100%; top: 0px; left: 0px; opacity: 0.4" src="{{cards[card.id].image}}" />
             <span class="card-name">{{ cards[card.id].name }}</span>
@@ -74,10 +74,19 @@
                 </li>
             </ul>
             <div class="log" id="output"></div>
+            <div class="choice-dialog dialog" ng-if="(gameState.playerOrder[gameState.activePlayer] === you.id) && (gameState.phase === 'choose')">
+                <div class="message">{{gameState.queryData.message}}</div>
+                <div class="button" ng-click="choose($index, $event)" ng-repeat="choice in gameState.queryData.choices">{{choice}}</div>
+            </div>
+            <div class="select-dialog dialog" ng-if="(gameState.playerOrder[gameState.activePlayer] === you.id) && (gameState.phase === 'select')">
+                <div class="message">{{gameState.queryData.message}}</div>
+                <div ng-if="!gameState.queryData.exact" ng-click="submit()" class="button">ok</div>
+            </div>
             <div style="clear:both;"></div>
         </div>
 
         <div class="played">
+
             <ul class="played-cards">
                 <li style="opacity:0; width:0px; margin:0px 0px 10px; border:0px; padding: 0px;" class="card"></li>
                 <li ng-class="[cards[card.id].type]" class="animation card" ng-repeat="card in gameState.players[gameState.playerOrder[gameState.activePlayer]].played track by card.uid">
@@ -120,14 +129,6 @@
                     </li>
                     <li style="clear:both"></li>
                 </ul>
-                <div class="choice-dialog" ng-if="(gameState.playerOrder[gameState.activePlayer] === you.id) && (gameState.phase === 'choose')">
-                    <div class="message">{{gameState.queryData.message}}</div>
-                    <div class="choosable choice" ng-click="choose($index, $event)" ng-repeat="choice in gameState.queryData.choices">{{choice}}</div>
-                </div>
-                <div class="select-dialog" ng-if="(gameState.playerOrder[gameState.activePlayer] === you.id) && (gameState.phase === 'select')">
-                    <div class="message">{{gameState.queryData.message}}</div>
-                    <div ng-if="!gameState.queryData.exact" ng-click="submit()" class="select button">ok</div>
-                </div>
                 <div class="deck">
                     <ul>
                         <h4>deck</h4>
