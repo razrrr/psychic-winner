@@ -43,9 +43,10 @@ body {
     background: white;
     width: 300px;
     text-align: center;
+    z-index: 1;
 }
 .dialog .button {
-    padding: 10px;
+    padding: 5px;
     border: 1px solid black;
     margin: 10px;
 }
@@ -55,8 +56,6 @@ body {
 .select-dialog .button {
      box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
 }
-
-
 
 .small.card {
     height: 70px;
@@ -108,7 +107,6 @@ body {
 .bank {
     background: #666;
     height: 180px;
-    overflow: hidden;
     padding: 10px;
     box-sizing: border-box;
     padding-left: 130px;
