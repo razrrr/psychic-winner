@@ -19,7 +19,10 @@ body {
     top: 50%;
     background: black;
 }
-.table.select .bank .buyable .card, .table.select .you .hand .card, .table.select .played .card, .table.select .revealed .card {
+.table.select .bank .buyable .card, .table.select .you .hand .card, .table.select .played .card, .table.select .revealed .card, .disabled {
+    opacity: 0.2;
+}
+.table.choose .bank .buyable .card, .table.choose .you .hand .card, .table.choose .played .card, .table.choose .revealed .card, .disabled {
     opacity: 0.2;
 }
 .selectable {
@@ -149,6 +152,15 @@ body {
     position: absolute;
     bottom: 5px;
     left: 190px;
+}
+.table.action .you .hand.has-actions .action.card {
+    box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
+}
+.xxxyou .hand.has-no-actions .treasure.card {
+    box-shadow: 0px 0px 5px 5px rgba(255,255,0, 0.9);
+}
+.xxxtable.buy .you .hand .treasure.card {
+    box-shadow: 0px 0px 5px 5px rgba(255,255,0, 0.9);
 }
 .you .deck {
     position: absolute;
