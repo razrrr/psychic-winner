@@ -195,7 +195,7 @@ io.sockets.on("connection", function(socket) {
     socket.on("disconnect", function() {
         io.sockets.emit("log", socket.id + " disconnected");
         if (gameState.phase != "pregame") {
-            gameState.players[socket.id].connected = false;
+            if (gameState.players[socket.id]) gameState.players[socket.id].connected = false;
         } else {
             delete gameState.players[socket.id];
             gameState.playerOrder.splice(gameState.playerOrder.indexOf(socket.id), 1);
