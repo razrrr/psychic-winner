@@ -1409,4 +1409,78 @@ cards = {
             };
         }
     },
+    "saboteur": {
+        expansion: "Intrigue",
+        description: "Each other player reveals cards from the top of his deck until revealing one costing 3 Coins or more. He/she trashes card and may gain a card costing at most 2 Coins less than it. He/she discards the other revealed cards.",
+        name: "Saboteur",
+        type: "action",
+        cost: 5,
+        value: 0,
+        victory: function(player) {
+            return 0;
+        },
+        action: function(player) {
+            var currentPlayer = gameState.activePlayer;
+            var lastRevealed;
+            var lastCost;
+            gameState.phase = "choose";
+            gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length; //starts on next player
+            var attack = function() {
+                var playerData = gameState.players[gameState.playerOrder[gameState.activePlayer]];
+                var costCounter = 0;
+                while (costCounter < 1) { //pop deck until card cost >= 3
+                    gameState.revealed.push(playerData.deck.pop());
+                    lastRevealed = cards[gameState.revealed[gameState.revealed.length - 1]];
+                    io.sockets.emit("log", lastRevealed.name + " was revealed.")
+                    if (lastRevealed.cost >= 3) {
+                        lastCost = lastRevealed.cost;
+                       
+                        gameState.trash.push(gameState.revealed.pop());
+                        gameState.queryData = {
+                            number: 1,
+                            exact: true,
+                            message: lastRevealed.name + " has been trashed. Choose one.",
+                            choices: ["Gain a card costing at most 2 Coins less", "Do nothing"],
+                            selected: [],
+                            callback: function(choiceIndexArray) {
+                               
+                                if (choiceIndexArray[0] === 0) {
+
+                                     var query = ".buyable .card.COST0";
+                                        for (var j = 0; j <= lastCost - 2; j++) {
+                                            query += ", .buyable .card.COST" + j;
+                                        }
+
+
+                                    gameState.phase = "select";
+                                    gameState.queryData = {
+                                        message: "Gain a card costing at most 2 Coins less than the previously trashed card."
+                                        eligible: query,
+                                        number: 1,
+                                        unique: true,
+                                        exact: true,
+                                        selected: [],
+                                        callback: function(data) {
+                                            var acquiredCard = acquire(player, data[0].card.id);
+                                            io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
+                                            player.discarded.push(acquiredCard);
+                                            gameState.phase = "action";
+                                            sendGameStates();
+                                        }
+                                    } 
+                                }
+                                gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+                                attack();
+                                sendGameStates;
+                            }
+                        }
+                        costCounter++;
+                        sendGameStates();
+                    }
+                }
+            }
+            attack();
+        }
+                
+    },
 };
