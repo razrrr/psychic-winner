@@ -52,8 +52,10 @@
                     {{ player.name || player.id }}
                 </li>
             </ul>
-            <div ng-click="startGame()" class="start button">Start game</div>
-            <div ng-click="startGame(true)" class="start button">Start dev game</div>
+            <div style="position: absolute; right: 0px; top: 0px;">
+                <div ng-click="startGame()" class="start button">Start game</div>
+                <div ng-click="startGame(true)" class="start button">Start dev game</div>
+            </div>
         </div>
         </div>
         <div class="bank">
