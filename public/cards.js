@@ -1454,7 +1454,7 @@ cards = {
                     sendGameStates();
                 }
             }
-            for (var pid in gameState.playerOrder) { 
+            for (var pid in gameState.playerOrder) {
                 if (gameState.playerOrder[pid] === player.id) {
                     pid = (pid + 1) % gameState.playerOrder.length;
                     currentPid = gameState.playerOrder[pid]; //start playSpy on first opponent
@@ -1463,4 +1463,53 @@ cards = {
             }
         }
     },
+    "minion": {
+         expansion: "Intrigue",
+         description: "+1 Action, Choose one: +2 Coins; or discard your hand, draw 4 Cards, and each other player with at least 5 cards in hand discards his hand and draws 4 Cards.",
+         name: "Minion",
+         type: "action",
+         cost: 5,
+         value: 0,
+         victory: function(player) {
+             return 0;
+         },
+         action: function(player) {
+             var currentPid;
+             var currentPlayer;
+             player.actions += 1;
+             gameState.phase = "choose";
+             gameState.queryData = {
+                 number: 1,
+                 exact: true,
+                 message: "Choose one",
+                 choices: ["+2 Coins", "Discard your hand, draw 4 Cards, and each other player with at least 5 Cards in hand discards his hand and draws 4 Cards"],
+                 selected: [],
+                 callback: function(choiceIndexArray) {
+                     if (choiceIndexArray[0] === 0) {
+                         player.coins += 2;
+                     }
+                     else if (choiceIndexArray[0] === 1) {
+                         while (player.hand.length > 0) player.discarded.push(player.hand.pop());
+                         draw(player, 4);
+                         for (var pid in gameState.playerOrder) {
+                             if (gameState.playerOrder[pid] === player.id) { //looks for player then cycles through rest of players
+                                 currentPid = gameState.playerOrder[pid];
+                                 for (var i = 1; i < gameState.playerOrder.length; i++) {
+                                     pid = (pid + 1) % gameState.playerOrder.length;
+                                     currentPlayer = gameState.players[gameState.playerOrder[pid]];
+                                     if (currentPlayer.hand.length >= 5) {
+                                         io.sockets.emit("log", currentPlayer.id + " discards hand and...");
+                                         while (currentPlayer.hand.length > 0) currentPlayer.discarded.push(currentPlayer.hand.pop());
+                                         draw(currentPlayer, 4);
+                                     }
+                                 }
+                             }
+                         }
+                     }
+                     gameState.phase = "action";
+                     sendGameStates();
+                 }
+             };
+         }
+     },
 };
