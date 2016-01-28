@@ -19,10 +19,10 @@ body {
     top: 50%;
     background: black;
 }
-.table.select .bank .buyable .card, .table.select .you .hand .card, .table.select .played .card, .table.select .revealed .card, .disabled {
+.table.select .bank .buyable .card, .table.select .you .active .hand .card, .table.select .played .card, .table.select .revealed .card, .disabled {
     opacity: 0.2;
 }
-.table.choose .bank .buyable .card, .table.choose .you .hand .card, .table.choose .played .card, .table.choose .revealed .card, .disabled {
+.table.choose .bank .buyable .card, .table.choose .you .active .hand .card, .table.choose .played .card, .table.choose .revealed .card, .disabled {
     opacity: 0.2;
 }
 .selectable {
@@ -430,7 +430,7 @@ body {
 .buyable .card {}
 
 .stacked.card {
-    margin-right: -98px;
+    margin-right: -104px;
 }
 
 .end.button, .start.button {
