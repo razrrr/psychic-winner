@@ -570,6 +570,6 @@ function createPlayerGameState(player) {
             }
         }
     }
-
+    console.log(pGameState);
     return pGameState;
 }

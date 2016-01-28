@@ -134,6 +134,9 @@ body {
     position: relative;
     background: #777;
 }
+.played-cards .card:last-child{
+	box-shadow: 0px 0px 5px 5px rgba(255,255,255, 0.9);
+}
 
 .you {
     background: #888;
@@ -151,14 +154,26 @@ body {
     bottom: 5px;
     left: 190px;
 }
+.you .hand .card:not(.ng-leave-active):hover {
+	margin-right: -20px;
+	height: 180px;
+	width: 120px;
+	margin-top: -55px;
+}
+.you .hand .card.animation.ng-leave-active {
+    opacity: 0;
+    -webkit-transform: rotateY(90deg);
+    margin-top: -30px;
+    margin-left: -50px;
+}
 .you .hand .card {
-    margin-right: -60px;
+    margin-right: -50px;
 }
 
 .table.action .you .hand.has-actions .action.card {
     box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
 }
-.xxxyou .hand.has-no-actions .treasure.card {
+.you .hand .treasure.card {
     box-shadow: 0px 0px 5px 5px rgba(255,255,0, 0.9);
 }
 .xxxtable.buy .you .hand .treasure.card {
@@ -463,11 +478,7 @@ h4 {
 }
 
 .animation.ng-leave {
-    -webkit-transition: 0s;
+    -webkit-transition: 0.15s;
 }
-/*
-.animation.ng-leave-active {
-    opacity: 0.5;
-    -webkit-transition: 0s;
-    -webkit-transform: rotateY(50deg);
-}*/
+
+
