@@ -22,7 +22,7 @@
         </script>
         <div class="opponents">
             <div ng-class="{'active' : (gameState.playerOrder[gameState.activePlayer] === player.id)}" class="player" ng-repeat="player in gameState.players" ng-if="player.id !== you.id">
-                id : {{ player.id }}
+                <!-- id : {{ player.id }} -->
                 <ul class="hand">
                     <h4>hand</h4>
                     <li ng-class="cards[card.id].type" class="stacked small card" ng-repeat="card in player.hand track by $index">

@@ -58,22 +58,22 @@ body {
 }
 
 .small.card {
-    height: 70px;
-    width: 50px;
+    height: 50px;
+    width: 35px;
 }
 .small.card .card-description, .small.card .card-type, .small.card .card-cost {
     display: none;
 }
 
 .opponents {
-    height: 250px;
+    height: 170px;
     background: #555;
 }
 .opponents .player {
     float: left;
     background: #444;
     display: block;
-    height: 240px;
+    height: 160px;
     width: 200px;
     position: relative;
     margin: 5px;
@@ -96,7 +96,7 @@ body {
     position: absolute;
 }
 .opponents .player .hand {
-    bottom: 105px;
+    bottom: 85px;
     left: 5px;
     position: absolute;
 }
@@ -151,6 +151,10 @@ body {
     bottom: 5px;
     left: 190px;
 }
+.you .hand .card {
+    margin-right: -60px;
+}
+
 .table.action .you .hand.has-actions .action.card {
     box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
 }
@@ -226,7 +230,7 @@ body {
 }
 
 .board .card {
-    -webkit-transition: 0.5s;
+    -webkit-transition: 0.5s opacity;
 }
 
 .your.player {
@@ -262,7 +266,7 @@ body {
 }
 
 .card {
-    border: 1px solid rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.9);
     padding: 5px;
     margin-right: 5px;
     list-style: none;
