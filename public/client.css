@@ -33,7 +33,6 @@ body {
     opacity: 1 !important;
     box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
 }
-
 .dialog {
     position: absolute;
     right: 10px;
@@ -55,6 +54,27 @@ body {
 }
 .select-dialog .button {
      box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
+}
+
+.turn-notification {
+	font-size: 48px;
+	background: white;
+	padding: 20px;
+	position: absolute;
+	margin: auto;
+	width: 800px;
+	left: 100px;
+	z-index: 1;
+	opacity: 0;
+	animation-duration: 0.4s;
+	text-align: center;
+}
+.turn-notification.zoomOut {
+	animation-delay: 1.7s;
+	opacity: 1;
+}
+.turn-notification.zoomIn {
+	opacity: 1;
 }
 
 .small.card {

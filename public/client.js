@@ -37,12 +37,24 @@ app.run(function($rootScope) {
         $rootScope.you = {
             id: "/#" + socket.id
         };
-       
+
+        if ($rootScope.gameState.activePlayer != update.activePlayer) {
+            $(".turn-notification").html(update.playerOrder[update.activePlayer] + "'s turn!");
+            $(".turn-notification").removeClass("zoomOut");
+            $(".turn-notification").addClass("zoomIn");
+            $(".turn-notification").one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function(){
+                $(".turn-notification").removeClass("zoomIn");
+                $(".turn-notification").addClass("zoomOut");
+            });
+        }
         $rootScope.gameState = update;
         $rootScope.$apply();
         if ($rootScope.gameState.phase == "pregame") return;
         
         playerID = "/#" + socket.id;
+
+
+
         $rootScope.clientPlayer = $rootScope.gameState.players[playerID];
         // apply gameState changes to UI
         $rootScope.$apply();
