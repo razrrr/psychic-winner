@@ -48,17 +48,18 @@
             </div>
             <div style="clear:both;"></div>
             <div ng-if="gameState.phase === 'pregame'">
-            <div>players: {{gameState.playerOrder.length}}</div>
-            <ul>
-                <li ng-repeat="player in gameState.players">
-                    {{ player.name || player.id }}
-                </li>
-            </ul>
-            <div style="position: absolute; right: 0px; top: 0px;">
-                <div ng-click="startGame()" class="start button">Start game</div>
-                <div ng-click="startGame(true)" class="start button">Start dev game</div>
+                <div>players: {{gameState.playerOrder.length}}</div>
+                <ul>
+                    <li ng-repeat="player in gameState.players">
+                        {{ player.name || player.id }}
+                    </li>
+                </ul>
+                <div style="position: absolute; right: 0px; top: 0px;">
+                    <div ng-click="startGame()" class="start button">Start game</div>
+                    <div ng-click="startGame(true)" class="start button">Start dev game</div>
+                </div>
             </div>
-        </div>
+            <div class="log" id="output"></div>
         </div>
         <div class="bank">
             <ul class="trash">
@@ -75,7 +76,6 @@
                     <div style="position: absolute; background: red; color: white; width: 18px; height: 15px; line-height:15px; border: 2px solid black; text-align: center; top: -4px; left: -4px;">{{card.supply}}</div>
                 </li>
             </ul>
-            <div class="log" id="output"></div>
             <div class="choice-dialog dialog" ng-if="(gameState.playerOrder[gameState.activePlayer] === you.id) && (gameState.phase === 'choose')">
                 <div class="message">{{gameState.queryData.message}}</div>
                 <div class="button" ng-click="choose($index, $event)" ng-repeat="choice in gameState.queryData.choices">{{choice}}</div>
@@ -86,7 +86,6 @@
             </div>
             <div style="clear:both;"></div>
         </div>
-
         <div class="played">
             <ul class="played-cards">
                 <li style="opacity:0; width:0px; margin:0px 0px 10px; border:0px; padding: 0px;" class="card"></li>
@@ -120,7 +119,6 @@
             </ul>
             <div style="clear:both;"></div>
         </div>
-
         <div class="you" ng-class="{'disabledxx' : (gameState.playerOrder[gameState.activePlayer] != you.id)}">
             <div ng-class="{'active' : (gameState.playerOrder[gameState.activePlayer] === you.id)}" class="player">
                 <ul class="hand" ng-class="{'has-actions' : clientPlayer.actions > 0, 'has-no-actions' : clientPlayer.actions === 0}">
@@ -156,7 +154,6 @@
                 <div class="clear: both"></div>
             </div>
         </div>
-       
     </div>
 </body>
 

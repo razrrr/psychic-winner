@@ -37,8 +37,7 @@ app.run(function($rootScope) {
         $rootScope.you = {
             id: "/#" + socket.id
         };
-
-        if ($rootScope.gameState.activePlayer != update.activePlayer) {
+        if ($rootScope.gameState.activePlayer != undefined && $rootScope.gameState.activePlayer != update.activePlayer) {
             $(".turn-notification").html(update.playerOrder[update.activePlayer] + "'s turn!");
             $(".turn-notification").removeClass("zoomOut");
             $(".turn-notification").addClass("zoomIn");
