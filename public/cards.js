@@ -108,44 +108,55 @@ cards = {
             return 0;
         },
         action: function(player) {
-            gameState.phase = "select";
-            gameState.queryData = {
-                eligible: ".you .player .hand .card.treasure",
-                number: 1,
-                unique: true,
-                exact: false,
-                selected: [],
-                callback: function(data) {
-                    for (var i in data) {
-                        var cardIndex = data[0].index;
-                        var cost = cards[player.hand[cardIndex].id].cost;
-                        var query = ".bank .buyable .card.treasure.COST0";
-                        for (var j = 1; j <= cost + 3; j++) {
-                            query += ",.bank .buyable .card.treasure.COST" + j;
-                        }
-                        gameState.trash.push(player.hand[cardIndex]);
-                        player.hand.splice(cardIndex, 1);
-                        gameState.phase = "select";
-                        gameState.queryData = {
-                            eligible: query,
-                            number: 1,
-                            unique: true,
-                            exact: false,
-                            selected: [],
-                            callback: function(data) {
-                                player.hand.push(data[0].card);
+            for (var i = 0; i < player.hand.length; i++) {
+                console.log(cards[player.hand[i].id].type);
+                if (cards[player.hand[i].id].type.indexOf("treasure") >= 0) {
+                    console.log("gamestate is select");
+                    gameState.phase = "select";
+                    gameState.queryData = {
+                        eligible: ".you .player .hand .card.treasure",
+                        message: "Trash a treasure card from your hand.",
+                        number: 1,
+                        unique: true,
+                        exact: true,
+                        selected: [],
+                        callback: function(data) {
+                            for (var i in data) {
+                                var cardIndex = data[0].index;
+                                var cost = cards[player.hand[cardIndex].id].cost;
+                                var query = ".bank .buyable .card.treasure.COST0";
+                                for (var j = 1; j <= cost + 3; j++) {
+                                    query += ",.bank .buyable .card.treasure.COST" + j;
+                                }
+                                gameState.trash.push(player.hand[cardIndex]);
+                                player.hand.splice(cardIndex, 1);
+                                gameState.phase = "select";
+                                gameState.queryData = {
+                                    eligible: query,
+                                    message: "Select a Treasure card costing up to 3 Coins more to put into your hand.",
+                                    number: 1,
+                                    unique: true,
+                                    exact: true,
+                                    selected: [],
+                                    callback: function(data) {
+                                        var acquiredCard = acquire(player, data[0].card.id);
+                                        io.sockets.emit("log", " ... and puts " + cards[acquiredCard.id].name + " into hand.");
+                                        player.hand.push(acquiredCard);
+                                        gameState.phase = "action";
+                                        sendGameStates();
+                                    }
+                                };
+                                sendGameStates();
+                            }
+                            if (data.length === 0) {
                                 gameState.phase = "action";
                                 sendGameStates();
                             }
-                        };
-                        sendGameStates();
-                    }
-                    if (data.length === 0) {
-                        gameState.phase = "action";
-                        sendGameStates();
-                    }
+                        }
+                    };
+                    sendGameStates();
                 }
-            };
+            }
         }
     },
     "village": {
@@ -178,6 +189,7 @@ cards = {
             gameState.phase = "select";
             gameState.queryData = {
                 eligible: ".buyable .card.COST4, .buyable .card.COST3, .buyable .card.COST2, .buyable .card.COST1, .buyable .card.COST0",
+                message: "Select a card costing up to 4 Coins.",
                 number: 1,
                 unique: true,
                 exact: true,
@@ -206,6 +218,7 @@ cards = {
             gameState.phase = "select";
             gameState.queryData = {
                 eligible: ".you .player .hand .card",
+                message: "Trash up to 4 Cards from your hand.",
                 number: 4,
                 unique: true,
                 exact: false,
@@ -241,25 +254,15 @@ cards = {
             return 0;
         },
         action: function(player) {
-            gameState.phase = "select";
-            gameState.queryData = {
-                eligible: ".you .player .hand .card.IDcopper",
-                number: 1,
-                unique: true,
-                exact: false,
-                selected: [],
-                callback: function(data) {
-                    for (var i in data) {
-                        io.sockets.emit("log", " ... and trashes a copper for 3 treasure ");
-                        var cardIndex = data[0].index;
-                        gameState.trash.push(player.hand[cardIndex]);
-                        player.hand.splice(cardIndex, 1);
-                        player.coins += 3;
-                    }
-                    gameState.phase = "action";
-                    sendGameStates();
+            for (var i = 0; i < player.hand.length; i++) {
+                if (player.hand[i].id === "copper") {
+                    gameState.trash.push(player.hand[i]);
+                    player.hand.splice(i, 1);
+                    player.coins += 3;
+                    io.sockets.emit("log", "Trashes a copper for 3 treasure.");
+                    i = player.hand.length;
                 }
-            };
+            }
         }
     },
     "smithy": {
@@ -389,6 +392,7 @@ cards = {
             gameState.phase = "select";
             gameState.queryData = {
                 eligible: ".buyable .card.COST4, .buyable .card.COST3, .buyable .card.COST2, .buyable .card.COST1, .buyable .card.COST0",
+                message: "Select a card costing up to 4 Coins.",
                 number: 1,
                 unique: true,
                 exact: true,
@@ -515,31 +519,45 @@ cards = {
                             io.sockets.emit("log", " gains +2 Coins.");
                             gameState.phase = "action";
                         } else if (choiceIndexArray[i] === 2) {
-                            gameState.phase = "select";
-                            gameState.queryData = {
-                                eligible: ".you .player .hand .card",
-                                number: 2,
-                                unique: true,
-                                exact: true,
-                                selected: [],
-                                callback: function(data) {
-                                    var targetCardIndices = [];
-                                    for (var i in data) {
-                                        targetCardIndices.push(data[i].index);
-                                    }
-                                    targetCardIndices.sort(function(a, b) {
-                                        return b - a;
-                                    });
-                                    for (var i = 0; i < targetCardIndices.length; i++) {
-                                        var cardIndex = targetCardIndices[i];
-                                        io.sockets.emit("log", " ... and trashes " + cards[player.hand[cardIndex].id].name);
-                                        gameState.trash.push(player.hand[cardIndex]);
-                                        player.hand.splice(cardIndex, 1);
-                                    }
-                                    gameState.phase = "action";
-                                    sendGameStates();
-                                }
+                            if (player.hand.length === 0) {
+                                gameState.phase = "action";
+                                sendGameStates();
                             }
+                            else if (player.hand.length === 1) {
+                                io.sockets.emit("log", " ... and trashes " + cards[player.hand[0].id].name);
+                                gameState.trash.push(player.hand.pop());
+                                gameState.phase = "action";
+                                sendGameStates();
+                            }
+                            else {
+                                gameState.phase = "select";
+                                gameState.queryData = {
+                                    eligible: ".you .player .hand .card",
+                                    message: "Trash 2 cards from your hand",
+                                    number: 2,
+                                    unique: true,
+                                    exact: true,
+                                    selected: [],
+                                    callback: function(data) {
+                                        var targetCardIndices = [];
+                                        for (var i in data) {
+                                            targetCardIndices.push(data[i].index);
+                                        }
+                                        targetCardIndices.sort(function(a, b) {
+                                            return b - a;
+                                        });
+                                        for (var i = 0; i < targetCardIndices.length; i++) {
+                                            var cardIndex = targetCardIndices[i];
+                                            io.sockets.emit("log", " ... and trashes " + cards[player.hand[cardIndex].id].name);
+                                            gameState.trash.push(player.hand[cardIndex]);
+                                            player.hand.splice(cardIndex, 1);
+                                            gameState.phase = "action";
+                                            sendGameStates();
+                                        }
+                                    }
+                                } 
+                            }
+                            
                         }
                         sendGameStates();
                     }
@@ -558,46 +576,53 @@ cards = {
             return 0;
         },
         action: function(player) {
-            gameState.phase = "select";
-            gameState.queryData = {
-                eligible: ".you .player .hand .card",
-                number: 1,
-                unique: true,
-                exact: false,
-                selected: [],
-                callback: function(data) {
-                    for (var i in data) {
-                        var cardIndex = data[0].index;
-                        var cost = cards[player.hand[cardIndex].id].cost;
-                        var query = ".buyable .card.COST0";
-                        for (var j = 1; j <= cost + 2; j++) {
-                            query += ", .buyable .card.COST" + j;
-                        }
-                        io.sockets.emit("log", cards[player.hand[cardIndex].id].name + " was trashed.");
-                        gameState.trash.push(player.hand[cardIndex]);
-                        player.hand.splice(cardIndex, 1);
-                        gameState.phase = "select";
-                        gameState.queryData = {
-                            eligible: query,
-                            number: 1,
-                            unique: true,
-                            exact: false,
-                            selected: [],
-                            callback: function(data) {
-                                io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                                player.discarded.push(data[0].card);
-                                gameState.phase = "action";
-                                sendGameStates();
+            if (player.hand.length === 0) {
+            }
+            else {
+                gameState.phase = "select";
+                gameState.queryData = {
+                    eligible: ".you .player .hand .card",
+                    message: "Trash a card from your hand.",
+                    number: 1,
+                    unique: true,
+                    exact: true,
+                    selected: [],
+                    callback: function(data) {
+                        for (var i in data) {
+                            var cardIndex = data[0].index;
+                            var cost = cards[player.hand[cardIndex].id].cost;
+                            var query = ".buyable .card.COST0";
+                            for (var j = 1; j <= cost + 2; j++) {
+                                query += ", .buyable .card.COST" + j;
                             }
-                        };
-                        sendGameStates();
+                            io.sockets.emit("log", cards[player.hand[cardIndex].id].name + " was trashed.");
+                            gameState.trash.push(player.hand[cardIndex]);
+                            player.hand.splice(cardIndex, 1);
+                            gameState.phase = "select";
+                            gameState.queryData = {
+                                eligible: query,
+                                number: 1,
+                                unique: true,
+                                exact: true,
+                                selected: [],
+                                callback: function(data) {
+                                    var acquiredCard = acquire(player, data[0].card.id);
+                                    io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
+                                    player.discarded.push(acquiredCard);
+                                    gameState.phase = "action";
+                                    sendGameStates();
+                                }
+                            };
+                            sendGameStates();
+                        }
+                        if (data.length === 0) {
+                            gameState.phase = "action";
+                            sendGameStates();
+                        }
                     }
-                    if (data.length === 0) {
-                        gameState.phase = "action";
-                        sendGameStates();
-                    }
-                }
-            };
+                }; 
+            }
+            
         }
     },
     "mining village": {
@@ -647,9 +672,10 @@ cards = {
             gameState.phase = "select";
             gameState.queryData = {
                 eligible: ".you .player .hand .card",
+                message: "Trash a card from your hand.",
                 number: 1,
                 unique: true,
-                exact: false,
+                exact: true,
                 selected: [],
                 callback: function(data) {
                     for (var i in data) {
@@ -662,14 +688,16 @@ cards = {
                         gameState.phase = "select";
                         gameState.queryData = {
                             eligible: query,
+                            message: "Gain a card costing exactly 1 Coin more.",
                             number: 1,
                             unique: true,
-                            exact: false,
+                            exact: true,
                             selected: [],
                             callback: function(data) {
                                 if (data[0]) {
-                                    io.sockets.emit("log", " ... and gets " + data[0].card.name);
-                                    player.discarded.push(data[0].card);
+                                    var acquiredCard = acquire(player, data[0].card.id);
+                                    io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
+                                    player.discarded.push(acquiredCard);
                                 }
                                 gameState.phase = "action";
                                 sendGameStates();
@@ -906,6 +934,7 @@ cards = {
             gameState.phase = "select";
             gameState.queryData = {
                 eligible: ".you .player .hand .card",
+                message: "Discard any number of cards and draw 1 Card per discarded card.",
                 number: player.hand.length,
                 unique: true,
                 exact: false,
@@ -970,6 +999,7 @@ cards = {
                         gameState.phase = "select";
                         gameState.queryData = {
                             eligible: ".revealed .card",
+                            message: "Select the revealed cards in the order you would like them returned to your deck.",
                             number: gameState.revealed.length,
                             unique: true,
                             exact: true,
@@ -1365,7 +1395,7 @@ cards = {
     },
     "trading post": {
         expansion: "Intrigue",
-        description: "Trash 2 cards from your hand. If you do, gain a silver card; put it into your hand.",
+        description: "Trash 2 cards from your hand. If you do, acquire a silver card into your hand.",
         name: "Trading Post",
         type: "action",
         cost: 5,
@@ -1378,9 +1408,10 @@ cards = {
             gameState.phase = "select";
             gameState.queryData = {
                 eligible: ".you .player .hand .card",
+                message: "Select 2 cards to trash from your hand. If you do, acquire a silver card into your hand.",
                 number: 2,
                 unique: true,
-                exact: false,
+                exact: true,
                 selected: [],
                 callback: function(data) {
                     var targetCardIndices = [];
