@@ -102,17 +102,17 @@
             <ul class="player-stats">
                 <li class="player-stat">
                     <div class="coins icon"><i class="fa fa-circle-o"></i>
-                        <div>{{clientPlayer.coins}}</div>
+                        <div>{{gameState.players[gameState.playerOrder[gameState.activePlayer]].coins}}</div>
                     </div>
                 </li>
                 <li class="player-stat">
                     <div class="actions icon"><i class="fa fa-share"></i>
-                        <div>{{clientPlayer.actions}}</div>
+                        <div>{{gameState.players[gameState.playerOrder[gameState.activePlayer]].actions}}</div>
                     </div>
                 </li>
                 <li class="player-stat">
                     <div class="buys icon"><i class="fa fa-shopping-cart"></i>
-                        <div>{{clientPlayer.buys}}</div>
+                        <div>{{gameState.players[gameState.playerOrder[gameState.activePlayer]].buys}}</div>
                     </div>
                 </li>
             </ul>
