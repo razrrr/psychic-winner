@@ -1357,7 +1357,6 @@ cards = {
             }
             for (var pid in gameState.playerOrder) { //playSpy on player first
                 if (gameState.playerOrder[pid] === player.id) {
-                    console.log("playspy on player");
                     currentPid = gameState.playerOrder[pid];
                     playSpy(pid);
                 }
@@ -1407,6 +1406,61 @@ cards = {
                     sendGameStates();
                 }
             };
+        }
+    },
+    "swindler": {
+        expansion: "Intrigue",
+        description: "+2 Coins, Each other player trashes the top card of his/her deck and gains a card with the same cost that you choose.",
+        name: "Swindler",
+        type: "action",
+        cost: 3,
+        value: 0,
+        victory: 0,
+        action: function(player) {
+            player.coins += 2;
+            var currentPid;
+            var endLoop = 1;
+            var playSwindler = function (playerID) {
+                if (endLoop < gameState.playerOrder.length) {
+                    if (gameState.players[currentPid].deck.length <= 0) reload(gameState.players[currentPid]);
+                    gameState.revealed.push(gameState.players[currentPid].deck.pop());
+                    var cardCost = cards[gameState.revealed[0].id].cost;
+                    var query = ".buyable .card.cost" + cardCost;
+                    var currentOpp = gameState.players[currentPid];
+                    gameState.phase = "select";
+                    gameState.queryData = {
+                        eligible: query,
+                        message: ("Select a card worth " + cardCost + " Coins for " + currentOpp.id + " to gain."),
+                        number: 1,
+                        unique: true,
+                        exact: true,
+                        selected: [],
+                        callback: function(data) {
+                            var acquiredCard = acquire(currentOpp, data[0].card.id);
+                            io.sockets.emit("log,", currentOpp + " trashes " + gameState.revealed[0]);
+                            io.sockets.emit("log", " ...and gains a " + cards[acquiredCard.id].name);
+                            currentOpp.discarded.push(acquiredCard);
+                            gameState.trash.push(gameState.revealed.pop());
+                            playerID = (playerID + 1) % gameState.playerOrder.length;
+                            currentPid = gameState.playerOrder[playerID];
+                            endLoop++;
+                            playSwindler(playerID);
+                        }
+                    };
+                    sendGameStates();
+                }
+                else {
+                    gameState.phase = "action";
+                    sendGameStates();
+                }
+            }
+            for (var pid in gameState.playerOrder) { 
+                if (gameState.playerOrder[pid] === player.id) {
+                    pid = (pid + 1) % gameState.playerOrder.length;
+                    currentPid = gameState.playerOrder[pid]; //start playSpy on first opponent
+                    playSwindler(pid);
+                }
+            }
         }
     },
 };
