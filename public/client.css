@@ -13,31 +13,67 @@ body {
     height: 800px;
     width: 1100px;
     border: 2px solid black;
-   /* overflow: hidden;*/
     margin: auto;
     position: relative;
     margin-top: -400px;
     top: 50%;
     background: black;
 }
+.table.select .bank .buyable .card, .table.select .you .hand .card, .table.select .played .card, .table.select .revealed .card, .disabled {
+    opacity: 0.2;
+}
+.table.choose .bank .buyable .card, .table.choose .you .hand .card, .table.choose .played .card, .table.choose .revealed .card, .disabled {
+    opacity: 0.2;
+}
+.selectable {
+    opacity: 1 !important;
+    box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
+}
+.choosable {
+    opacity: 1 !important;
+    box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
+}
+
+.dialog {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    padding: 10px;
+    border: 1px solid black;
+    background: white;
+    width: 300px;
+    text-align: center;
+    z-index: 1;
+}
+.dialog .button {
+    padding: 5px;
+    border: 1px solid black;
+    margin: 10px;
+}
+.choice-dialog .button {
+    opacity: 0.2;
+}
+.select-dialog .button {
+     box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
+}
 
 .small.card {
-    height: 70px;
-    width: 50px;
+    height: 50px;
+    width: 35px;
 }
 .small.card .card-description, .small.card .card-type, .small.card .card-cost {
     display: none;
 }
 
 .opponents {
-    height: 250px;
+    height: 170px;
     background: #555;
 }
 .opponents .player {
     float: left;
     background: #444;
     display: block;
-    height: 240px;
+    height: 160px;
     width: 200px;
     position: relative;
     margin: 5px;
@@ -60,15 +96,17 @@ body {
     position: absolute;
 }
 .opponents .player .hand {
-    bottom: 105px;
+    bottom: 85px;
     left: 5px;
     position: absolute;
 }
 
+.debug .bank {
+    height: 500px;
+}
 .bank {
     background: #666;
-    height: 500px;
-    overflow: hidden;
+    height: 220px;
     padding: 10px;
     box-sizing: border-box;
     padding-left: 130px;
@@ -81,10 +119,25 @@ body {
     top: 0px;
 }
 .bank .card {
-    height: 50px;
+    height: 53px;
+    transition: 0.5s opacity;
+    position: relative;
+    margin: 5px;
 }
 .bank .card .card-description {
     display: none;
+    position: absolute;
+    top: 20px;
+    left: 0px;
+    opacity: 1 !important;
+    z-index: 1;
+    border: 2px solid black;
+}
+.bank .hover.card {
+	display: none;
+}
+.bank .card:hover .card-description {
+	display: block;
 }
 .bank .log {
     position: absolute;
@@ -94,23 +147,54 @@ body {
 .played {
     position: relative;
     background: #777;
+    height: 260px;
+    box-sizing: border-box;
+    padding-top: 20px;
+}
+.played-cards .card:last-child{
+	box-shadow: 0px 0px 5px 5px rgba(255,255,255, 0.9);
 }
 
 .you {
     background: #888;
     position: relative;
-    height: 220px;
+    height: 150px;
     box-sizing: border-box;
 }
 .you .player {
     background: #888;
-    height: 220px;
+    height: 150px;
     position: relative;
 }
 .you .hand {
     position: absolute;
     bottom: 5px;
     left: 190px;
+}
+.you .hand .card:not(.ng-leave-active):hover {
+	margin-right: -20px;
+	height: 180px;
+	width: 120px;
+	margin-top: -55px;
+}
+.you .hand .card.animation.ng-leave-active {
+    opacity: 0;
+    -webkit-transform: rotateY(90deg);
+    margin-top: -30px;
+    margin-left: -50px;
+}
+.you .hand .card {
+    margin-right: -50px;
+}
+
+.table.action .you .hand.has-actions .action.card {
+    box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
+}
+.you .hand .treasure.card {
+    box-shadow: 0px 0px 5px 5px rgba(255,255,0, 0.9);
+}
+.xxxtable.buy .you .hand .treasure.card {
+    box-shadow: 0px 0px 5px 5px rgba(255,255,0, 0.9);
 }
 .you .deck {
     position: absolute;
@@ -178,7 +262,7 @@ body {
 }
 
 .board .card {
-    -webkit-transition: 0.5s;
+    -webkit-transition: 0.5s opacity;
 }
 
 .your.player {
@@ -214,7 +298,7 @@ body {
 }
 
 .card {
-    border: 1px solid rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.9);
     padding: 5px;
     margin-right: 5px;
     list-style: none;
@@ -349,15 +433,7 @@ body {
     margin-right: -98px;
 }
 
-.phase-select .hand .card, .phase-select .buyable .card, .phase-select .revealed .card {
-    opacity: 0.2;
-}
-
-.selectable {
-    opacity: 1 !important;
-}
-
-.button {
+.end.button, .start.button {
     border: 1px solid #444;
     padding: 5px;
     margin-right: 5px;
@@ -375,21 +451,6 @@ body {
 
 .select.button {
     display: none;
-}
-
-.choice-dialog {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    padding: 10px;
-    border: 1px solid black;
-}
-.select-dialog {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    padding: 10px;
-    border: 1px solid black;
 }
 .choice-dialog .message {
     text-align: center;
@@ -434,11 +495,7 @@ h4 {
 }
 
 .animation.ng-leave {
-    -webkit-transition: 0s;
+    -webkit-transition: 0.15s;
 }
-/*
-.animation.ng-leave-active {
-    opacity: 0.5;
-    -webkit-transition: 0s;
-    -webkit-transform: rotateY(50deg);
-}*/
+
+

@@ -12,7 +12,7 @@
 </head>
 
 <body>
-    <div class="table" ng-class="['phase-'+gameState.phase]" ng-app="Dominion">
+    <div class="table" ng-class="{'debug' : gameState.debug, 'buy' : gameState.phase === 'buy', 'action' : gameState.phase === 'action', 'select' : gameState.phase === 'select', 'choose' : gameState.phase === 'choose'}" ng-app="Dominion">
         <script type="text/ng-template" id="card.html">
             <img style="position: absolute; border:0px; width: 100%; height: 100%; top: 0px; left: 0px; opacity: 0.4" src="{{cards[card.id].image}}" />
             <span class="card-name">{{ cards[card.id].name }}</span>
@@ -22,7 +22,7 @@
         </script>
         <div class="opponents">
             <div ng-class="{'active' : (gameState.playerOrder[gameState.activePlayer] === player.id)}" class="player" ng-repeat="player in gameState.players" ng-if="player.id !== you.id">
-                id : {{ player.id }}
+                <!-- id : {{ player.id }} -->
                 <ul class="hand">
                     <h4>hand</h4>
                     <li ng-class="cards[card.id].type" class="stacked small card" ng-repeat="card in player.hand track by $index">
@@ -45,18 +45,19 @@
                 </ul>
             </div>
             <div style="clear:both;"></div>
-        </div>
-        
-        <div ng-if="gameState.phase === 'pregame'">
+            <div ng-if="gameState.phase === 'pregame'">
             <div>players: {{gameState.playerOrder.length}}</div>
             <ul>
                 <li ng-repeat="player in gameState.players">
                     {{ player.name || player.id }}
                 </li>
             </ul>
-            <div ng-click="startGame()" class="start button">Start game</div>
+            <div style="position: absolute; right: 0px; top: 0px;">
+                <div ng-click="startGame()" class="start button">Start game</div>
+                <div ng-click="startGame(true)" class="start button">Start dev game</div>
+            </div>
         </div>
-
+        </div>
         <div class="bank">
             <ul class="trash">
                 <h4>trash</h4>
@@ -68,10 +69,19 @@
             <ul class="buyable">
                 <li ng-click="select(card, $index, 'buy', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type]" class="card" ng-repeat="card in gameState.board track by $index">
                     <ng-include src="'card.html'"></ng-include>
-                    <div style="position: absolute; background: white; width: 18px; height: 15px; line-height:15px; border: 2px solid black; text-align: center; top: -4px; left: -4px;">{{card.supply}}</div>
+                    <ng-include class="hover" src="'card.html'"></ng-include>
+                    <div style="position: absolute; background: red; color: white; width: 18px; height: 15px; line-height:15px; border: 2px solid black; text-align: center; top: -4px; left: -4px;">{{card.supply}}</div>
                 </li>
             </ul>
             <div class="log" id="output"></div>
+            <div class="choice-dialog dialog" ng-if="(gameState.playerOrder[gameState.activePlayer] === you.id) && (gameState.phase === 'choose')">
+                <div class="message">{{gameState.queryData.message}}</div>
+                <div class="button" ng-click="choose($index, $event)" ng-repeat="choice in gameState.queryData.choices">{{choice}}</div>
+            </div>
+            <div class="select-dialog dialog" ng-if="(gameState.playerOrder[gameState.activePlayer] === you.id) && (gameState.phase === 'select')">
+                <div class="message">{{gameState.queryData.message}}</div>
+                <div ng-if="!gameState.queryData.exact" ng-click="submit()" class="button">ok</div>
+            </div>
             <div style="clear:both;"></div>
         </div>
 
@@ -109,23 +119,14 @@
             <div style="clear:both;"></div>
         </div>
 
-        <div class="you" ng-class="{'disabled' : (gameState.playerOrder[gameState.activePlayer] != you.id)}">
+        <div class="you" ng-class="{'disabledxx' : (gameState.playerOrder[gameState.activePlayer] != you.id)}">
             <div ng-class="{'active' : (gameState.playerOrder[gameState.activePlayer] === you.id)}" class="player">
-                <ul class="hand">
-                    <h4>hand</h4>
+                <ul class="hand" ng-class="{'has-actions' : clientPlayer.actions > 0, 'has-no-actions' : clientPlayer.actions === 0}">
                     <li ng-click="select(card, $index, 'hand', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type,]" class="animation card" ng-repeat="card in clientPlayer.hand track by card.uid">
                         <ng-include src="'card.html'"></ng-include>
                     </li>
                     <li style="clear:both"></li>
                 </ul>
-                <div class="choice-dialog" ng-if="(gameState.playerOrder[gameState.activePlayer] === you.id) && (gameState.phase === 'choose')">
-                    <div class="message">{{gameState.queryData.message}}</div>
-                    <div class="choosable choice" ng-click="choose($index, $event)" ng-repeat="choice in gameState.queryData.choices">{{choice}}</div>
-                </div>
-                <div class="select-dialog" ng-if="(gameState.playerOrder[gameState.activePlayer] === you.id) && (gameState.phase === 'select')">
-                    <div class="message">{{gameState.queryData.message}}</div>
-                    <div ng-if="!gameState.queryData.exact" ng-click="submit()" class="select button">ok</div>
-                </div>
                 <div class="deck">
                     <ul>
                         <h4>deck</h4>
@@ -144,10 +145,12 @@
                         </li>
                     </ul>
                 </div>
+                <div style="right: 130px; position: absolute;" class="end button" ng-click="playAllTreasures()">
+                    Play all treasures
+                </div>
                 <div class="end button" ng-click="endTurn()">
                     End Turn
                 </div>
-               
                 <div class="clear: both"></div>
             </div>
         </div>

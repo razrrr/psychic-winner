@@ -10,6 +10,25 @@ app.run(function($rootScope) {
     $rootScope.cards = cards;
     $rootScope.clientPlayer = {};
 
+    for (var id in cards) {
+        cards[id].id = id;
+    }
+    $rootScope.$watch("clientPlayer.coins", function() {
+        $(".buyable .card").addClass("disabled");
+        if ($rootScope.clientPlayer.buys === 0) return;
+        if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
+        var maxBuyable = $rootScope.clientPlayer.coins;
+        if (maxBuyable > 10) maxBuyable = 10;
+        for (var i = 0; i <= maxBuyable; i++) {
+            $(".buyable .card.COST" + i).removeClass("disabled");
+        }
+    });
+    $rootScope.$watch("gameState.phase", function() {
+        if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
+        $(".your.player .hand .action").addClass("disabled");
+        if ($rootScope.gameState.phase == "action" && $rootScope.clientPlayer.actions > 0) $(".your.player .hand .action").removeClass("disabled");
+    });
+
     socket.on("log", function(msg) {
         $("#output").append("<br/>" + msg);
         $("#output")[0].scrollTop = $("#output")[0].scrollHeight;
@@ -43,9 +62,13 @@ app.run(function($rootScope) {
             }
         }
         if ($rootScope.gameState.phase === "choose") {
-
+            $(".choice-dialog .button").addClass("choosable");
         }
     });
+    $rootScope.playAllTreasures = function() {
+        if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
+        socket.emit("playAllTreasures", {});
+    };
     $rootScope.endTurn = function() {
         if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
         if ($rootScope.gameState.phase == "select" || $rootScope.gameState.phase == "choose") return;
@@ -53,6 +76,7 @@ app.run(function($rootScope) {
     };
     $rootScope.choose = function(index, event) {
         if ($(event.target).hasClass("choosable")) {
+            $(event.target).removeClass("choosable");
             $rootScope.gameState.queryData.selected.push(index);
             if ($rootScope.gameState.queryData.number === $rootScope.gameState.queryData.selected.length) {
                 socket.emit("callback", $rootScope.gameState.queryData.selected);
@@ -100,28 +124,9 @@ app.run(function($rootScope) {
             }
         }
     };
-    $rootScope.startGame = function() {
-        for (var id in cards) {
-            cards[id].id = id;
-        }
+    $rootScope.startGame = function(debugFlag) {     
         $(".start.button").hide();
-        $rootScope.$watch("clientPlayer.coins", function() {
-            $(".buyable .card").addClass("disabled");
-            if ($rootScope.clientPlayer.buys === 0) return;
-            if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
-            var maxBuyable = $rootScope.clientPlayer.coins;
-            //var highestCost = cards[$rootScope.gameState.board[$rootScope.gameState.board.length - 1].id] && cards[$rootScope.gameState.board[$rootScope.gameState.board.length - 1].id].cost;
-            if (maxBuyable > 10) maxBuyable = 10;
-            for (var i = 0; i <= maxBuyable; i++) {
-                $(".buyable .card.COST" + i).removeClass("disabled");
-            }
-        });
-        $rootScope.$watch("gameState.phase", function() {
-            if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
-            $(".your.player .hand .action").addClass("disabled");
-            if ($rootScope.gameState.phase == "action" && $rootScope.clientPlayer.actions > 0) $(".your.player .hand .action").removeClass("disabled");
-        });
-        socket.emit("startGame");
+        socket.emit("startGame", debugFlag);
     };
     $rootScope.submit = function() {
         $(".selectable").removeClass("selectable");
