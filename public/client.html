@@ -69,7 +69,8 @@
             <ul class="buyable">
                 <li ng-click="select(card, $index, 'buy', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type]" class="card" ng-repeat="card in gameState.board track by $index">
                     <ng-include src="'card.html'"></ng-include>
-                    <div style="position: absolute; background: white; width: 18px; height: 15px; line-height:15px; border: 2px solid black; text-align: center; top: -4px; left: -4px;">{{card.supply}}</div>
+                    <ng-include class="hover" src="'card.html'"></ng-include>
+                    <div style="position: absolute; background: red; color: white; width: 18px; height: 15px; line-height:15px; border: 2px solid black; text-align: center; top: -4px; left: -4px;">{{card.supply}}</div>
                 </li>
             </ul>
             <div class="log" id="output"></div>

@@ -119,11 +119,24 @@ body {
     top: 0px;
 }
 .bank .card {
-    height: 50px;
-    transition: 0.5s all;
+    height: 53px;
+    transition: 0.5s opacity;
+    position: relative;
 }
 .bank .card .card-description {
     display: none;
+    position: absolute;
+    top: 20px;
+    left: 0px;
+    opacity: 1 !important;
+    z-index: 1;
+    border: 2px solid black;
+}
+.bank .hover.card {
+	display: none;
+}
+.bank .card:hover .card-description {
+	display: block;
 }
 .bank .log {
     position: absolute;
