@@ -122,6 +122,21 @@ io.sockets.on("connection", function(socket) {
 
         sendGameStates();
     });
+    socket.on("playAllTreasures", function() {
+        var player = gameState.players[socket.id];
+        for(var i = 0; i < player.hand.length; i++) {
+            var card = cards[gameState.players[socket.id].hand[i].id];
+            if (card.type.indexOf("treasure") >= 0) {
+                io.sockets.emit("log", player.id + " plays " + card.name);
+                gameState.phase = "buy";
+                player.played.push(player.hand[i]);
+                player.hand.splice(i, 1);
+                card.action(player);
+                i--;
+                sendGameStates();
+            }
+        }
+    });
     // ----------------
     // Received buy message from client. User bought a card from the bank
     // ----------------
@@ -570,6 +585,5 @@ function createPlayerGameState(player) {
             }
         }
     }
-    console.log(pGameState);
     return pGameState;
 }

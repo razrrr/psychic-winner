@@ -106,7 +106,7 @@ body {
 }
 .bank {
     background: #666;
-    height: 180px;
+    height: 220px;
     padding: 10px;
     box-sizing: border-box;
     padding-left: 130px;
@@ -122,6 +122,7 @@ body {
     height: 53px;
     transition: 0.5s opacity;
     position: relative;
+    margin: 5px;
 }
 .bank .card .card-description {
     display: none;
@@ -146,6 +147,9 @@ body {
 .played {
     position: relative;
     background: #777;
+    height: 260px;
+    box-sizing: border-box;
+    padding-top: 20px;
 }
 .played-cards .card:last-child{
 	box-shadow: 0px 0px 5px 5px rgba(255,255,255, 0.9);
@@ -154,12 +158,12 @@ body {
 .you {
     background: #888;
     position: relative;
-    height: 220px;
+    height: 150px;
     box-sizing: border-box;
 }
 .you .player {
     background: #888;
-    height: 220px;
+    height: 150px;
     position: relative;
 }
 .you .hand {

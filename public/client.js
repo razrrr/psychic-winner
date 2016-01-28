@@ -65,6 +65,10 @@ app.run(function($rootScope) {
             $(".choice-dialog .button").addClass("choosable");
         }
     });
+    $rootScope.playAllTreasures = function() {
+        if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
+        socket.emit("playAllTreasures", {});
+    };
     $rootScope.endTurn = function() {
         if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
         if ($rootScope.gameState.phase == "select" || $rootScope.gameState.phase == "choose") return;
