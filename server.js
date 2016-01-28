@@ -12,6 +12,7 @@ for (var id in cards) {
 // ===============
 var gameStart = false;
 var gameState = {
+    debug: false,
     phase: "pregame",
     players: {},
     board: [],
@@ -23,6 +24,7 @@ var gameState = {
 
 function Player(id) {
     this.id = id;
+    this.connected = true;
     this.hand = [];
     this.discarded = [];
     this.played = [];
@@ -50,6 +52,20 @@ io.sockets.on("connection", function(socket) {
     if (gameState.phase === "pregame") {
         gameState.players[socket.id] = new Player(socket.id);
         gameState.playerOrder.push(socket.id);
+    } else {
+        for (var id in gameState.players) {
+            if (gameState.players[id].connected === false) {
+                if (gameState.playerOrder[gameState.activePlayer] === gameState.players[id]) gameState.playerOrder[gameState.activePlayer] = socket.id;
+                for (var i in gameState.playerOrder) {
+                    if (gameState.playerOrder[i] === id) gameState.playerOrder[i] = socket.id;
+                }
+                gameState.players[socket.id] = gameState.players[id];
+                gameState.players[socket.id].connected = true;
+                gameState.players[socket.id].id = socket.id;
+                delete gameState.players[id];
+                break;
+            }
+        }
     }
     sendGameStates();
 
@@ -59,8 +75,11 @@ io.sockets.on("connection", function(socket) {
     // ----------------
     // Received startGame message from client. User started the game
     // ----------------
-    socket.on("startGame", function() {
+    socket.on("startGame", function(debugFlag) {
+        if (gameStart) return; // block malicious game restarts. change this when players are allowed to restart games.
+        
         gameStart = true;
+        gameState.debug = debugFlag;
         io.sockets.emit("log", "game started");
 
         gameState.trash = [];
@@ -74,13 +93,14 @@ io.sockets.on("connection", function(socket) {
         // initialize board - select 10 random action cards
         gameState.board = initBoard();
 
-        // !! <DEBUG> Put all cards into play. Delete this section later.
-        gameState.board = [];
-        for (var key in cards) {
-            var newCard = createCard(key);
-            newCard.supply = 10;
-            gameState.board.push(newCard);
-            cards[key].bankVersion = newCard;
+        if (gameState.debug) {
+            gameState.board = [];
+            for (var key in cards) {
+                var newCard = createCard(key);
+                newCard.supply = 10;
+                gameState.board.push(newCard);
+                cards[key].bankVersion = newCard;
+            }
         }
 
         gameState.phase = "action";
@@ -174,9 +194,12 @@ io.sockets.on("connection", function(socket) {
     // ----------------
     socket.on("disconnect", function() {
         io.sockets.emit("log", socket.id + " disconnected");
-        if (gameState.phase != "pregame") return;
-        delete gameState.players[socket.id];
-        gameState.playerOrder.splice(gameState.playerOrder.indexOf(socket.id), 1);
+        if (gameState.phase != "pregame") {
+            if (gameState.players[socket.id]) gameState.players[socket.id].connected = false;
+        } else {
+            delete gameState.players[socket.id];
+            gameState.playerOrder.splice(gameState.playerOrder.indexOf(socket.id), 1);
+        }
         sendGameStates();
     });
 });
@@ -216,9 +239,14 @@ function createCard(id) {
 // reset player properties at the end of their turn
 function endTurn(player) {
     io.sockets.emit("log", player.id + " ends their turn");
-    player.actions = 111;
-    player.buys = 111;
-    player.coins = 110;
+    player.actions = 1;
+    player.buys = 1;
+    player.coins = 0;
+    if (gameState.debug) {
+        player.actions += 99;
+        player.buys += 99;
+        player.coins += 100;
+    }
     clear(player);
     sendGameStates();
     draw(player, 5);
@@ -254,7 +282,7 @@ function initBoard() {
             else
                 newCard.supply = supplySize.kingdomCard;
 
-            kingdomCards.push(newCard);;
+            kingdomCards.push(newCard);
         }
     }
     treasureCards.sort(sortCost);
@@ -509,13 +537,16 @@ function countVictoryPoints() {
 // send clients updated gameStates
 function sendGameStates() {
     for (var id in gameState.players) {
-        var pGameState = createPlayerGameState(id);
-        io.sockets.connected[id].emit("gameState", pGameState);
+        if (gameState.players[id].connected) {
+            var pGameState = createPlayerGameState(id);
+            io.sockets.connected[id].emit("gameState", pGameState);
+        }
     }
 }
 
 // create copies of gameStates to information about other player's cards
 function createPlayerGameState(player) {
+    if (gameState.debug) return gameState;
     var pGameState = JSON.parse(JSON.stringify(gameState));
     for (var id in pGameState.players) {
         var this_player = pGameState.players[id];
@@ -524,15 +555,18 @@ function createPlayerGameState(player) {
         if (player != this_player.id) {
             // hide hand
             for (var c in this_player.hand) {
-                this_player.hand[c].id = '';
+                this_player.hand[c].id = "";
+                this_player.hand[c].uid = "";
             }
             // hide deck
             for (var c in this_player.deck) {
-                this_player.deck[c].id = '';
+                this_player.deck[c].id = "";
+                this_player.deck[c].uid = "";
             }
             // hide discard
             for (var c in this_player.discarded) {
-                this_player.discarded[c].id = '';
+                this_player.discarded[c].id = "";
+                this_player.discarded[c].uid = "";
             }
         }
     }
