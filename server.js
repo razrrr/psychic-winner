@@ -567,22 +567,22 @@ function createPlayerGameState(player) {
         var this_player = pGameState.players[id];
 
         // hide other players information before sending to client
+        // hide deck
+        for (var c in this_player.deck) {
+            this_player.deck[c].id = "face-down";
+            this_player.deck[c].uid = "";
+        }        
         if (player != this_player.id) {
             // hide hand
             for (var c in this_player.hand) {
-                this_player.hand[c].id = "";
+                this_player.hand[c].id = "face-down";
                 this_player.hand[c].uid = "";
             }
-            // hide deck
-            for (var c in this_player.deck) {
-                this_player.deck[c].id = "";
-                this_player.deck[c].uid = "";
-            }
             // hide discard
-            for (var c in this_player.discarded) {
-                this_player.discarded[c].id = "";
-                this_player.discarded[c].uid = "";
-            }
+            //for (var c in this_player.discarded) {
+            //    this_player.discarded[c].id = "face-down";
+            //    this_player.discarded[c].uid = "";
+            //}
         }
     }
     return pGameState;
