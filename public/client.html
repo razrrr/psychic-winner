@@ -109,7 +109,7 @@
             <div style="clear:both;"></div>
         </div>
         <div class="you" ng-class="{'disabledxx' : (gameState.playerOrder[gameState.activePlayer] != you.id)}">
-            <div ng-class="{'active' : (gameState.playerOrder[gameState.activePlayer] === you.id)}">
+            <div class="player" ng-class="{'active' : (gameState.playerOrder[gameState.activePlayer] === you.id)}">
                 <ul class="hand" ng-class="{'has-actions' : clientPlayer.actions > 0, 'has-no-actions' : clientPlayer.actions === 0}">
                     <li ng-click="select(card, $index, 'hand', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type,]" class="animation card" ng-repeat="card in clientPlayer.hand track by card.uid">
                         <ng-include src="'card.html'"></ng-include>
