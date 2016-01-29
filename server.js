@@ -150,6 +150,7 @@ io.sockets.on("connection", function(socket) {
                 var acquiredCard = acquire(player, data.cardID);
                 if (acquiredCard) {
                     // buy the card
+                    io.sockets.emit("broadcast", player.id + " buys " + card.name);
                     io.sockets.emit("log", player.id + " buys " + card.name);
                     gameState.phase = "buy";
                     player.coins -= card.cost;
@@ -174,6 +175,7 @@ io.sockets.on("connection", function(socket) {
         var player = gameState.players[socket.id];
         var card = cards[data.cardID];
         if (player.actions > 0 && card.type.indexOf("action") >= 0) {
+            io.sockets.emit("broadcast", player.id + " plays " + card.name);
             io.sockets.emit("log", player.id + " plays " + card.name);
             player.actions--;
             player.played.push(player.hand[data.cardIndex]);

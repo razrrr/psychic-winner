@@ -33,6 +33,14 @@ app.run(function($rootScope) {
         $("#output").append("<br/>" + msg);
         $("#output")[0].scrollTop = $("#output")[0].scrollHeight;
     });
+    socket.on("broadcast", function(msg) {
+        $("#broadcast").html(msg);
+        $("#broadcast").addClass("fadeInDown");
+        $("#broadcast").one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function(){
+            $("#broadcast").removeClass("fadeInDown");
+        });
+    });
+
     socket.on("gameState", function(update) {
         $rootScope.you = {
             id: "/#" + socket.id

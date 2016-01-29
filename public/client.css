@@ -1,6 +1,6 @@
 @import url(http://reset5.googlecode.com/hg/reset.min.css);
 * {
-    font-family: arial;
+    font-family: "Open Sans";
     user-select: none;
     -webkit-user-select: none;
 }
@@ -19,10 +19,10 @@ body {
     top: 50%;
     background: black;
 }
-.table.select .bank .buyable .card, .table.select .you .active .hand .card, .table.select .played .card, .table.select .revealed .card, .disabled {
+.table.select .bank .buyable .card, .table.select .played .card, .table.select .revealed .card, .disabled {
     opacity: 0.2;
 }
-.table.choose .bank .buyable .card, .table.choose .you .active .hand .card, .table.choose .played .card, .table.choose .revealed .card, .disabled {
+.table.choose .bank .buyable .card, .table.choose .played .card, .table.choose .revealed .card, .disabled {
     opacity: 0.2;
 }
 .selectable {
@@ -36,11 +36,12 @@ body {
 .dialog {
     position: absolute;
     right: 10px;
-    top: 10px;
+    bottom: 10px;
     padding: 10px;
     border: 1px solid black;
     background: white;
-    width: 300px;
+    height: 150px;
+    width: 400px;
     text-align: center;
     z-index: 1;
 }
@@ -56,6 +57,76 @@ body {
      box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
 }
 
+.flip-container {
+	perspective: 1000;
+}
+.flip-container.flipped .flipper, .flip-container.hover .flipper {
+	transform: rotateX(180deg);
+}
+
+.flip-container, .front, .back {
+	width: 160px;
+	height: 100px;
+}
+.flip-container .flipper {
+	transform-origin: 100% 50px;
+}
+.flipper {
+	transition: 0.6s;
+	transform-style: preserve-3d;
+
+	position: relative;
+}
+
+.front, .back {
+	backface-visibility: hidden;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+.front {
+	z-index: 2;
+	/* for firefox 31 */
+	transform: rotateX(0deg);
+	background: #55EE33;
+}
+.back {
+	transform: rotateX(-180deg);
+	background: #444;
+}
+.end.button {
+	color: rgba(0,0,0,0.6);
+	text-align: center;
+	font-weight: bold;
+	position: absolute;
+	box-sizing: border-box;
+    bottom: 25px;
+    right: 20px;
+    height: 100px;
+    width: 160px;
+}
+.play-all-treasures.button {
+	color: rgba(0,0,0,0.6);
+	text-align: center;
+	font-weight: bold;
+	position: absolute;
+	box-sizing: border-box;
+    bottom: 25px;
+    right: 250px;
+    width: 160px;
+    padding: 40px 0px;
+	box-sizing: border-box;
+	border: 2px solid rgba(255,255,255,0.75);
+	border-radius: 5px;
+	background: rgba(222,200,0,1);
+}
+.end.button .front, .end.button .back {
+	padding: 40px 0px;
+	box-sizing: border-box;
+	border: 2px solid rgba(255,255,255,0.75);
+	border-radius: 5px;
+}
+
 .turn-notification {
 	font-size: 48px;
 	background: white;
@@ -64,7 +135,7 @@ body {
 	margin: auto;
 	width: 800px;
 	left: 100px;
-	top: 50px;
+	top: 450px;
 	z-index: 1;
 	opacity: 0;
 	animation-duration: 0.4s;
@@ -85,10 +156,13 @@ body {
 .small.card .card-description, .small.card .card-type, .small.card .card-cost {
     display: none;
 }
-
+.face-down {
+	background: #1155AA !important;
+}
 .opponents {
     height: 170px;
     background: #555;
+    position: relative;
 }
 .opponents .player {
     float: left;
@@ -100,25 +174,27 @@ body {
     margin: 5px;
 }
 .opponents .player .card {
-    border-radius: 3px;
-    margin-right: -40px;
+    border-radius: 2px;
+    font-size: 8px;
+    overflow: hidden;
+    margin-right: -28px;
 }
 .opponents .player .deck .card, .opponents .player .discarded .card {
-    margin-right: -49px !important;
+    margin-right: -33px !important;
 }
 .opponents .player .deck {
-    bottom: 5px;
+    bottom: 85px;
     left: 5px;
     position: absolute;
 }
 .opponents .player .discarded {
     bottom: 5px;
-    left: 100px;
+    left: 5px;
     position: absolute;
 }
 .opponents .player .hand {
     bottom: 85px;
-    left: 5px;
+    left: 100px;
     position: absolute;
 }
 
@@ -130,17 +206,15 @@ body {
     height: 220px;
     padding: 10px;
     box-sizing: border-box;
-    padding-left: 130px;
-    padding-right: 300px;
     position: relative;
 }
-.bank .trash {
+.played .trash {
     position: absolute;
     left: 0px;
     top: 0px;
 }
 .bank .card {
-    height: 53px;
+    height: 85px;
     transition: 0.5s opacity;
     position: relative;
     margin: 5px;
@@ -148,7 +222,7 @@ body {
 .bank .card .card-description {
     display: none;
     position: absolute;
-    top: 20px;
+    top: 23px;
     left: 0px;
     opacity: 1 !important;
     z-index: 1;
@@ -160,10 +234,6 @@ body {
 .bank .card:hover .card-description {
 	display: block;
 }
-.bank .log {
-    position: absolute;
-    right: 0px;
-}
 
 .played {
     position: relative;
@@ -171,8 +241,19 @@ body {
     height: 260px;
     box-sizing: border-box;
     padding-top: 20px;
+    background-image: url("http://i.imgur.com/Jcn6ZoK.jpg?");
+    background-size: 100%;
+    opacity: 0.85;
+}
+
+.played-cards .card {
+//	opacity: 0.3;
+}
+.played-cards.stacked .card {
+//	margin-right: -60px;
 }
 .played-cards .card:last-child{
+	opacity: 1;
 	box-shadow: 0px 0px 5px 5px rgba(255,255,255, 0.9);
 }
 
@@ -190,7 +271,7 @@ body {
 .you .hand {
     position: absolute;
     bottom: 5px;
-    left: 190px;
+    left: 100px;
 }
 .you .hand .card:not(.ng-leave-active):hover {
 	margin-right: -20px;
@@ -207,28 +288,33 @@ body {
 .you .hand .card {
     margin-right: -50px;
 }
-
 .table.action .you .active .hand.has-actions .action.card {
     box-shadow: 0px 0px 5px 5px rgba(0,255,0, 0.9);
 }
 .you .active .hand .treasure.card {
-    box-shadow: 0px 0px 5px 5px rgba(255,255,0, 0.9);
+//   box-shadow: 0px 0px 5px 5px rgba(255,255,0, 0.9);
 }
 .xxxtable.buy .you .hand .treasure.card {
     box-shadow: 0px 0px 5px 5px rgba(255,255,0, 0.9);
 }
 .you .deck {
     position: absolute;
-    bottom: 5px;
+    bottom: 75px;
     left: 5px;
+}
+.you .deck .card-name {
+	display: none;
 }
 .you .discarded {
     position: absolute;
     bottom: 5px;
-    left: 100px;
+    left: 5px;
 }
 .you .deck .card, .you .discarded .card {
-    margin-right: -49px !important;
+    margin-right: -33px !important;
+    border-radius: 2px;
+    font-size: 8px;
+    overflow: hidden;
 }
 
 .active.player {
@@ -246,6 +332,14 @@ body {
 
 .disabledx {
     opacity: 0.2;
+}
+
+#broadcast {
+  font-size: 36px;
+  position: absolute;
+  bottom: 40px;
+  left: 200px;
+  transition: 0.7s;
 }
 
 #output {
@@ -442,19 +536,10 @@ body {
     left: 110px;
     top: 10px;
 }
-.end.button {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    width: 80px;
-}
-.buyable .card {}
-
 .stacked.card {
     margin-right: -104px;
 }
-
-.end.button, .start.button {
+.start.button {
     border: 1px solid #444;
     padding: 5px;
     margin-right: 5px;
@@ -511,12 +596,12 @@ h4 {
 }
 
 .animation.ng-enter-stagger {
-    transition-delay: 0.05s;
-    animation-delay: 0.05s;
+  //  transition-delay: 0.05s;
+  //  animation-delay: 0.05s;
 }
 
 .animation.ng-leave {
-    -webkit-transition: 0.15s;
+    -webkit-transition: 0.25s;
 }
 
 

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/animate.css" type="text/css" />
     <link rel="stylesheet" href="/client.css" type="text/css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,800' rel='stylesheet' type='text/css'>
 </head>
 
 <body>
@@ -24,25 +25,20 @@
         <div class="turn-notification animated">Your turn!</div>
         <div class="opponents">
             <div ng-class="{'active' : (gameState.playerOrder[gameState.activePlayer] === player.id)}" class="player" ng-repeat="player in gameState.players" ng-if="player.id !== you.id">
-                <!-- id : {{ player.id }} -->
+                <div style="font-size: 12px;">id : {{ player.id }}</div>
                 <ul class="hand">
-                    <h4>hand</h4>
-                    <li ng-class="cards[card.id].type" class="stacked small card" ng-repeat="card in player.hand track by $index">
-                        {{ cards[card.id].name }}
+                    <li ng-class="[cards[card.id].type, card.id]" class="stacked small card" ng-repeat="card in player.hand track by $index">
                     </li>
                 </ul>
                 <ul class="deck">
-                    <h4>deck</h4>
                     <li class="stacked small card">deck empty</li>
-                    <li class="stacked small card" ng-repeat="card in player.deck track by $index">
-                        {{ cards[card.id].name }}
+                    <li ng-class="[cards[card.id].type, card.id]" class="stacked small card" ng-repeat="card in player.deck track by $index">
                     </li>
                 </ul>
                 <ul class="discarded">
-                    <h4>discard</h4>
                     <li class="stacked small card">discard pile empty</li>
-                    <li ng-class="cards[card.id].type" class="stacked small card" ng-repeat="card in player.discarded track by $index">
-                        {{ cards[card.id].name }}
+                    <li ng-class="[cards[card.id].type, card.id]" class="stacked small card" ng-repeat="card in player.discarded track by $index">
+                        <ng-include src="'card.html'"></ng-include>
                     </li>
                 </ul>
             </div>
@@ -62,13 +58,6 @@
             <div class="log" id="output"></div>
         </div>
         <div class="bank">
-            <ul class="trash">
-                <h4>trash</h4>
-                <li class="stacked card">trash empty</li>
-                <li class="stacked card" ng-repeat="card in gameState.trash track by card.uid">
-                    <ng-include src="'card.html'"></ng-include>
-                </li>
-            </ul>
             <ul class="buyable">
                 <li ng-click="select(card, $index, 'buy', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type]" class="card" ng-repeat="card in gameState.board track by $index">
                     <ng-include src="'card.html'"></ng-include>
@@ -76,18 +65,17 @@
                     <div style="position: absolute; background: red; color: white; width: 18px; height: 15px; line-height:15px; border: 2px solid black; text-align: center; top: -4px; left: -4px;">{{card.supply}}</div>
                 </li>
             </ul>
-            <div class="choice-dialog dialog" ng-if="(gameState.playerOrder[gameState.activePlayer] === you.id) && (gameState.phase === 'choose')">
-                <div class="message">{{gameState.queryData.message}}</div>
-                <div class="button" ng-click="choose($index, $event)" ng-repeat="choice in gameState.queryData.choices">{{choice}}</div>
-            </div>
-            <div class="select-dialog dialog" ng-if="(gameState.playerOrder[gameState.activePlayer] === you.id) && (gameState.phase === 'select')">
-                <div class="message">{{gameState.queryData.message}}</div>
-                <div ng-if="!gameState.queryData.exact" ng-click="submit()" class="button">ok</div>
-            </div>
             <div style="clear:both;"></div>
         </div>
         <div class="played">
-            <ul class="played-cards">
+            <ul class="trash">
+                <h4>trash</h4>
+                <li class="stacked card">trash empty</li>
+                <li class="stacked card" ng-repeat="card in gameState.trash track by card.uid">
+                    <ng-include src="'card.html'"></ng-include>
+                </li>
+            </ul>
+            <ul class="played-cards" ng-class="{'stacked' : gameState.players[gameState.playerOrder[gameState.activePlayer]].played.length > 4}">
                 <li style="opacity:0; width:0px; margin:0px 0px 10px; border:0px; padding: 0px;" class="card"></li>
                 <li ng-class="[cards[card.id].type]" class="animation card" ng-repeat="card in gameState.players[gameState.playerOrder[gameState.activePlayer]].played track by card.uid">
                     <ng-include src="'card.html'"></ng-include>
@@ -117,10 +105,11 @@
                     </div>
                 </li>
             </ul>
+            <div id="broadcast" class="animated"></div>
             <div style="clear:both;"></div>
         </div>
         <div class="you" ng-class="{'disabledxx' : (gameState.playerOrder[gameState.activePlayer] != you.id)}">
-            <div ng-class="{'active' : (gameState.playerOrder[gameState.activePlayer] === you.id)}" class="player">
+            <div ng-class="{'active' : (gameState.playerOrder[gameState.activePlayer] === you.id)}">
                 <ul class="hand" ng-class="{'has-actions' : clientPlayer.actions > 0, 'has-no-actions' : clientPlayer.actions === 0}">
                     <li ng-click="select(card, $index, 'hand', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type,]" class="animation card" ng-repeat="card in clientPlayer.hand track by card.uid">
                         <ng-include src="'card.html'"></ng-include>
@@ -129,27 +118,38 @@
                 </ul>
                 <div class="deck">
                     <ul>
-                        <h4>deck</h4>
                         <li class="stacked small card">deck empty</li>
-                        <li ng-class="[cards[card.id].type]" class="stacked small card" ng-repeat="card in clientPlayer.deck track by $index">
+                        <li ng-class="[cards[card.id].type, card.id]" class="stacked small card" ng-repeat="card in clientPlayer.deck track by $index">
                             <ng-include src="'card.html'"></ng-include>
                         </li>
                     </ul>
                 </div>
                 <div class="discarded">
                     <ul>
-                        <h4>discard</h4>
                         <li class="stacked small card">discard pile empty</li>
                         <li ng-class="[cards[card.id].type]" class="animation stacked small card" ng-repeat="card in clientPlayer.discarded track by $index">
                             <ng-include src="'card.html'"></ng-include>
                         </li>
                     </ul>
                 </div>
-                <div style="right: 130px; position: absolute;" class="end button" ng-click="playAllTreasures()">
+                <div class="play-all-treasures button" ng-click="playAllTreasures()">
                     Play all treasures
                 </div>
                 <div class="end button" ng-click="endTurn()">
-                    End Turn
+                    <div class="flip-container" ng-class="{'flipped' : (gameState.playerOrder[gameState.activePlayer] != you.id)}">
+                        <div class="flipper">
+                            <div class="front">End Turn</div>
+                            <div class="back">Opponent's Turn</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="choice-dialog dialog" ng-if="(gameState.playerOrder[gameState.activePlayer] === you.id) && (gameState.phase === 'choose')">
+                    <div class="message">{{gameState.queryData.message}}</div>
+                    <div class="button" ng-click="choose($index, $event)" ng-repeat="choice in gameState.queryData.choices">{{choice}}</div>
+                </div>
+                <div class="select-dialog dialog" ng-if="(gameState.playerOrder[gameState.activePlayer] === you.id) && (gameState.phase === 'select')">
+                    <div class="message">{{gameState.queryData.message}}</div>
+                    <div ng-if="!gameState.queryData.exact" ng-click="submit()" class="button">ok</div>
                 </div>
                 <div class="clear: both"></div>
             </div>
