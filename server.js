@@ -180,6 +180,7 @@ io.sockets.on("connection", function(socket) {
             player.actions--;
             player.played.push(player.hand[data.cardIndex]);
             player.hand.splice(data.cardIndex, 1);
+            sendGameStates();
             card.action(player);
             sendGameStates();
         }
@@ -188,6 +189,7 @@ io.sockets.on("connection", function(socket) {
             gameState.phase = "buy";
             player.played.push(player.hand[data.cardIndex]);
             player.hand.splice(data.cardIndex, 1);
+            sendGameStates();
             card.action(player);
             sendGameStates();
         }
