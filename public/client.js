@@ -105,20 +105,20 @@ app.run(function($rootScope) {
     $rootScope.select = function(card, index, zone, event) { // user clicked on a card
         if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
 
-        if ($rootScope.gameState.phase === "action" && zone == "hand") {
+        if ($rootScope.gameState.phase === "action" && zone == "hand" && cards[card.id].type.indexOf("action") >= 0) {
             socket.emit("play", {
                 cardID: card.id,
                 cardIndex: index,
                 playerID: playerID
             });
         }
-        if ($rootScope.gameState.phase === "buy" && zone == "hand" && cards[card.id].type.indexOf("treasure") >= 0) {
+       /* if ($rootScope.gameState.phase === "buy" && zone == "hand" && cards[card.id].type.indexOf("treasure") >= 0) {
             socket.emit("play", {
                 cardID: card.id,
                 cardIndex: index,
                 playerID: playerID
             });
-        }
+        } */
         if (($rootScope.gameState.phase === "action" || $rootScope.gameState.phase === "buy") && zone == "buy") {
             socket.emit("buy", {
                 cardID: card.id,
