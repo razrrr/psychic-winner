@@ -864,7 +864,7 @@ cards = {
     "adventurer": {
         expansion: "Base",
         name: "Adventurer",
-        description: "ARBLGARBL",
+        description: "Reveal cards from your deck until you reveal 2 Treasure cards. Put those Treasure cards into your hand and discard the other cards.",
         type: "action",
         cost: 6,
         value: 0,
@@ -887,7 +887,7 @@ cards = {
                         gameState.queryData = {
                             number: 1,
                             exact: true,
-                            message: "HEERS YO TREASURES #" + revealedTreasures,
+                            message: "Treasure " + revealedTreasures + " of 2 revealed.",
                             choices: ["ok"],
                             selected: [],
                             callback: function() {
@@ -1276,7 +1276,7 @@ cards = {
                     gameState.queryData = {
                         number: 1,
                         exact: true,
-                        message: "swag",
+                        message: "Your Tribute rewards have been applied.",
                         choices: ["OK"],
                         selected: [],
                         callback: function() {
