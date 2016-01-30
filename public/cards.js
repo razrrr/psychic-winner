@@ -1448,13 +1448,12 @@ cards = {
         value: 0,
         victory: 0,
         action: function(player) {
-            var mod = gameState.playerOrder.length;
             player.coins += 2;
-            var currentPid;
+            var mod = gameState.playerOrder.length;
             var endLoop = 1;
             var currentOpp;
             var playSwindler = function (playerID) {
-                if (endLoop < gameState.playerOrder.length) {
+                if (endLoop < mod) {
                     currentOpp = gameState.players[gameState.playerOrder[playerID]];
                     if (currentOpp.deck.length <= 0) reload(currentOpp);
                     gameState.revealed.push(currentOpp.deck.pop());
@@ -1478,7 +1477,7 @@ cards = {
                             currentOpp.discarded.push(acquiredCard);
                             gameState.trash.push(gameState.revealed.pop());
                             // console.log("playerID", playerID);
-                            playerID = (playerID + 1) % gameState.playerOrder.length;
+                            playerID = (playerID + 1) % mod;
                             // console.log("playerID%playerorderlength", playerID);
                             // console.log("old cpid", currentPid);
                             // console.log("new cpid", currentPid);
@@ -1496,10 +1495,10 @@ cards = {
             for (var pid in gameState.playerOrder) {
                 if (gameState.playerOrder[pid] === player.id) {
                     console.log("!!!!", gameState.playerOrder[pid]);
-                    console.log("playerorder length", gameState.playerOrder.length);
-                    console.log(pid);
+                    console.log("playerorder length", mod);
+                    console.log("pid", pid);
                     var swindledID = (pid + 1) % mod;
-                    console.log(swindledID);
+                    console.log("swindledID", swindledID);
                     playSwindler(swindledID);
                 }
             }
