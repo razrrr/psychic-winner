@@ -1627,4 +1627,19 @@ cards = {
             attack();
         }
     },
+    "moat": {
+        expansion: "Base",
+        description: "+2 Cards, When another player plays an Attack card, you may reveal this from your hand. If you do, you are unaffected by that Attack.",
+        name: "Moat",
+        type: "action reaction",
+        cost: 2,
+        value: 0,
+        victory: function(player) {
+            return 0;
+        },
+        action: function(player) {
+            draw(player, 2);
+
+        }
+    },
 };
