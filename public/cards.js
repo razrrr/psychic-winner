@@ -1460,8 +1460,6 @@ cards = {
                     io.sockets.emit("log", currentOpp.id + " reveals a " + cards[gameState.revealed[0].id].name);
                     var cardCost = cards[gameState.revealed[0].id].cost;
                     var query = ".buyable .card.cost" + cardCost;
-                    console.log("swindler", player.id);
-                    console.log("opponent", currentOpp);
                     gameState.phase = "select";
                     gameState.queryData = {
                         eligible: query,
@@ -1476,11 +1474,7 @@ cards = {
                             io.sockets.emit("log", " ...and gains a " + cards[acquiredCard.id].name);
                             currentOpp.discarded.push(acquiredCard);
                             gameState.trash.push(gameState.revealed.pop());
-                            // console.log("playerID", playerID);
                             playerID = (playerID + 1) % mod;
-                            // console.log("playerID%playerorderlength", playerID);
-                            // console.log("old cpid", currentPid);
-                            // console.log("new cpid", currentPid);
                             endLoop++;
                             playSwindler(playerID);
                         }
@@ -1492,13 +1486,9 @@ cards = {
                     sendGameStates();
                 }
             }
-            for (var pid in gameState.playerOrder) {
-                if (gameState.playerOrder[pid] === player.id) {
-                    console.log("!!!!", gameState.playerOrder[pid]);
-                    console.log("playerorder length", mod);
-                    console.log("pid", pid);
-                    var swindledID = (pid + 1) % mod;
-                    console.log("swindledID", swindledID);
+            for (var i = 0; i < mod; i++) {
+                if (gameState.playerOrder[i] === player.id) {
+                    var swindledID = (i + 1) % mod;
                     playSwindler(swindledID);
                 }
             }
