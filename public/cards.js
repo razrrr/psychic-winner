@@ -686,32 +686,41 @@ cards = {
                         io.sockets.emit("log", cards[player.hand[cardIndex].id].name + " was trashed.");
                         gameState.trash.push(player.hand[cardIndex]);
                         player.hand.splice(cardIndex, 1);
-                        for (var i = 0; i < gameState.board.length; i++) {
-                            if (cards[gameState.board[i].id].cost === (cost + 1)) {
-                                gameState.phase = "select";
-                                gameState.queryData = {
-                                    eligible: query,
-                                    message: "Gain a card costing exactly 1 Coin more.",
-                                    number: 1,
-                                    unique: true,
-                                    exact: true,
-                                    selected: [],
-                                    callback: function(data) {
-                                        if (data[0]) {
-                                            var acquiredCard = acquire(player, data[0].card.id);
-                                            io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
-                                            player.discarded.push(acquiredCard);
+                        var playUpgrade = function() {
+                            for (var i = 0; i < gameState.board.length; i++) {
+                                if (cards[gameState.board[i].id].cost === (cost + 1)) {
+                                    gameState.phase = "select";
+                                    gameState.queryData = {
+                                        eligible: query,
+                                        message: "Gain a card costing exactly 1 Coin more.",
+                                        number: 1,
+                                        unique: true,
+                                        exact: true,
+                                        selected: [],
+                                        callback: function(data) {
+                                            if (cards[data[0].card.id].bankVersion.supply === 0) {
+                                                io.sockets.emit("log", "This card pile is empty, select another upgrade.");
+                                                playUpgrade();
+                                            }
+                                            else if (cards[data[0].card.id].bankVersion.supply > 0) {
+                                                if (data[0]) {
+                                                    var acquiredCard = acquire(player, data[0].card.id);
+                                                    io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
+                                                    player.discarded.push(acquiredCard);
+                                                }
+                                                gameState.phase = "action";
+                                                sendGameStates();
+                                            }
                                         }
-                                        gameState.phase = "action";
-                                        sendGameStates();
-                                    }
-                                };
-                                sendGameStates();
-                            }       
-                            else {
-                                counter++;
+                                    };
+                                    sendGameStates();
+                                }       
+                                else {
+                                    counter++;
+                                }
                             }
                         }
+                        playUpgrade();
                         if (counter === gameState.board.length) {
                             io.sockets.emit("log", "... There were no available upgrades.");
                             gameState.phase = "action";
