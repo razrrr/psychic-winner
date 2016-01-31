@@ -1178,7 +1178,7 @@ cards = {
         expansion: "Base",
         description: "+2 Cards, Each other player gains a Curse card.",
         name: "Witch",
-        type: "action",
+        type: "action attack",
         cost: 5,
         value: 0,
         victory: 0,
