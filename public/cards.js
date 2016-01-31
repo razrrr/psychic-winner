@@ -1575,7 +1575,7 @@ cards = {
                             gameState.phase = "select";
                             gameState.queryData = {
                                 eligible: ".you .player .hand .card",
-                                number: twoCounter(),
+                                number: 1,
                                 unique: true,
                                 exact: true,
                                 message: "Select cards to discard",
@@ -1640,6 +1640,41 @@ cards = {
         action: function(player) {
             draw(player, 2);
 
+        }
+    },
+     "throne room": {
+        expansion: "Base",
+        description: "Choose an Action card in your hand. Play it twice.",
+        name: "Throne Room",
+        type: "action reaction",
+        cost: 4,
+        value: 0,
+        victory: function(player) {
+            return 0;
+        },
+        action: function(player) {
+            for (var i = 0; i < player.hand.length; i++) {
+                if (cards[player.hand[i].id].type.indexOf("action") >= 0) {
+                    gameState.phase = "select";
+                    gameState.queryData = {
+                        number: 1,
+                        exact: true
+                        eligible: ".you .player .hand .card.action",
+                        message: "Select an action from your hand to play twice.",
+                        selected: [],
+                        callback: function(data) {
+                        var cardIndex = data[0].index;
+                        cards[data.id].action(player); //calls an action
+                        io.sockets.emit("broadcast", player.id + " plays " + card.name);
+                        io.sockets.emit("log", player.id + " plays " + card.name);
+                        player.played.push(player.hand[data.cardIndex]);
+                        player.hand.splice(data.cardIndex, 1);
+                    }
+                    gameState.phase = "action";
+                    sendGameStates();
+                    }
+                }
+            }
         }
     },
 };
