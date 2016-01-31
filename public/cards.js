@@ -1178,7 +1178,7 @@ cards = {
         expansion: "Base",
         description: "+2 Cards, Each other player gains a Curse card.",
         name: "Witch",
-        type: "action",
+        type: "action attack",
         cost: 5,
         value: 0,
         victory: 0,
@@ -1265,12 +1265,13 @@ cards = {
         victory: 0,
         action: function(player) {
             var leftPid;
-            for (var pid in gameState.playerOrder) {
-                if (gameState.playerOrder[pid] === player.id) {
-                    leftPid = gameState.playerOrder[(pid + 1) % gameState.playerOrder.length]; //Does this id the person after you?
-                    for (var i = 0; i < 2; i++) {
+            for (var i = 0; i < gameState.playerOrder.length; i++) {
+                if (gameState.playerOrder[i] === player.id) {
+                    leftPid = gameState.playerOrder[(i + 1) % gameState.playerOrder.length]; //Does this id the person after you?
+                    for (var j = 0; j < 2; j++) {
                         if (gameState.players[leftPid].deck.length <= 0) reload(gameState.players[leftPid]);
                         gameState.revealed.push(gameState.players[leftPid].deck.pop()); //How do i do player.deck for someone else?
+                        io.sockets.emit("log", gameState.players[leftPid].id + " reveals a " + cards[gameState.revealed[j].id].name);
                     }
                     gameState.phase = "choose";
                     gameState.queryData = {
@@ -1449,15 +1450,17 @@ cards = {
         victory: 0,
         action: function(player) {
             player.coins += 2;
-            var currentPid;
+            var mod = gameState.playerOrder.length;
             var endLoop = 1;
+            var currentOpp;
             var playSwindler = function (playerID) {
-                if (endLoop < gameState.playerOrder.length) {
-                    if (gameState.players[currentPid].deck.length <= 0) reload(gameState.players[currentPid]);
-                    gameState.revealed.push(gameState.players[currentPid].deck.pop());
+                if (endLoop < mod) {
+                    currentOpp = gameState.players[gameState.playerOrder[playerID]];
+                    if (currentOpp.deck.length <= 0) reload(currentOpp);
+                    gameState.revealed.push(currentOpp.deck.pop());
+                    io.sockets.emit("log", currentOpp.id + " reveals a " + cards[gameState.revealed[0].id].name);
                     var cardCost = cards[gameState.revealed[0].id].cost;
                     var query = ".buyable .card.cost" + cardCost;
-                    var currentOpp = gameState.players[currentPid];
                     gameState.phase = "select";
                     gameState.queryData = {
                         eligible: query,
@@ -1468,12 +1471,11 @@ cards = {
                         selected: [],
                         callback: function(data) {
                             var acquiredCard = acquire(currentOpp, data[0].card.id);
-                            io.sockets.emit("log,", currentOpp + " trashes " + gameState.revealed[0]);
+                            io.sockets.emit("log", currentOpp.id + " trashes " + cards[gameState.revealed[0].id].name);
                             io.sockets.emit("log", " ...and gains a " + cards[acquiredCard.id].name);
                             currentOpp.discarded.push(acquiredCard);
                             gameState.trash.push(gameState.revealed.pop());
-                            playerID = (playerID + 1) % gameState.playerOrder.length;
-                            currentPid = gameState.playerOrder[playerID];
+                            playerID = (playerID + 1) % mod;
                             endLoop++;
                             playSwindler(playerID);
                         }
@@ -1485,11 +1487,10 @@ cards = {
                     sendGameStates();
                 }
             }
-            for (var pid in gameState.playerOrder) {
-                if (gameState.playerOrder[pid] === player.id) {
-                    pid = (pid + 1) % gameState.playerOrder.length;
-                    currentPid = gameState.playerOrder[pid]; //start playSpy on first opponent
-                    playSwindler(pid);
+            for (var i = 0; i < mod; i++) {
+                if (gameState.playerOrder[i] === player.id) {
+                    var swindledID = (i + 1) % mod;
+                    playSwindler(swindledID);
                 }
             }
         }
@@ -1498,7 +1499,7 @@ cards = {
         expansion: "Intrigue",
         description: "+1 Action, Choose one: +2 Coins; or discard your hand, draw 4 Cards, and each other player with at least 5 cards in hand discards his hand and draws 4 Cards.",
         name: "Minion",
-        type: "action",
+        type: "action attack",
         cost: 5,
         value: 0,
         victory: function(player) {
@@ -1507,6 +1508,7 @@ cards = {
         action: function(player) {
             var currentPid;
             var currentPlayer;
+            var endLoop = 1;
             player.actions += 1;
             gameState.phase = "choose";
             gameState.queryData = {
@@ -1522,17 +1524,21 @@ cards = {
                     else if (choiceIndexArray[0] === 1) {
                         while (player.hand.length > 0) player.discarded.push(player.hand.pop());
                         draw(player, 4);
-                        for (var pid in gameState.playerOrder) {
-                            if (gameState.playerOrder[pid] === player.id) { //looks for player then cycles through rest of players
-                                currentPid = gameState.playerOrder[pid];
-                                for (var i = 1; i < gameState.playerOrder.length; i++) {
-                                    pid = (pid + 1) % gameState.playerOrder.length;
-                                    currentPlayer = gameState.players[gameState.playerOrder[pid]];
+                        for (var i = 0; i < gameState.playerOrder.length; i++) {
+                            if (gameState.playerOrder[i] === player.id) { //looks for player then cycles through rest of players
+                                currentPid = gameState.playerOrder[i];
+                                console.log(currentPid);
+                                while (endLoop < gameState.playerOrder.length) {
+                                    console.log("i1", i);
+                                    i = (i + 1) % gameState.playerOrder.length;
+                                    console.log("i2", i);
+                                    currentPlayer = gameState.players[gameState.playerOrder[i]];
                                     if (currentPlayer.hand.length >= 5) {
                                         io.sockets.emit("log", currentPlayer.id + " discards hand and...");
                                         while (currentPlayer.hand.length > 0) currentPlayer.discarded.push(currentPlayer.hand.pop());
                                         draw(currentPlayer, 4);
                                     }
+                                    endLoop++;
                                 }
                             }
                         }

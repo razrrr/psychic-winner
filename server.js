@@ -273,6 +273,114 @@ function endTurn(player) {
     io.sockets.emit("log", gameState.players[gameState.playerOrder[gameState.activePlayer]].id + "'s turn");
 }
 
+// draw cards from a players deck
+function draw(player, numCards) {
+    var actualDrawn = 0;
+    while (numCards > 0) {
+        if (player.deck.length === 0) {
+            if (actualDrawn > 0) io.sockets.emit("log", player.id + " draws " + actualDrawn + " cards");
+            actualDrawn = 0;
+            reload(player);
+        }
+        if (player.deck.length > 0) player.hand.push(player.deck.pop());
+        actualDrawn++;
+        numCards--;
+    }
+    io.sockets.emit("log", player.id + " draws " + actualDrawn + " cards");
+}
+
+// move cards from hand, played, and revealed to discard pile - used for end of turn... but where else? merge with endTurn if nowhere
+function clear(player) {
+    while (player.hand.length > 0) {
+        player.discarded.push(player.hand.pop());
+    }
+    while (player.played.length > 0) {
+        player.discarded.push(player.played.pop());
+    }
+}
+
+// move cards from discard pile to deck and shuffle
+function reload(player) {
+    while (player.discarded.length > 0) {
+        player.deck.push(player.discarded.pop());
+    }
+    shuffle(player.deck);
+    io.sockets.emit("log", player.id + " shuffles their discard pile into their deck");
+}
+
+// shuffles an array of cards
+function shuffle(array) {
+    var currentIndex = array.length,
+        temporaryValue, randomIndex;
+    while (0 !== currentIndex) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
+    return array;
+}
+
+// player is the attacking player, not the player being attacked
+function attack(player, attackFunction) {
+    console.log(attackFunction);
+    var attackingPlayerId = player.id;
+    gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;;
+    var attackedPlayer =  gameState.players[gameState.playerOrder[gameState.activePlayer]];
+    var sendAttack = function (a, b, af) {
+        var reactions = [];
+        var reactionChoices = ["Do nothing"];
+        for (var i in b.hand) {
+            var card = cards[b.hand[i].id];
+            if (card.type.indexOf("reaction") >= 0) {
+                reactions.push(card);
+                reactionChoices.push("Play " + card.name);
+            }
+        }
+
+        gameState.phase = "choose";
+        gameState.queryData = {
+            number: 1,
+            exact: true,
+            message: "Choose one.",
+            choices: reactionChoices,
+            selected: [],
+            callback: function(choiceIndexArray) {
+                if (choiceIndexArray[0] === 0) {
+                    var doneFunction = function() {
+                        gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+                        if (gameState.playerOrder[gameState.activePlayer] === attackingPlayerId) {
+                            gameState.phase = "action";
+                            sendGameStates();
+                        } else {
+                            sendAttack(player, attackedPlayer, af);
+                            sendGameStates();
+                        }
+                    }
+                    var targetPlayer = gameState.players[gameState.playerOrder[gameState.activePlayer]];;
+                    attackFunction(player, targetPlayer, doneFunction);
+                } else {
+                    console.log("react", reactions[choiceIndexArray[0] - 1]);choiceIndexArray[0]
+                    var doneFunction = function() {
+                        gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+                        if (gameState.playerOrder[gameState.activePlayer] === attackingPlayerId) {
+                            gameState.phase = "action";
+                            sendGameStates();
+                        } else {
+                            sendAttack(player, attackedPlayer, af);
+                            sendGameStates();
+                        }
+                    }
+                    var targetPlayer = gameState.players[gameState.playerOrder[gameState.activePlayer]];;
+                    attackFunction(player, targetPlayer, doneFunction);
+                }
+            }
+        };
+    };
+    sendAttack(player, attackedPlayer, attackFunction);
+}
+
 // initialize game board
 function initBoard() {
     var supplySize = getSupplySize(gameState.playerOrder.length);
@@ -325,55 +433,6 @@ function initBoard() {
 // helper function to sort cards by cost
 function sortCost(a, b) {
     return cards[a.id].cost > cards[b.id].cost;
-}
-
-// draw cards from a players deck
-function draw(player, numCards) {
-    var actualDrawn = 0;
-    while (numCards > 0) {
-        if (player.deck.length === 0) {
-            if (actualDrawn > 0) io.sockets.emit("log", player.id + " draws " + actualDrawn + " cards");
-            actualDrawn = 0;
-            reload(player);
-        }
-        if (player.deck.length > 0) player.hand.push(player.deck.pop());
-        actualDrawn++;
-        numCards--;
-    }
-    io.sockets.emit("log", player.id + " draws " + actualDrawn + " cards");
-}
-
-// move cards from hand, played, and revealed to discard pile - used for end of turn... but where else? merge with endTurn if nowhere
-function clear(player) {
-    while (player.hand.length > 0) {
-        player.discarded.push(player.hand.pop());
-    }
-    while (player.played.length > 0) {
-        player.discarded.push(player.played.pop());
-    }
-}
-
-// move cards from discard pile to deck and shuffle
-function reload(player) {
-    while (player.discarded.length > 0) {
-        player.deck.push(player.discarded.pop());
-    }
-    shuffle(player.deck);
-    io.sockets.emit("log", player.id + " shuffles their discard pile into their deck");
-}
-
-// shuffles an array of cards
-function shuffle(array) {
-    var currentIndex = array.length,
-        temporaryValue, randomIndex;
-    while (0 !== currentIndex) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
-    }
-    return array;
 }
 
 // create starting hand of player

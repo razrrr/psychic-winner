@@ -9,15 +9,16 @@ app.run(function($rootScope) {
     };
     $rootScope.cards = cards;
     $rootScope.clientPlayer = {};
+    $rootScope.activePlayer = {coins: 0};
 
     for (var id in cards) {
         cards[id].id = id;
     }
-    $rootScope.$watch("clientPlayer.coins", function() {
+    $rootScope.$watch("activePlayer.coins", function() {
         $(".buyable .card").addClass("disabled");
-        if ($rootScope.clientPlayer.buys === 0) return;
-        if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
-        var maxBuyable = $rootScope.clientPlayer.coins;
+        if ($rootScope.activePlayer.buys === 0) return;
+      //  if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
+        var maxBuyable = $rootScope.activePlayer.coins;
         if (maxBuyable > 10) maxBuyable = 10;
         for (var i = 0; i <= maxBuyable; i++) {
             $(".buyable .card.COST" + i).removeClass("disabled");
@@ -59,9 +60,7 @@ app.run(function($rootScope) {
         if ($rootScope.gameState.phase == "pregame") return;
         
         playerID = "/#" + socket.id;
-
-
-
+        $rootScope.activePlayer = $rootScope.gameState.players[$rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer]];
         $rootScope.clientPlayer = $rootScope.gameState.players[playerID];
         // apply gameState changes to UI
         $rootScope.$apply();
