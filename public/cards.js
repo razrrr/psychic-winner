@@ -701,6 +701,7 @@ cards = {
                                             if (cards[data[0].card.id].bankVersion.supply === 0) {
                                                 io.sockets.emit("log", "This card pile is empty, select another upgrade.");
                                                 playUpgrade();
+                                                sendGameStates();
                                             }
                                             else if (cards[data[0].card.id].bankVersion.supply > 0) {
                                                 if (data[0]) {
