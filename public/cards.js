@@ -1450,15 +1450,17 @@ cards = {
         victory: 0,
         action: function(player) {
             player.coins += 2;
-            var currentPid;
+            var mod = gameState.playerOrder.length;
             var endLoop = 1;
+            var currentOpp;
             var playSwindler = function (playerID) {
-                if (endLoop < gameState.playerOrder.length) {
-                    if (gameState.players[currentPid].deck.length <= 0) reload(gameState.players[currentPid]);
-                    gameState.revealed.push(gameState.players[currentPid].deck.pop());
+                if (endLoop < mod) {
+                    currentOpp = gameState.players[gameState.playerOrder[playerID]];
+                    if (currentOpp.deck.length <= 0) reload(currentOpp);
+                    gameState.revealed.push(currentOpp.deck.pop());
+                    io.sockets.emit("log", currentOpp.id + " reveals a " + cards[gameState.revealed[0].id].name);
                     var cardCost = cards[gameState.revealed[0].id].cost;
                     var query = ".buyable .card.cost" + cardCost;
-                    var currentOpp = gameState.players[currentPid];
                     gameState.phase = "select";
                     gameState.queryData = {
                         eligible: query,
@@ -1469,12 +1471,11 @@ cards = {
                         selected: [],
                         callback: function(data) {
                             var acquiredCard = acquire(currentOpp, data[0].card.id);
-                            io.sockets.emit("log,", currentOpp + " trashes " + gameState.revealed[0]);
+                            io.sockets.emit("log", currentOpp.id + " trashes " + cards[gameState.revealed[0].id].name);
                             io.sockets.emit("log", " ...and gains a " + cards[acquiredCard.id].name);
                             currentOpp.discarded.push(acquiredCard);
                             gameState.trash.push(gameState.revealed.pop());
-                            playerID = (playerID + 1) % gameState.playerOrder.length;
-                            currentPid = gameState.playerOrder[playerID];
+                            playerID = (playerID + 1) % mod;
                             endLoop++;
                             playSwindler(playerID);
                         }
@@ -1486,11 +1487,10 @@ cards = {
                     sendGameStates();
                 }
             }
-            for (var pid in gameState.playerOrder) {
-                if (gameState.playerOrder[pid] === player.id) {
-                    pid = (pid + 1) % gameState.playerOrder.length;
-                    currentPid = gameState.playerOrder[pid]; //start playSpy on first opponent
-                    playSwindler(pid);
+            for (var i = 0; i < mod; i++) {
+                if (gameState.playerOrder[i] === player.id) {
+                    var swindledID = (i + 1) % mod;
+                    playSwindler(swindledID);
                 }
             }
         }
