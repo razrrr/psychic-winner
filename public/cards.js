@@ -197,7 +197,9 @@ cards = {
                 callback: function(data) {
                     var acquiredCard = acquire(player, data[0].card.id);
                     io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
-                    player.discarded.push(acquiredCard);
+                    acquiredCard.state += " acquired";
+                    acquiredCard.to = "discarded";
+                    player.played.push(acquiredCard);
                     gameState.phase = "action";
                     sendGameStates();
                 }

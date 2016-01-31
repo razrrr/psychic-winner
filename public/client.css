@@ -245,7 +245,10 @@ body {
     background-size: 100%;
     opacity: 0.85;
 }
-
+.played-cards .acquired {
+    margin-left: -105px;
+    margin-top: 30px;
+}
 .played-cards .card {
 //	opacity: 0.3;
 }

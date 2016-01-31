@@ -181,9 +181,10 @@ io.sockets.on("connection", function(socket) {
             player.played.push(player.hand[data.cardIndex]);
             player.hand.splice(data.cardIndex, 1);
             sendGameStates();
-            card.action(player);
+            card.state = "played";
+            card.action(player, data);
             sendGameStates();
-        }
+        }/*
         if (card.type.indexOf("treasure") >= 0) {
             io.sockets.emit("log", player.id + " plays " + card.name);
             gameState.phase = "buy";
@@ -192,7 +193,7 @@ io.sockets.on("connection", function(socket) {
             sendGameStates();
             card.action(player);
             sendGameStates();
-        }
+        }*/
     });
     // ----------------
     // Received select message from client. User made an option from the "select" menu
@@ -295,7 +296,14 @@ function clear(player) {
         player.discarded.push(player.hand.pop());
     }
     while (player.played.length > 0) {
-        player.discarded.push(player.played.pop());
+        var card = player.played.pop();
+        if (card.to === "trash") {
+            player.trash.push(card);
+        } else {
+            player.discarded.push(card);         
+        }
+        card.to = "";
+        card.state = "";
     }
 }
 
