@@ -1189,11 +1189,13 @@ cards = {
             for (var pid in gameState.players) {
                 var aPlayer = gameState.players[pid];
                 if (aPlayer.id != player.id) {
-                    var acquiredCurse = acquire(aPlayer, "curse");
-                    aPlayer.discarded.push(acquiredCurse);
+                    if (cards["curse"].bankVersion.supply > 0) {
+                        var acquiredCurse = acquire(aPlayer, "curse");
+                        aPlayer.discarded.push(acquiredCurse); 
+                        io.sockets.emit("log", " Each other player gained a Curse!");
+                    }
                 }
             }
-            io.sockets.emit("log", " Each other player gained a Curse!");
         }
     },
     "duke": {
