@@ -628,6 +628,7 @@ function sendGameStates() {
             io.sockets.connected[id].emit("gameState", pGameState);
         }
     }
+    console.log(gameState);
 }
 
 // create copies of gameStates to information about other player's cards

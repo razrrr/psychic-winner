@@ -1047,7 +1047,7 @@ cards = {
                 exact: true,
                 selected: [],
                 callback: function(data) {
-                    player.deck.push(cards[data[0].card.id]);
+                    player.deck.push(data[0].card);
                     player.hand.splice(data[0].index, 1);
                     io.sockets.emit("log", "... and puts 1 card from hand on top of deck.");
                     gameState.phase = "action";
