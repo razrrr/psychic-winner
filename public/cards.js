@@ -1560,7 +1560,7 @@ cards = {
             return 0;
         },
         action: function(player) {
-            // save current player id so we know when all players have been attacked
+            draw(player, 3);
             var currentPlayer = gameState.activePlayer;
             gameState.phase = "choose";
             gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
@@ -1602,7 +1602,6 @@ cards = {
                                     }
                                     gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
                                     if (gameState.activePlayer === currentPlayer) {
-                                        draw(player, 3);
                                         gameState.phase = "action";
                                         sendGameStates();
                                     } else {
@@ -1618,7 +1617,6 @@ cards = {
                             playerData.hand.push(acquiredCard);
                             gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
                             if (gameState.activePlayer === currentPlayer) {
-                                draw(player, 3);
                                 gameState.phase = "action";
                                 sendGameStates();
                             } else {
