@@ -681,38 +681,61 @@ cards = {
                 selected: [],
                 callback: function(data) {
                     for (var i in data) {
+                        var counter = 0;
                         var cardIndex = data[0].index;
                         var cost = cards[player.hand[cardIndex].id].cost;
                         var query = ".buyable .card.COST" + (cost + 1);
                         io.sockets.emit("log", cards[player.hand[cardIndex].id].name + " was trashed.");
                         gameState.trash.push(player.hand[cardIndex]);
                         player.hand.splice(cardIndex, 1);
-                        gameState.phase = "select";
-                        gameState.queryData = {
-                            eligible: query,
-                            message: "Gain a card costing exactly 1 Coin more.",
-                            number: 1,
-                            unique: true,
-                            exact: true,
-                            selected: [],
-                            callback: function(data) {
-                                if (data[0]) {
-                                    var acquiredCard = acquire(player, data[0].card.id);
-                                    io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
-                                    player.discarded.push(acquiredCard);
+                        var playUpgrade = function() {
+                            for (var i = 0; i < gameState.board.length; i++) {
+                                if (cards[gameState.board[i].id].cost === (cost + 1)) {
+                                    gameState.phase = "select";
+                                    gameState.queryData = {
+                                        eligible: query,
+                                        message: "Gain a card costing exactly 1 Coin more.",
+                                        number: 1,
+                                        unique: true,
+                                        exact: true,
+                                        selected: [],
+                                        callback: function(data) {
+                                            if (cards[data[0].card.id].bankVersion.supply === 0) {
+                                                io.sockets.emit("log", "This card pile is empty, select another upgrade.");
+                                                playUpgrade();
+                                                sendGameStates();
+                                            }
+                                            else if (cards[data[0].card.id].bankVersion.supply > 0) {
+                                                if (data[0]) {
+                                                    var acquiredCard = acquire(player, data[0].card.id);
+                                                    io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
+                                                    player.discarded.push(acquiredCard);
+                                                }
+                                                gameState.phase = "action";
+                                                sendGameStates();
+                                            }
+                                        }
+                                    };
+                                    sendGameStates();
+                                }       
+                                else {
+                                    counter++;
                                 }
-                                gameState.phase = "action";
-                                sendGameStates();
                             }
-                        };
-                        sendGameStates();
+                        }
+                        playUpgrade();
+                        if (counter === gameState.board.length) {
+                            io.sockets.emit("log", "... There were no available upgrades.");
+                            gameState.phase = "action";
+                            sendGameStates();
+                        }
                     }
                     if (data.length === 0) {
                         gameState.phase = "action";
                         sendGameStates();
                     }
                 }
-            };
+            }
         }
     },
     "nobles": {
