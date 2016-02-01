@@ -18,6 +18,7 @@ var gameState = {
     board: [],
     revealed: [],
     trash: [],
+    played: [],
     activePlayer: 0,
     playerOrder: [],
 };
@@ -129,7 +130,7 @@ io.sockets.on("connection", function(socket) {
             if (card.type.indexOf("treasure") >= 0) {
                 io.sockets.emit("log", player.id + " plays " + card.name);
                 gameState.phase = "buy";
-                player.played.push(player.hand[i]);
+                gameState.played.push(player.hand[i]);
                 player.hand.splice(i, 1);
                 card.action(player);
                 i--;
@@ -178,21 +179,22 @@ io.sockets.on("connection", function(socket) {
             io.sockets.emit("broadcast", player.id + " plays " + card.name);
             io.sockets.emit("log", player.id + " plays " + card.name);
             player.actions--;
-            player.played.push(player.hand[data.cardIndex]);
+            gameState.played.push(player.hand[data.cardIndex]);
             player.hand.splice(data.cardIndex, 1);
             sendGameStates();
-            card.action(player);
+            card.state = "played";
+            card.action(player, data);
             sendGameStates();
-        }
+        }/*
         if (card.type.indexOf("treasure") >= 0) {
             io.sockets.emit("log", player.id + " plays " + card.name);
             gameState.phase = "buy";
-            player.played.push(player.hand[data.cardIndex]);
+            gameState.played.push(player.hand[data.cardIndex]);
             player.hand.splice(data.cardIndex, 1);
             sendGameStates();
             card.action(player);
             sendGameStates();
-        }
+        }*/
     });
     // ----------------
     // Received select message from client. User made an option from the "select" menu
@@ -294,8 +296,15 @@ function clear(player) {
     while (player.hand.length > 0) {
         player.discarded.push(player.hand.pop());
     }
-    while (player.played.length > 0) {
-        player.discarded.push(player.played.pop());
+    while (gameState.played.length > 0) {
+        var card = gameState.played.pop();
+        if (card.to === "trash") {
+            player.trash.push(card);
+        } else {
+            player.discarded.push(card);         
+        }
+        card.to = "";
+        card.state = "";
     }
 }
 
@@ -560,7 +569,7 @@ function countVictoryPoints() {
 
     for (var p in gameState.players) {
         var player = gameState.players[p];
-        player.deck = player.deck.concat(player.hand, player.discarded, player.played);
+        player.deck = player.deck.concat(player.hand, player.discarded, gameState.played);
 
         // calculate victory points
         var victoryCards = {};
@@ -619,6 +628,7 @@ function sendGameStates() {
             var pGameState = createPlayerGameState(id);
             io.sockets.connected[id].emit("gameState", pGameState);
         }
+        console.log(gameState.players[id]);
     }
 }
 
