@@ -675,7 +675,7 @@ cards = {
                 selected: [],
                 callback: function(choiceIndexArray) {
                     if (choiceIndexArray[0] === 0) {
-                        gameState.trash.push(player.played.pop());
+                        gameState.trash.push(gameState.played.pop());
                         player.coins += 2;
                     };
                     gameState.phase = "action";
@@ -846,8 +846,8 @@ cards = {
             player.coins += 2;
             io.sockets.emit("log", " ... and gets 2 coins");
             var counter = 0;
-            for (var i = 0; i < player.played.length; i++) {
-                if (cards[player.played[i].id].type.indexOf("action") >= 0) counter++;
+            for (var i = 0; i < gameState.played.length; i++) {
+                if (cards[gameState.played[i].id].type.indexOf("action") >= 0) counter++;
             }
             if (counter >= 3) {
                 draw(player, 1);
@@ -1393,7 +1393,7 @@ cards = {
                             var acquiredCard = acquire(player, data[0].card.id);
                             io.sockets.emit("log", " ... and gets " + cards[acquiredCard.id].name);
                             player.discarded.push(acquiredCard);
-                            gameState.trash.push(player.played.pop());
+                            gameState.trash.push(gameState.played.pop());
                             gameState.phase = "action";
                             sendGameStates();
                         }
