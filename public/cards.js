@@ -689,7 +689,7 @@ cards = {
         description: "+1 Card, +1 Action, Trash a card from your hand. Gain a card costing exactly 1 Coin more than it.",
         name: "Upgrade",
         type: "action",
-        cost: 4,
+        cost: 5,
         value: 0,
         victory: function(player) {
             return 0;
