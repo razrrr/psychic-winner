@@ -141,7 +141,7 @@ body {
 	margin: auto;
 	width: 800px;
 	left: 100px;
-	top: 450px;
+	top: 50px;
 	z-index: 1;
 	opacity: 0;
 	animation-duration: 0.4s;
@@ -352,15 +352,15 @@ body {
 }
 
 #output {
-    height: 100px;
+    height: 160px;
     overflow: auto;
     position: absolute;
     right: 0px;
-    width: 100%;
     bottom: 0px;
+    background: #ddd;
     border-top: 2px solid #666;
     border-left: 2px solid #666;
-    width: 300px;
+    width: 400px;
     padding: 5px;
     font-size: 12px;
     font-family: courier;
