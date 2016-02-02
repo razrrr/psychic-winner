@@ -57,11 +57,11 @@ app.run(function($rootScope) {
                 $(".turn-notification").addClass("zoomOut");
             });
         }
-        $(".start.button").hide();
         $rootScope.gameState = update;
         $rootScope.$apply();
         if ($rootScope.gameState.phase == "pregame") return;
-
+        $(".start.button").hide();
+       
         playerID = "/#" + socket.id;
         $rootScope.activePlayer = $rootScope.gameState.players[$rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer]];
         $rootScope.clientPlayer = $rootScope.gameState.players[playerID];
