@@ -50,10 +50,6 @@
                         {{ player.name || player.id }}
                     </li>
                 </ul>
-                <div style="position: absolute; right: 0px; top: 0px;">
-                    <div ng-click="startGame()" class="start button">Start game</div>
-                    <div ng-click="startGame(true)" class="start button">Start dev game</div>
-                </div>
             </div>
             <div class="log" id="output"></div>
         </div>
@@ -68,6 +64,10 @@
             <div style="clear:both;"></div>
         </div>
         <div class="played">
+            <div style="position: absolute; right: 0px; top: 0px;">
+                <div ng-click="startGame()" class="start button">Start game</div>
+                <div ng-click="startGame(true)" class="start button">Start dev game</div>
+           </div>
             <ul class="trash">
                 <h4>trash</h4>
                 <li class="stacked card">trash empty</li>
