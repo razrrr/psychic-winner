@@ -50,10 +50,6 @@
                         {{ player.name || player.id }}
                     </li>
                 </ul>
-                <div style="position: absolute; right: 0px; top: 0px;">
-                    <div ng-click="startGame()" class="start button">Start game</div>
-                    <div ng-click="startGame(true)" class="start button">Start dev game</div>
-                </div>
             </div>
             <div class="log" id="output"></div>
         </div>
@@ -68,6 +64,10 @@
             <div style="clear:both;"></div>
         </div>
         <div class="played">
+            <div style="position: absolute; right: 0px; top: 0px;">
+                <div ng-click="startGame()" class="start button">Start game</div>
+                <div ng-click="startGame(true)" class="start button">Start dev game</div>
+           </div>
             <ul class="trash">
                 <h4>trash</h4>
                 <li class="stacked card">trash empty</li>
@@ -75,9 +75,9 @@
                     <ng-include src="'card.html'"></ng-include>
                 </li>
             </ul>
-            <ul class="played-cards" ng-class="{'stacked' : gameState.players[gameState.playerOrder[gameState.activePlayer]].played.length > 4}">
+            <ul class="played-cards" ng-class="{'stacked' : gameState.played.length > 4}">
                 <li style="opacity:0; width:0px; margin:0px 0px 10px; border:0px; padding: 0px;" class="card"></li>
-                <li ng-class="[cards[card.id].type]" class="animation card" ng-repeat="card in gameState.players[gameState.playerOrder[gameState.activePlayer]].played track by card.uid">
+                <li ng-class="[cards[card.id].type, card.state]" class="animation card" ng-repeat="card in gameState.played track by card.uid">
                     <ng-include src="'card.html'"></ng-include>
                 </li>
             </ul>
@@ -108,7 +108,7 @@
             <div id="broadcast" class="animated"></div>
             <div style="clear:both;"></div>
         </div>
-        <div class="you" ng-class="{'disabledxx' : (gameState.playerOrder[gameState.activePlayer] != you.id)}">
+        <div class="you" ng-class="{'attacking' : cards[gameState.played[gameState.played.length-1].id].type.indexOf('attack') >= 0 }">
             <div class="player" ng-class="{'active' : (gameState.playerOrder[gameState.activePlayer] === you.id)}">
                 <ul class="hand" ng-class="{'has-actions' : clientPlayer.actions > 0, 'has-no-actions' : clientPlayer.actions === 0}">
                     <li ng-click="select(card, $index, 'hand', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type,]" class="animation card" ng-repeat="card in clientPlayer.hand track by card.uid">
