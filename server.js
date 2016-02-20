@@ -628,7 +628,7 @@ function sendGameStates() {
             var pGameState = createPlayerGameState(id);
             io.sockets.connected[id].emit("gameState", pGameState);
         }
-        console.log(gameState.players[id]);
+        // console.log(gameState.players[id]);
     }
 }
 
