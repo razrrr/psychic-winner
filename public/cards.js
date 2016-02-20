@@ -109,9 +109,7 @@ cards = {
         },
         action: function(player) {
             for (var i = 0; i < player.hand.length; i++) {
-                console.log(cards[player.hand[i].id].type);
                 if (cards[player.hand[i].id].type.indexOf("treasure") >= 0) {
-                    console.log("gamestate is select");
                     gameState.phase = "select";
                     gameState.queryData = {
                         eligible: ".you .player .hand .card.treasure",
@@ -1231,8 +1229,6 @@ cards = {
                 callback: function(data) {
                     var revealedCard = player.deck.pop();
                     gameState.revealed.push(revealedCard);
-                    console.log(revealedCard);
-                    console.log(data);
                     namedCard = cards[data[0].card.id].name;
 
                     gameState.phase = "choose";
@@ -1453,9 +1449,6 @@ cards = {
             var endLoop = 0;
             var playSpy = function (playerID) {
                 if (endLoop < gameState.playerOrder.length) {
-                    console.log("currentPid", currentPid);
-                    console.log("pid", pid);
-                    console.log("playerID", playerID);
                     var spyPid = gameState.playerOrder[playerID];
                     if (gameState.players[spyPid].deck.length <= 0) reload(gameState.players[spyPid]);
                     gameState.revealed.push(gameState.players[spyPid].deck.pop());
@@ -1628,11 +1621,8 @@ cards = {
                         for (var i = 0; i < gameState.playerOrder.length; i++) {
                             if (gameState.playerOrder[i] === player.id) { //looks for player then cycles through rest of players
                                 currentPid = gameState.playerOrder[i];
-                                console.log(currentPid);
                                 while (endLoop < gameState.playerOrder.length) {
-                                    console.log("i1", i);
                                     i = (i + 1) % gameState.playerOrder.length;
-                                    console.log("i2", i);
                                     currentPlayer = gameState.players[gameState.playerOrder[i]];
                                     if (currentPlayer.hand.length >= 5) {
                                         io.sockets.emit("log", currentPlayer.id + " discards hand and...");
