@@ -240,10 +240,35 @@ body {
 .bank .card:hover .card-description {
 	display: block;
 }
-.bank .IDestate, .bank .IDduchy, .bank .IDprovince, .bank .IDcopper, .bank .IDsilver, .bank .IDgold, .bank .IDcurse {
-//    height: 40px;
+.bank .IDestate .card-description, .bank .IDduchy .card-description, .bank .IDprovince .card-description, .bank .IDcopper .card-description, .bank .IDsilver .card-description, .bank .IDgold .card-description, .bank .IDcurse .card-description {
+    font-size: 16px;
 }
-
+.supply-counter {
+  position: absolute;
+  background: rgb(0, 110, 255);
+  color: white;
+  font-size: 16px;
+  /* width: 18px; */
+  padding: 5px;
+  line-height: 15px;
+  border: 2px solid black;
+  text-align: center;
+  top: -11px;
+  left: -9px;
+  border-radius: 20px;
+}
+.supply-counter.empty {
+    background: red;
+}
+.IDcopper {
+    background: rgb(237, 159, 56) !important;
+}
+.IDsilver {
+    background: rgb(253, 253, 135) !important;
+}
+.IDgold {
+    // background: yellow !important;
+}
 
 .played {
     position: relative;

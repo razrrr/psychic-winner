@@ -55,10 +55,12 @@
         </div>
         <div class="bank">
             <ul class="buyable">
-                <li ng-click="select(card, $index, 'buy', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type]" class="card" ng-repeat="card in gameState.board track by $index">
-                    <ng-include src="'card.html'"></ng-include>
-                   <!-- <ng-include class="hover" src="'card.html'"></ng-include>-->
-                    <div style="position: absolute; background: red; color: white; width: 18px; height: 15px; line-height:15px; border: 2px solid black; text-align: center; top: -4px; left: -4px;">{{card.supply}}</div>
+                <li ng-class="{'disabled': card.supply <= 0}" ng-repeat="card in gameState.board track by $index">
+                    <div ng-click="select(card, $index, 'buy', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type]" class="card" >
+                        <ng-include src="'card.html'"></ng-include>
+                       <!-- <ng-include class="hover" src="'card.html'"></ng-include>-->
+                        <div class="supply-counter" ng-class="{'empty': card.supply <= 0}">{{card.supply}}</div>
+                    </div>
                 </li>
             </ul>
             <div style="clear:both;"></div>
