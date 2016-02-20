@@ -945,6 +945,7 @@ cards = {
                                 player.hand.push(gameState.revealed.pop());
                                 if (revealedTreasures < 2) {
                                     seekTreasure();
+                                    sendGameStates();
                                 } else {
                                     while (gameState.revealed.length > 0) {
                                         player.discarded.push(gameState.revealed.pop());
@@ -965,10 +966,27 @@ cards = {
                         reload(player);
                         seekTreasure();
                     } else {
-                        revealedTreasures = 2;
+                        if (revealedTreasures < 2) {
+                            gameState.phase = "choose";
+                            gameState.queryData = {
+                                number: 1,
+                                exact: true,
+                                message: "There are no more Treasures in your deck.",
+                                choices: ["ok"],
+                                selected: [],
+                                callback: function() {
+                                    while (gameState.revealed.length > 0) {
+                                        player.discarded.push(gameState.revealed.pop());
+                                    }
+                                    revealedTreasures = 2;
+                                    gameState.phase = "action";
+                                    sendGameStates();
+                                }
+                            }
+                        }
                     }
                 }
-            };
+            }
             seekTreasure();
         }
     },

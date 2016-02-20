@@ -78,7 +78,7 @@ io.sockets.on("connection", function(socket) {
     // ----------------
     socket.on("startGame", function(debugFlag) {
         if (gameStart) return; // block malicious game restarts. change this when players are allowed to restart games.
-        
+
         gameStart = true;
         gameState.debug = debugFlag;
         io.sockets.emit("log", "game started");
@@ -113,6 +113,7 @@ io.sockets.on("connection", function(socket) {
     socket.on("endTurn", function() {
         // !! need to validate active player
         if (gameOver()) {
+            endTurn(gameState.players[socket.id]);
             countVictoryPoints();
             io.sockets.emit("gameOver", gameState);
         } else {
@@ -301,7 +302,7 @@ function clear(player) {
         if (card.to === "trash") {
             player.trash.push(card);
         } else {
-            player.discarded.push(card);         
+            player.discarded.push(card);
         }
         card.to = "";
         card.state = "";
@@ -569,7 +570,7 @@ function countVictoryPoints() {
 
     for (var p in gameState.players) {
         var player = gameState.players[p];
-        player.deck = player.deck.concat(player.hand, player.discarded, gameState.played);
+        player.deck = player.deck.concat(player.hand, player.discarded);
 
         // calculate victory points
         var victoryCards = {};
@@ -644,7 +645,7 @@ function createPlayerGameState(player) {
         for (var c in this_player.deck) {
             this_player.deck[c].id = "face-down";
             this_player.deck[c].uid = "";
-        }        
+        }
         if (player != this_player.id) {
             // hide hand
             for (var c in this_player.hand) {
