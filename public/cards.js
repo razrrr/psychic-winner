@@ -1042,59 +1042,76 @@ cards = {
         action: function(player) {
             player.actions += 1;
             var victoryCount = 0;
-            for (var i = 0; i < 4; i++) {
-                if (player.deck.length <= 0) reload(player);
-                var revealedCard = player.deck.pop();
-                if (cards[revealedCard.id].type.indexOf("victory") >= 0) victoryCount++;
-                gameState.revealed.push(revealedCard);
+            var allCards = player.deck.length + player.discarded.length;
+            if (allCards === 0) {
+                gameState.phase = "action";
+                sendGameStates();
             }
-            gameState.phase = "choose";
-            gameState.queryData = {
-                number: 1,
-                exact: true,
-                message: "",
-                choices: ["OK"],
-                selected: [],
-                callback: function(choiceIndexArray) {
-                    for (var i = 0; i < gameState.revealed.length; i++) {
-                        if (cards[gameState.revealed[i].id].type.indexOf("victory") >= 0) {
-                            player.hand.push(gameState.revealed[i]);
-                            gameState.revealed.splice(i, 1);
-                            i--;
-                        }
+            else {
+                if (allCards >= 4) {
+                    for (var i = 0; i < 4; i++) {
+                        if (player.deck.length <= 0) reload(player);
+                        var revealedCard = player.deck.pop();
+                        if (cards[revealedCard.id].type.indexOf("victory") >= 0) victoryCount++;
+                        gameState.revealed.push(revealedCard);
                     }
-                    //  Can we make it so the UI updates which cards get put on deck per card clicked on
-                    if (gameState.revealed.length > 0) {
-                        gameState.phase = "select";
-                        gameState.queryData = {
-                            eligible: ".revealed .card",
-                            message: "Select the revealed cards in the order you would like them returned to your deck.",
-                            number: gameState.revealed.length,
-                            unique: true,
-                            exact: true,
-                            selected: [],
-                            callback: function(data) {
-                                var targetCardIndices = [];
-                                for (var i in data) {
-                                    targetCardIndices.push(data[i].index);
-                                }
-                                for (var i = 0; i < targetCardIndices.length; i++) {
-                                    var cardIndex = targetCardIndices[i];
-                                    io.sockets.emit("log", " ... and puts " + cards[gameState.revealed[cardIndex].id].name + " on top of deck");
-                                    player.deck.push(gameState.revealed[cardIndex]);
-                                }
-                                gameState.revealed = [];
-                                gameState.phase = "action";
-                                sendGameStates();
+                }
+                else {
+                    for (var j = 0; j < (player.deck.length + player.discarded.length); j++) {
+                        if (player.deck.length <= 0) reload(player);
+                        var revealedCard = player.deck.pop();
+                        if (cards[revealedCard.id].type.indexOf("victory") >= 0) victoryCount++;
+                        gameState.revealed.push(revealedCard);
+                    }
+                }
+                gameState.phase = "choose";
+                gameState.queryData = {
+                    number: 1,
+                    exact: true,
+                    message: "Revealed Victory cards will be put into your hand.",
+                    choices: ["OK"],
+                    selected: [],
+                    callback: function(choiceIndexArray) {
+                        for (var i = 0; i < gameState.revealed.length; i++) {
+                            if (cards[gameState.revealed[i].id].type.indexOf("victory") >= 0) {
+                                player.hand.push(gameState.revealed[i]);
+                                gameState.revealed.splice(i, 1);
+                                i--;
                             }
                         }
-                    } else gameState.phase = "action";
-                    sendGameStates();
+                        //  Can we make it so the UI updates which cards get put on deck per card clicked on
+                        if (gameState.revealed.length > 0) {
+                            gameState.phase = "select";
+                            gameState.queryData = {
+                                eligible: ".revealed .card",
+                                message: "Select the revealed cards in the order you would like them returned to your deck.",
+                                number: gameState.revealed.length,
+                                unique: true,
+                                exact: true,
+                                selected: [],
+                                callback: function(data) {
+                                    var targetCardIndices = [];
+                                    for (var i in data) {
+                                        targetCardIndices.push(data[i].index);
+                                    }
+                                    for (var i = 0; i < targetCardIndices.length; i++) {
+                                        var cardIndex = targetCardIndices[i];
+                                        io.sockets.emit("log", " ... and puts " + cards[gameState.revealed[cardIndex].id].name + " on top of deck");
+                                        player.deck.push(gameState.revealed[cardIndex]);
+                                    }
+                                    gameState.revealed = [];
+                                    gameState.phase = "action";
+                                    sendGameStates();
+                                }
+                            }
+                        } else gameState.phase = "action";
+                        sendGameStates();
+                    }
                 }
+                if (victoryCount > 0) gameState.queryData.message = "Put revealed Victory cards into hand.";
+                else gameState.queryData.message = "No Victory cards were revealed.";
             }
-            if (victoryCount > 0) gameState.queryData.message = "Put revealed Victory cards into hand.";
-            else gameState.queryData.message = "No Victory cards were revealed.";
-        }
+        }  
     },
     "courtyard": {
         description: "+3 Cards, Put a card from your hand on top of your deck.",
