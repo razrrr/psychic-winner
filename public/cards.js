@@ -1453,26 +1453,29 @@ cards = {
             var endLoop = 0;
             var playSpy = function (playerID) {
                 if (endLoop < gameState.playerOrder.length) {
-                    if (gameState.players[currentPid].deck.length <= 0) reload(gameState.players[currentPid]);
-                    gameState.revealed.push(gameState.players[currentPid].deck.pop());
+                    console.log("currentPid", currentPid);
+                    console.log("pid", pid);
+                    console.log("playerID", playerID);
+                    var spyPid = gameState.playerOrder[playerID];
+                    if (gameState.players[spyPid].deck.length <= 0) reload(gameState.players[spyPid]);
+                    gameState.revealed.push(gameState.players[spyPid].deck.pop());
                     gameState.phase = "choose";
                     gameState.queryData = {
                         number: 1,
                         exact: true,
-                        message: "Choose one",
+                        message: "Choose one for " + spyPid + "'s revealed card.",
                         choices: ["Return to top of deck", "discard"],
                         selected: [],
                         callback: function(choiceIndexArray) {
                             if (choiceIndexArray[0] === 0) {
-                                io.sockets.emit("log", cards[gameState.revealed[0].id].name + " was returned to the top of ");
-                                gameState.players[currentPid].deck.push(gameState.revealed.pop());
+                                io.sockets.emit("log", cards[gameState.revealed[0].id].name + " was returned to the top of " + spyPid + "'s deck.");
+                                gameState.players[spyPid].deck.push(gameState.revealed.pop());
                             }
                             else if (choiceIndexArray[0] === 1) {
-                                io.sockets.emit("log", cards[gameState.revealed[0].id].name + " was discarded.");
-                                gameState.players[currentPid].discarded.push(gameState.revealed.pop());
+                                io.sockets.emit("log", spyPid + "'s " + cards[gameState.revealed[0].id].name + " was discarded.");
+                                gameState.players[spyPid].discarded.push(gameState.revealed.pop());
                             }
                             playerID = (playerID + 1) % gameState.playerOrder.length;
-                            currentPid = gameState.playerOrder[playerID];
                             endLoop++;
                             playSpy(playerID);
                         }
