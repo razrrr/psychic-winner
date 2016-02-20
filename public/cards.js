@@ -481,6 +481,7 @@ cards = {
             return 0;
         },
         action: function(player) {
+            console.log("pawn says hello");
             gameState.phase = "choose";
             gameState.queryData = {
                 number: 2,
@@ -1729,7 +1730,7 @@ cards = {
 
         }
     },
-     "throne room": {
+    "throne room": {
         expansion: "Base",
         description: "Choose an Action card in your hand. Play it twice.",
         name: "Throne Room",
@@ -1740,67 +1741,42 @@ cards = {
             return 0;
         },
         action: function(player) {
-            var counter = 0;
-            var playThrone = function() {
-                var actionCheck = 0;
-                console.log("counter", counter);
-                console.log("played throne room");
-                for (var i = 0; i < player.hand.length; i++) {
-                    actionCheck += cards[player.hand[i].id].type.indexOf("action");
-                    if (cards[player.hand[i].id].type.indexOf("action") >= 0) {
-                        if (counter === 0) { //selecting action in hand
-                            gameState.phase = "select";
-                            gameState.queryData = {
-                                number: 1,
-                                exact: true,
-                                eligible: ".you .player .hand .card.action", 
-                                message: "Select an action from your hand to play twice.",
-                                selected: [],
-                                callback: function(data) {
-                                    gameState.revealed.push(data[0].card);
-                                    player.hand.splice(data[0].index, 1);
-                                    data[0].card.state = "played"; //not sure what this line of code does
-                                    io.sockets.emit("broadcast", player.id + " plays " + cards[data[0].card.id].name);
-                                    io.sockets.emit("log", player.id + " plays " + cards[data[0].card.id].name);
-                                    cards[data[0].card.id].action(player);
-                                    sendGameStates();
-                                    counter++;
-                                    playThrone();
-                                }
-                            }
-                            sendGameStates();
-                        }
-                    }
-                    
-                }
-                if (counter === 1) {
+            for (var i = 0; i < player.hand.length; i++) {
+                if (cards[player.hand[i].id].type.indexOf("action") >= 0) {
                     gameState.phase = "select";
                     gameState.queryData = {
                         number: 1,
-                        exact: true,     
-                        eligible: ".revealed .card.action",   
-                        message: "Select the same action in revealed to play a second time.",                                                                                         message: "Select an action from your hand to play twice.",
+                        exact: true,
+                        eligible: ".you .player .hand .card.action", 
+                        message: "Select an action from your hand to play twice.",
                         selected: [],
                         callback: function(data) {
-                            data[0].card.state = "played"; //not sure what this line of code does
+                            gameState.phase = "action";
+                            gameState.played.push(data[0].card);
+                            player.hand.splice(data[0].index, 1);
                             io.sockets.emit("broadcast", player.id + " plays " + cards[data[0].card.id].name);
                             io.sockets.emit("log", player.id + " plays " + cards[data[0].card.id].name);
-                            cards[data[0].card.id].action(player);
-                            player.discarded.push(gameState.revealed.pop());
-                            gameState.phase = "action";
                             sendGameStates();
+                            data[0].card.state = "played";
+                            cards[data[0].card.id].action(player);
+                            console.log("card played first time");
+                            sendGameStates();
+
+                            if (gameState.phase != "action") {
+                                console.log("while if loop thing", gameState.phase);
+                                while (gameState.phase != "action") {
+                                }
+                            }
+                            
+                            cards[data[0].card.id].action(player);
+                            console.log("card played second time");
+                            // gameState.phase = "action";
+                            // sendGameStates();
                         }
                     }
-                    sendGameStates();
-                }
-                if (actionCheck === -1) {
-                    io.sockets.emit("log", "You have no actions in hand to Throne Room!");
-                    gameState.phase = "action";
-                    sendGameStates();
+                    i = player.hand.length;
                 }
             }
-            playThrone();
-            
         }
     },
 };
