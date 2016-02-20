@@ -15,8 +15,6 @@ body {
     border: 2px solid black;
     margin: auto;
     position: relative;
-    margin-top: -400px;
-    top: 50%;
     background: black;
 }
 .table.select .bank .buyable .card, .disabled {
@@ -166,7 +164,7 @@ body {
 	background: #1155AA !important;
 }
 .opponents {
-    height: 170px;
+    height: 80px;
     background: #555;
     position: relative;
 }
@@ -174,7 +172,7 @@ body {
     float: left;
     background: #444;
     display: block;
-    height: 160px;
+    height: 70px;
     width: 200px;
     position: relative;
     margin: 5px;
@@ -186,11 +184,11 @@ body {
     margin-right: -28px;
 }
 .opponents .player .deck .card, .opponents .player .discarded .card {
-    margin-right: -33px !important;
+    margin-right: -35px !important;
 }
 .opponents .player .deck {
-    bottom: 85px;
-    left: 5px;
+    bottom: 5px;
+    left: 45px;
     position: absolute;
 }
 .opponents .player .discarded {
@@ -199,8 +197,8 @@ body {
     position: absolute;
 }
 .opponents .player .hand {
-    bottom: 85px;
-    left: 100px;
+    bottom: 5px;
+    left: 95px;
     position: absolute;
 }
 
@@ -209,7 +207,7 @@ body {
 }
 .bank {
     background: #666;
-    height: 220px;
+    min-height: 370px;
     padding: 10px;
     box-sizing: border-box;
     position: relative;
@@ -221,18 +219,20 @@ body {
 }
 .bank .card {
     height: 85px;
+    width: 110px;
+    height: 160px;
     transition: 0.5s opacity;
     position: relative;
     margin: 5px;
 }
 .bank .card .card-description {
-    display: none;
-    position: absolute;
-    top: 23px;
-    left: 0px;
-    opacity: 1 !important;
-    z-index: 1;
-    border: 2px solid black;
+    //display: none;
+   // position: absolute;
+    //top: 23px;
+    //left: 0px;
+   // opacity: 1 !important;
+   // z-index: 1;
+   // border: 2px solid black;
 }
 .bank .hover.card {
 	display: none;
@@ -240,11 +240,40 @@ body {
 .bank .card:hover .card-description {
 	display: block;
 }
+.bank .IDestate .card-description, .bank .IDduchy .card-description, .bank .IDprovince .card-description, .bank .IDcopper .card-description, .bank .IDsilver .card-description, .bank .IDgold .card-description, .bank .IDcurse .card-description {
+    font-size: 16px;
+}
+.supply-counter {
+  position: absolute;
+  background: rgb(0, 110, 255);
+  color: white;
+  font-size: 16px;
+  /* width: 18px; */
+  padding: 5px;
+  line-height: 15px;
+  border: 2px solid black;
+  text-align: center;
+  top: -11px;
+  left: -9px;
+  border-radius: 20px;
+}
+.supply-counter.empty {
+    background: red;
+}
+.IDcopper {
+    background: rgb(237, 159, 56) !important;
+}
+.IDsilver {
+    background: rgb(253, 253, 135) !important;
+}
+.IDgold {
+    // background: yellow !important;
+}
 
 .played {
     position: relative;
     background: #777;
-    height: 260px;
+    height: 200px;
     box-sizing: border-box;
     padding-top: 20px;
     background-image: url("http://i.imgur.com/Jcn6ZoK.jpg?");
@@ -344,15 +373,15 @@ body {
 }
 
 #broadcast {
-  font-size: 36px;
+  font-size: 22px;
   position: absolute;
-  bottom: 40px;
+  bottom: 12px;
   left: 200px;
   transition: 0.7s;
 }
 
 #output {
-    height: 160px;
+    height: 68px;
     overflow: auto;
     position: absolute;
     right: 0px;
@@ -360,7 +389,7 @@ body {
     background: #ddd;
     border-top: 2px solid #666;
     border-left: 2px solid #666;
-    width: 400px;
+    width: 300px;
     padding: 5px;
     font-size: 12px;
     font-family: courier;
@@ -481,11 +510,11 @@ body {
 
 .card-description {
     left: 0px;
-    top: 40px;
+    top: 25px;
     position: absolute;
     width: 100%;
     text-align: center;
-    font-size: 8px;
+    font-size: 10px;
     padding: 5px;
     text-transform: uppercase;
     font-family: monospace;
