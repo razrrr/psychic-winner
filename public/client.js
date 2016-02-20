@@ -9,7 +9,9 @@ app.run(function($rootScope) {
     };
     $rootScope.cards = cards;
     $rootScope.clientPlayer = {};
-    $rootScope.activePlayer = {coins: 0};
+    $rootScope.activePlayer = {
+        coins: 0
+    };
 
     for (var id in cards) {
         cards[id].id = id;
@@ -17,7 +19,7 @@ app.run(function($rootScope) {
     $rootScope.$watch("activePlayer.coins", function() {
         $(".buyable .card").addClass("disabled");
         if ($rootScope.activePlayer.buys === 0) return;
-      //  if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
+        //  if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
         var maxBuyable = $rootScope.activePlayer.coins;
         if (maxBuyable > 10) maxBuyable = 10;
         for (var i = 0; i <= maxBuyable; i++) {
@@ -37,7 +39,7 @@ app.run(function($rootScope) {
     socket.on("broadcast", function(msg) {
         $("#broadcast").html(msg);
         $("#broadcast").addClass("fadeInDown");
-        $("#broadcast").one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function(){
+        $("#broadcast").one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function() {
             $("#broadcast").removeClass("fadeInDown");
         });
     });
@@ -50,7 +52,7 @@ app.run(function($rootScope) {
             $(".turn-notification").html(update.playerOrder[update.activePlayer] + "'s turn!");
             $(".turn-notification").removeClass("zoomOut");
             $(".turn-notification").addClass("zoomIn");
-            $(".turn-notification").one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function(){
+            $(".turn-notification").one("webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend", function() {
                 $(".turn-notification").removeClass("zoomIn");
                 $(".turn-notification").addClass("zoomOut");
             });
@@ -58,7 +60,8 @@ app.run(function($rootScope) {
         $rootScope.gameState = update;
         $rootScope.$apply();
         if ($rootScope.gameState.phase == "pregame") return;
-        
+        $(".start.button").hide();
+       
         playerID = "/#" + socket.id;
         $rootScope.activePlayer = $rootScope.gameState.players[$rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer]];
         $rootScope.clientPlayer = $rootScope.gameState.players[playerID];
@@ -111,13 +114,13 @@ app.run(function($rootScope) {
                 playerID: playerID
             });
         }
-       /* if ($rootScope.gameState.phase === "buy" && zone == "hand" && cards[card.id].type.indexOf("treasure") >= 0) {
-            socket.emit("play", {
-                cardID: card.id,
-                cardIndex: index,
-                playerID: playerID
-            });
-        } */
+        /* if ($rootScope.gameState.phase === "buy" && zone == "hand" && cards[card.id].type.indexOf("treasure") >= 0) {
+             socket.emit("play", {
+                 cardID: card.id,
+                 cardIndex: index,
+                 playerID: playerID
+             });
+         } */
         if (($rootScope.gameState.phase === "action" || $rootScope.gameState.phase === "buy") && zone == "buy") {
             socket.emit("buy", {
                 cardID: card.id,
@@ -142,7 +145,7 @@ app.run(function($rootScope) {
             }
         }
     };
-    $rootScope.startGame = function(debugFlag) {     
+    $rootScope.startGame = function(debugFlag) {
         $(".start.button").hide();
         socket.emit("startGame", debugFlag);
     };
