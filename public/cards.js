@@ -1400,6 +1400,7 @@ cards = {
                         }
                     }
                 };
+                sendGameStates();
             }
             playFeast();
         }
@@ -1714,7 +1715,7 @@ cards = {
         expansion: "Base",
         description: "Choose an Action card in your hand. Play it twice.",
         name: "Throne Room",
-        type: "action reaction",
+        type: "action",
         cost: 4,
         value: 0,
         victory: function(player) {
@@ -1722,46 +1723,66 @@ cards = {
         },
         action: function(player) {
             var counter = 0;
-            var counter2 = 0;
-            for (var i = 0; i < player.hand.length; i++) {
-                if (cards[player.hand[i].id].type.indexOf("action") >= 0) {
+            var playThrone = function() {
+                var actionCheck = 0;
+                console.log("counter", counter);
+                console.log("played throne room");
+                for (var i = 0; i < player.hand.length; i++) {
+                    actionCheck += cards[player.hand[i].id].type.indexOf("action");
+                    if (cards[player.hand[i].id].type.indexOf("action") >= 0) {
+                        if (counter === 0) { //selecting action in hand
+                            gameState.phase = "select";
+                            gameState.queryData = {
+                                number: 1,
+                                exact: true,
+                                eligible: ".you .player .hand .card.action", 
+                                message: "Select an action from your hand to play twice.",
+                                selected: [],
+                                callback: function(data) {
+                                    gameState.revealed.push(data[0].card);
+                                    player.hand.splice(data[0].index, 1);
+                                    data[0].card.state = "played"; //not sure what this line of code does
+                                    io.sockets.emit("broadcast", player.id + " plays " + cards[data[0].card.id].name);
+                                    io.sockets.emit("log", player.id + " plays " + cards[data[0].card.id].name);
+                                    cards[data[0].card.id].action(player);
+                                    sendGameStates();
+                                    counter++;
+                                    playThrone();
+                                }
+                            }
+                            sendGameStates();
+                        }
+                    }
+                    
+                }
+                if (counter === 1) {
                     gameState.phase = "select";
                     gameState.queryData = {
                         number: 1,
-                        exact: true,
-                        eligible: ".you .player .hand .card.action", 
-                        message: "Select an action from your hand to play twice.",
+                        exact: true,     
+                        eligible: ".revealed .card.action",   
+                        message: "Select the same action in revealed to play a second time.",                                                                                         message: "Select an action from your hand to play twice.",
                         selected: [],
                         callback: function(data) {
-                            
-                            gameState.played.push(data[0].card);
-                            player.hand.splice(data[0].index, 1);
                             data[0].card.state = "played"; //not sure what this line of code does
-
-                            while (counter < 2) {
-                                console.log("in while", counter);
-                                io.sockets.emit("broadcast", player.id + " plays " + cards[data[0].card.id].name);
-                                io.sockets.emit("log", player.id + " plays " + cards[data[0].card.id].name);
-                                cards[data[0].card.id].action(player); //calls an action (currently doesnt work if the called action manipulates gamestate)
-                                sendGameStates();    
-                                counter++;     
-                            }
-                        
+                            io.sockets.emit("broadcast", player.id + " plays " + cards[data[0].card.id].name);
+                            io.sockets.emit("log", player.id + " plays " + cards[data[0].card.id].name);
+                            cards[data[0].card.id].action(player);
+                            player.discarded.push(gameState.revealed.pop());
+                            gameState.phase = "action";
+                            sendGameStates();
                         }
                     }
-                    counter2++;
                     sendGameStates();
                 }
-                else if (counter2 === 0) {
+                if (actionCheck === -1) {
+                    io.sockets.emit("log", "You have no actions in hand to Throne Room!");
                     gameState.phase = "action";
                     sendGameStates();
                 }
-                
             }
-            if (counter === 2) { // issue: need to "end" throne room AFTER both throne-room'd actions are FINISHED
-                gameState.phase = "action";
-                sendGameStates();
-            }   
+            playThrone();
+            
         }
     },
 };
