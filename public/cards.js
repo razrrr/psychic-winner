@@ -1761,7 +1761,7 @@ cards = {
                                 message: "Select a Victory card to put on top of your deck.",
                                 selected: [],
                                 callback: function(data) {
-                                    io.sockets.emit("log", "Puts a Victory card on top of deck.");
+                                    io.sockets.emit("log", playerData + "Puts a Victory card on top of deck.");
                                     playerData.deck.push(playerData.hand.splice(data[0].index, 1));
                                     gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
                                     attack();
@@ -1775,7 +1775,7 @@ cards = {
                             for (var j = 0; j < playerData.hand.length; j++) {
                                 gameState.revealed.push(playerData.hand.pop());
                             }
-                            io.sockets.emit("log", "Hand is revealed due to no Victory cards in hand.");
+                            io.sockets.emit("log", playerData + "'s hand has no Victory cards and is revealed.");
                             gameState.phase = "choose";
                             gameState.queryData = {
                                 number: 1,
