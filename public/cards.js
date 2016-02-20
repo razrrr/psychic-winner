@@ -1739,19 +1739,24 @@ cards = {
         },
         action: function(player) {
             var acquiredCard = acquire(player, "silver");
-            player.discarded.push(acquiredCard);
-            var currentPlayer = gameState.activePlayer;
+            player.deck.push(acquiredCard);
+            io.sockets.emit("log", " acquires a Silver on top of deck.");
+            var vpCounter = -1;
+            var currentPlayer = gameState.playerOrder[gameState.activePlayer];
 
             gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
             var attack = function() {
                 var playerData = gameState.players[gameState.playerOrder[gameState.activePlayer]];
-                if (gameState.activePlayer === currentPlayer) {
+                if (gameState.playerOrder[gameState.activePlayer] === currentPlayer) {
                     gameState.phase = "action";
                     sendGameStates;
                 }
                 else {
                     for (var i = 0; i < playerData.hand.length; i++) {
-                        if (playerData.hand[i].type.indexOf("victory") >= 0) {
+                        console.log("card type", cards[playerData.hand[i].id].type);
+                        console.log("type check", cards[playerData.hand[i].id].type.indexOf("victory"));
+                        if (cards[playerData.hand[i].id].type.indexOf("victory") >= 0) {
+                            vpCounter = 0;
                             gameState.phase = "select";
                             gameState.queryData = {
                                 eligible: ".you .player .hand .card.victory",
@@ -1761,40 +1766,45 @@ cards = {
                                 message: "Select a Victory card to put on top of your deck.",
                                 selected: [],
                                 callback: function(data) {
+                                    console.log("data[0]", data[0]);
                                     io.sockets.emit("log", playerData + "Puts a Victory card on top of deck.");
-                                    playerData.deck.push(playerData.hand.splice(data[0].index, 1));
+                                    playerData.deck.push(data[0].card);
+                                    playerData.hand.splice(data[0].index, 1);
                                     gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
                                     attack();
                                     gameState.phase = "action";
                                     sendGameStates();
                                 }
                             }
-                            sendGameState();
-                        }
-                        else {
-                            for (var j = 0; j < playerData.hand.length; j++) {
-                                gameState.revealed.push(playerData.hand.pop());
-                            }
-                            io.sockets.emit("log", playerData + "'s hand has no Victory cards and is revealed.");
-                            gameState.phase = "choose";
-                            gameState.queryData = {
-                                number: 1,
-                                exact: true,
-                                message: "Your hand is revealed.",
-                                choices: ["OK"],
-                                selected: [],
-                                callback: function(choiceIndexArray) {
-                                    for (var k = 0; k < gameState.revealed.length; k++) {
-                                        playerData.hand.push(gameState.revealed.pop());
-                                    }
-                                    gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
-                                    attack();
-                                    gameState.phase = "action";
-                                    sendGameStates();
-                                }
-                            };
                             sendGameStates();
                         }
+                    }
+                    if (vpCounter === -1) {
+                        // var handCount = playerData.hand.length;
+                        for (var j = 0; j < playerData.hand.length; j++) {
+                            gameState.revealed.push(playerData.hand.pop());
+                            j--;
+                        }
+                        io.sockets.emit("log", playerData + "'s hand has no Victory cards and is revealed.");
+                        gameState.phase = "choose";
+                        gameState.queryData = {
+                            number: 1,
+                            exact: true,
+                            message: "Your hand is revealed.",
+                            choices: ["OK"],
+                            selected: [],
+                            callback: function(choiceIndexArray) {
+                                for (var k = 0; k < gameState.revealed.length; k++) {
+                                    playerData.hand.push(gameState.revealed.pop());
+                                    k--;
+                                }
+                                gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+                                attack();
+                                gameState.phase = "action";
+                                sendGameStates();
+                            }
+                        };
+                        sendGameStates();
                     }
                 } 
             }
