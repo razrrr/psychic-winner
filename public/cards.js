@@ -109,9 +109,7 @@ cards = {
         },
         action: function(player) {
             for (var i = 0; i < player.hand.length; i++) {
-                console.log(cards[player.hand[i].id].type);
                 if (cards[player.hand[i].id].type.indexOf("treasure") >= 0) {
-                    console.log("gamestate is select");
                     gameState.phase = "select";
                     gameState.queryData = {
                         eligible: ".you .player .hand .card.treasure",
@@ -1042,59 +1040,76 @@ cards = {
         action: function(player) {
             player.actions += 1;
             var victoryCount = 0;
-            for (var i = 0; i < 4; i++) {
-                if (player.deck.length <= 0) reload(player);
-                var revealedCard = player.deck.pop();
-                if (cards[revealedCard.id].type.indexOf("victory") >= 0) victoryCount++;
-                gameState.revealed.push(revealedCard);
+            var allCards = player.deck.length + player.discarded.length;
+            if (allCards === 0) {
+                gameState.phase = "action";
+                sendGameStates();
             }
-            gameState.phase = "choose";
-            gameState.queryData = {
-                number: 1,
-                exact: true,
-                message: "",
-                choices: ["OK"],
-                selected: [],
-                callback: function(choiceIndexArray) {
-                    for (var i = 0; i < gameState.revealed.length; i++) {
-                        if (cards[gameState.revealed[i].id].type.indexOf("victory") >= 0) {
-                            player.hand.push(gameState.revealed[i]);
-                            gameState.revealed.splice(i, 1);
-                            i--;
-                        }
+            else {
+                if (allCards >= 4) {
+                    for (var i = 0; i < 4; i++) {
+                        if (player.deck.length <= 0) reload(player);
+                        var revealedCard = player.deck.pop();
+                        if (cards[revealedCard.id].type.indexOf("victory") >= 0) victoryCount++;
+                        gameState.revealed.push(revealedCard);
                     }
-                    //  Can we make it so the UI updates which cards get put on deck per card clicked on
-                    if (gameState.revealed.length > 0) {
-                        gameState.phase = "select";
-                        gameState.queryData = {
-                            eligible: ".revealed .card",
-                            message: "Select the revealed cards in the order you would like them returned to your deck.",
-                            number: gameState.revealed.length,
-                            unique: true,
-                            exact: true,
-                            selected: [],
-                            callback: function(data) {
-                                var targetCardIndices = [];
-                                for (var i in data) {
-                                    targetCardIndices.push(data[i].index);
-                                }
-                                for (var i = 0; i < targetCardIndices.length; i++) {
-                                    var cardIndex = targetCardIndices[i];
-                                    io.sockets.emit("log", " ... and puts " + cards[gameState.revealed[cardIndex].id].name + " on top of deck");
-                                    player.deck.push(gameState.revealed[cardIndex]);
-                                }
-                                gameState.revealed = [];
-                                gameState.phase = "action";
-                                sendGameStates();
+                }
+                else {
+                    for (var j = 0; j < (player.deck.length + player.discarded.length); j++) {
+                        if (player.deck.length <= 0) reload(player);
+                        var revealedCard = player.deck.pop();
+                        if (cards[revealedCard.id].type.indexOf("victory") >= 0) victoryCount++;
+                        gameState.revealed.push(revealedCard);
+                    }
+                }
+                gameState.phase = "choose";
+                gameState.queryData = {
+                    number: 1,
+                    exact: true,
+                    message: "Revealed Victory cards will be put into your hand.",
+                    choices: ["OK"],
+                    selected: [],
+                    callback: function(choiceIndexArray) {
+                        for (var i = 0; i < gameState.revealed.length; i++) {
+                            if (cards[gameState.revealed[i].id].type.indexOf("victory") >= 0) {
+                                player.hand.push(gameState.revealed[i]);
+                                gameState.revealed.splice(i, 1);
+                                i--;
                             }
                         }
-                    } else gameState.phase = "action";
-                    sendGameStates();
+                        //  Can we make it so the UI updates which cards get put on deck per card clicked on
+                        if (gameState.revealed.length > 0) {
+                            gameState.phase = "select";
+                            gameState.queryData = {
+                                eligible: ".revealed .card",
+                                message: "Select the revealed cards in the order you would like them returned to your deck.",
+                                number: gameState.revealed.length,
+                                unique: true,
+                                exact: true,
+                                selected: [],
+                                callback: function(data) {
+                                    var targetCardIndices = [];
+                                    for (var i in data) {
+                                        targetCardIndices.push(data[i].index);
+                                    }
+                                    for (var i = 0; i < targetCardIndices.length; i++) {
+                                        var cardIndex = targetCardIndices[i];
+                                        io.sockets.emit("log", " ... and puts " + cards[gameState.revealed[cardIndex].id].name + " on top of deck");
+                                        player.deck.push(gameState.revealed[cardIndex]);
+                                    }
+                                    gameState.revealed = [];
+                                    gameState.phase = "action";
+                                    sendGameStates();
+                                }
+                            }
+                        } else gameState.phase = "action";
+                        sendGameStates();
+                    }
                 }
+                if (victoryCount > 0) gameState.queryData.message = "Put revealed Victory cards into hand.";
+                else gameState.queryData.message = "No Victory cards were revealed.";
             }
-            if (victoryCount > 0) gameState.queryData.message = "Put revealed Victory cards into hand.";
-            else gameState.queryData.message = "No Victory cards were revealed.";
-        }
+        }  
     },
     "courtyard": {
         description: "+3 Cards, Put a card from your hand on top of your deck.",
@@ -1214,8 +1229,6 @@ cards = {
                 callback: function(data) {
                     var revealedCard = player.deck.pop();
                     gameState.revealed.push(revealedCard);
-                    console.log(revealedCard);
-                    console.log(data);
                     namedCard = cards[data[0].card.id].name;
 
                     gameState.phase = "choose";
@@ -1436,26 +1449,26 @@ cards = {
             var endLoop = 0;
             var playSpy = function (playerID) {
                 if (endLoop < gameState.playerOrder.length) {
-                    if (gameState.players[currentPid].deck.length <= 0) reload(gameState.players[currentPid]);
-                    gameState.revealed.push(gameState.players[currentPid].deck.pop());
+                    var spyPid = gameState.playerOrder[playerID];
+                    if (gameState.players[spyPid].deck.length <= 0) reload(gameState.players[spyPid]);
+                    gameState.revealed.push(gameState.players[spyPid].deck.pop());
                     gameState.phase = "choose";
                     gameState.queryData = {
                         number: 1,
                         exact: true,
-                        message: "Choose one",
+                        message: "Choose one for " + spyPid + "'s revealed card.",
                         choices: ["Return to top of deck", "discard"],
                         selected: [],
                         callback: function(choiceIndexArray) {
                             if (choiceIndexArray[0] === 0) {
-                                io.sockets.emit("log", cards[gameState.revealed[0].id].name + " was returned to the top of ");
-                                gameState.players[currentPid].deck.push(gameState.revealed.pop());
+                                io.sockets.emit("log", cards[gameState.revealed[0].id].name + " was returned to the top of " + spyPid + "'s deck.");
+                                gameState.players[spyPid].deck.push(gameState.revealed.pop());
                             }
                             else if (choiceIndexArray[0] === 1) {
-                                io.sockets.emit("log", cards[gameState.revealed[0].id].name + " was discarded.");
-                                gameState.players[currentPid].discarded.push(gameState.revealed.pop());
+                                io.sockets.emit("log", spyPid + "'s " + cards[gameState.revealed[0].id].name + " was discarded.");
+                                gameState.players[spyPid].discarded.push(gameState.revealed.pop());
                             }
                             playerID = (playerID + 1) % gameState.playerOrder.length;
-                            currentPid = gameState.playerOrder[playerID];
                             endLoop++;
                             playSpy(playerID);
                         }
@@ -1608,11 +1621,8 @@ cards = {
                         for (var i = 0; i < gameState.playerOrder.length; i++) {
                             if (gameState.playerOrder[i] === player.id) { //looks for player then cycles through rest of players
                                 currentPid = gameState.playerOrder[i];
-                                console.log(currentPid);
                                 while (endLoop < gameState.playerOrder.length) {
-                                    console.log("i1", i);
                                     i = (i + 1) % gameState.playerOrder.length;
-                                    console.log("i2", i);
                                     currentPlayer = gameState.players[gameState.playerOrder[i]];
                                     if (currentPlayer.hand.length >= 5) {
                                         io.sockets.emit("log", currentPlayer.id + " discards hand and...");
