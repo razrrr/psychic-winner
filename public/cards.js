@@ -1820,5 +1820,106 @@ cards = {
             }
             attack();
         }
-    }
+    },
+    "masquerade": {
+        expansion: "Intrigue",
+        description: "+2 Cards. Each player passes a card from his hand to the left at once. Then you may trash a card from you hand.",
+        name: "Masquerade",
+        type: "action",
+        cost: 3,
+        value: 0,
+        victory: function(player) {
+            return 0;
+        },
+        action: function(player) {
+            draw(player, 2);
+            var counter = 0;
+            var passedCards = [];
+            var attack = function() {
+                var playerData = gameState.players[gameState.playerOrder[gameState.activePlayer]];
+                if (counter < gameState.playerOrder.length) {
+                    console.log("phase 1, counter = ", counter);
+                    console.log("phase 1 playerData", playerData.id);
+                    if (playerData.hand.length > 0) {
+                        gameState.phase = "select";
+                        gameState.queryData = {
+                            eligible: ".you .player .hand .card",
+                            number: 1,
+                            unique: true,
+                            exact: true,
+                            message: "Select a card from you hand to pass to the left.",
+                            selected: [],
+                            callback: function(data) {
+                                io.sockets.emit("log", playerData.id + " selected a card to pass to the left.");
+                                passedCards.push(data[0].card);
+                                playerData.hand.splice(data[0].index, 1);
+                                gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+                                counter++;
+                                attack();
+                            }
+                        }
+                        sendGameStates();
+                    }
+                    else {
+                        gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+                        attack();
+                    }
+                }
+                if (counter === gameState.playerOrder.length) {
+                    console.log("phase 2, check if id = to player", gameState.playerOrder[gameState.activePlayer]);
+                    //when entering this branch, activeplayer should have returned to guy who played masquerade
+                    console.log("passedCards", passedCards);
+                    for (var i = 0; i < passedCards.length; i++) {
+                        console.log("i", i);
+                        console.log("passedCards", passedCards);
+                        var playerData2 = gameState.players[gameState.playerOrder[gameState.activePlayer]];
+                        playerData2.hand.push(passedCards.pop());
+
+                        gameState.activePlayer = (gameState.activePlayer + (gameState.playerOrder.length - 1)) % gameState.playerOrder.length;
+                        i--;
+                    }
+                    io.sockets.emit("log", "Masqueraded cards have been passed.");
+
+                    console.log("phase 3, check if id = to player", gameState.playerOrder[gameState.activePlayer]); //should be guy who played masquerade
+
+                    gameState.phase = "choose";
+                    gameState.queryData = {
+                        number: 1,
+                        exact: true,
+                        message: "Would you like to trash a card from your hand?",
+                        choices: ["Yes", "No"],
+                        selected: [],
+                        callback: function(choiceIndexArray) {
+                            if (choiceIndexArray[0] === 0) {
+                                gameState.phase = "select";
+                                gameState.queryData = {
+                                    eligible: ".you .player .hand .card",
+                                    number: 1,
+                                    unique: true,
+                                    exact: true,
+                                    message: "Select a card from you hand to trash.",
+                                    selected: [],
+                                    callback: function(data) {
+                                        gameState.trash.push(data[0].card);
+                                        player.hand.splice(data[0].index, 1);
+                                        io.sockets.emit("log", data[0].card + " was trashed.");
+                                        gameState.phase = "action";
+                                        sendGameStates();
+                                    }
+                                }
+                                sendGameStates();
+                            }
+                            else {
+                                gameState.phase = "action";
+                                sendGameStates();
+                            }
+                            
+                        }
+                    }
+                    sendGameStates();     
+                }
+            }
+            attack();
+        }
+    },
 };
