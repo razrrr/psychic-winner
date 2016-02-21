@@ -1538,7 +1538,7 @@ cards = {
         expansion: "Intrigue",
         description: "+2 Coins, Each other player trashes the top card of his/her deck and gains a card with the same cost that you choose.",
         name: "Swindler",
-        type: "action",
+        type: "action attack",
         cost: 3,
         value: 0,
         victory: 0,
@@ -1706,6 +1706,7 @@ cards = {
                         else if (choiceIndexArray[0] === 1) {
                             var acquiredCard = acquire(playerData, "curse");
                             playerData.hand.push(acquiredCard);
+                            io.sockets.emit("log", playerData.id + " acquires a curse!");
                             gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
                             if (gameState.activePlayer === currentPlayer) {
                                 gameState.phase = "action";
@@ -1740,7 +1741,7 @@ cards = {
     "bureaucrat": {
         expansion: "Base",
         description: "Gain a silver card; put it on top of your deck. Each other player reveals a Victory card from his hand and puts it on his deck (or reveals a hand with no Victory cards).",
-        name: "Bureacrat",
+        name: "Bureaucrat",
         type: "action attack",
         cost: 4,
         value: 0,
@@ -1902,7 +1903,7 @@ cards = {
                                     callback: function(data) {
                                         gameState.trash.push(data[0].card);
                                         player.hand.splice(data[0].index, 1);
-                                        io.sockets.emit("log", data[0].card + " was trashed.");
+                                        io.sockets.emit("log", cards[data[0].card.id].name + " was trashed.");
                                         gameState.phase = "action";
                                         sendGameStates();
                                     }
