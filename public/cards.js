@@ -1742,7 +1742,7 @@ cards = {
         description: "Gain a silver card; put it on top of your deck. Each other player reveals a Victory card from his hand and puts it on his deck (or reveals a hand with no Victory cards).",
         name: "Bureacrat",
         type: "action attack",
-        cost: 5,
+        cost: 4,
         value: 0,
         victory: function(player) {
             return 0;
