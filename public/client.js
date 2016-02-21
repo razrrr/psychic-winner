@@ -92,7 +92,7 @@ app.run(function($rootScope) {
     };
     $rootScope.endTurn = function() {
         if ($rootScope.gameState.playerOrder[$rootScope.gameState.activePlayer] != playerID) return;
-        if ($rootScope.gameState.phase == "select" || $rootScope.gameState.phase == "choose") return;
+        if ($rootScope.gameState.phase == "select" || $rootScope.gameState.phase == "choose" || $rootScope.gameState.phase == "action") return;
         socket.emit("endTurn", {});
     };
     $rootScope.choose = function(index, event) {

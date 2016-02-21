@@ -1737,4 +1737,88 @@ cards = {
 
         }
     },
+    "bureaucrat": {
+        expansion: "Base",
+        description: "Gain a silver card; put it on top of your deck. Each other player reveals a Victory card from his hand and puts it on his deck (or reveals a hand with no Victory cards).",
+        name: "Bureacrat",
+        type: "action attack",
+        cost: 5,
+        value: 0,
+        victory: function(player) {
+            return 0;
+        },
+        action: function(player) {
+            var acquiredCard = acquire(player, "silver");
+            player.deck.push(acquiredCard);
+            io.sockets.emit("log", " acquires a Silver on top of deck.");
+            var vpCounter = -1;
+            var currentPlayer = gameState.playerOrder[gameState.activePlayer];
+
+            gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+            var attack = function() {
+                var playerData = gameState.players[gameState.playerOrder[gameState.activePlayer]];
+                if (gameState.playerOrder[gameState.activePlayer] === currentPlayer) {
+                    gameState.phase = "action";
+                    sendGameStates;
+                }
+                else {
+                    for (var i = 0; i < playerData.hand.length; i++) {
+                        console.log("card type", cards[playerData.hand[i].id].type);
+                        console.log("type check", cards[playerData.hand[i].id].type.indexOf("victory"));
+                        if (cards[playerData.hand[i].id].type.indexOf("victory") >= 0) {
+                            vpCounter = 0;
+                            gameState.phase = "select";
+                            gameState.queryData = {
+                                eligible: ".you .player .hand .card.victory",
+                                number: 1,
+                                unique: true,
+                                exact: true,
+                                message: "Select a Victory card to put on top of your deck.",
+                                selected: [],
+                                callback: function(data) {
+                                    console.log("data[0]", data[0]);
+                                    io.sockets.emit("log", playerData + "Puts a Victory card on top of deck.");
+                                    playerData.deck.push(data[0].card);
+                                    playerData.hand.splice(data[0].index, 1);
+                                    gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+                                    attack();
+                                    gameState.phase = "action";
+                                    sendGameStates();
+                                }
+                            }
+                            sendGameStates();
+                        }
+                    }
+                    if (vpCounter === -1) {
+                        // var handCount = playerData.hand.length;
+                        for (var j = 0; j < playerData.hand.length; j++) {
+                            gameState.revealed.push(playerData.hand.pop());
+                            j--;
+                        }
+                        io.sockets.emit("log", playerData + "'s hand has no Victory cards and is revealed.");
+                        gameState.phase = "choose";
+                        gameState.queryData = {
+                            number: 1,
+                            exact: true,
+                            message: "Your hand is revealed.",
+                            choices: ["OK"],
+                            selected: [],
+                            callback: function(choiceIndexArray) {
+                                for (var k = 0; k < gameState.revealed.length; k++) {
+                                    playerData.hand.push(gameState.revealed.pop());
+                                    k--;
+                                }
+                                gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+                                attack();
+                                gameState.phase = "action";
+                                sendGameStates();
+                            }
+                        };
+                        sendGameStates();
+                    }
+                } 
+            }
+            attack();
+        }
+    }
 };

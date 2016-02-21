@@ -20,7 +20,7 @@
             <span class="card-name">{{ cards[card.id].name }}</span>
             <span class="card-type">{{ cards[card.id].type }}</span>
             <span class="card-cost">{{ cards[card.id].cost }}</span>
-            <span style="background: rgba(255,255,255,0.8);" class="card-description">{{ cards[card.id].description }}</span>
+            <span style="background: rgba(255,255,255,0.65);" class="card-description">{{ cards[card.id].description }}</span>
         </script>
         <div class="turn-notification animated">Your turn!</div>
         <div class="opponents">
@@ -55,10 +55,12 @@
         </div>
         <div class="bank">
             <ul class="buyable">
-                <li ng-click="select(card, $index, 'buy', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type]" class="card" ng-repeat="card in gameState.board track by $index">
-                    <ng-include src="'card.html'"></ng-include>
-                    <ng-include class="hover" src="'card.html'"></ng-include>
-                    <div style="position: absolute; background: red; color: white; width: 18px; height: 15px; line-height:15px; border: 2px solid black; text-align: center; top: -4px; left: -4px;">{{card.supply}}</div>
+                <li ng-class="{'disabled': card.supply <= 0}" ng-repeat="card in gameState.board track by $index">
+                    <div ng-click="select(card, $index, 'buy', $event)" ng-class="['COST'+cards[card.id].cost, 'ID'+cards[card.id].id, cards[card.id].type]" class="card" >
+                        <ng-include src="'card.html'"></ng-include>
+                       <!-- <ng-include class="hover" src="'card.html'"></ng-include>-->
+                        <div class="supply-counter" ng-class="{'empty': card.supply <= 0}">{{card.supply}}</div>
+                    </div>
                 </li>
             </ul>
             <div style="clear:both;"></div>
@@ -132,10 +134,10 @@
                         </li>
                     </ul>
                 </div>
-                <div class="play-all-treasures button" ng-click="playAllTreasures()">
+                <div class="play-all-treasures button" ng-class="{'disabled': gameState.phase == 'buy' && gameState.playerOrder[gameState.activePlayer] == you.id}" ng-click="playAllTreasures()">
                     Play all treasures
                 </div>
-                <div class="end button" ng-click="endTurn()">
+                <div class="end button" ng-class="{'disabled': gameState.phase != 'buy' && gameState.playerOrder[gameState.activePlayer] == you.id}" ng-click="endTurn()">
                     <div class="flip-container" ng-class="{'flipped' : (gameState.playerOrder[gameState.activePlayer] != you.id)}">
                         <div class="flipper">
                             <div class="front">End Turn</div>
