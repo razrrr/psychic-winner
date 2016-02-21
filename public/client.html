@@ -79,7 +79,7 @@
             </ul>
             <ul class="played-cards" ng-class="{'stacked' : gameState.played.length > 4}">
                 <li style="opacity:0; width:0px; margin:0px 0px 10px; border:0px; padding: 0px;" class="card"></li>
-                <li ng-class="[cards[card.id].type, card.state]" class="animation card" ng-repeat="card in gameState.played track by card.uid">
+                <li ng-class="[cards[card.id].type, card.state, 'ID'+cards[card.id].id]" class="animation card" ng-repeat="card in gameState.played track by card.uid">
                     <ng-include src="'card.html'"></ng-include>
                 </li>
             </ul>
