@@ -16,7 +16,7 @@
 <body>
     <div class="table" ng-class="{'debug' : gameState.debug, 'buy' : gameState.phase === 'buy', 'action' : gameState.phase === 'action', 'select' : gameState.phase === 'select', 'choose' : gameState.phase === 'choose'}" ng-app="Dominion">
         <script type="text/ng-template" id="card.html">
-            <img style="position: absolute; border:0px; width: 100%; height: 100%; top: 0px; left: 0px; opacity: 0.4" src="{{cards[card.id].image}}" />
+            <img src="{{cards[card.id].image}}" />
             <span class="card-name">{{ cards[card.id].name }}</span>
             <span class="card-type">{{ cards[card.id].type }}</span>
             <span class="card-cost">{{ cards[card.id].cost }}</span>
