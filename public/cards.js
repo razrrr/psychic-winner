@@ -1704,17 +1704,55 @@ cards = {
                             }
                         }
                         else if (choiceIndexArray[0] === 1) {
-                            var acquiredCard = acquire(playerData, "curse");
-                            playerData.hand.push(acquiredCard);
-                            io.sockets.emit("log", playerData.id + " acquires a curse!");
-                            gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
-                            if (gameState.activePlayer === currentPlayer) {
-                                gameState.phase = "action";
-                                sendGameStates();
-                            } else {
-                                attack();
-                                sendGameStates();
+                            if (cards["curse"].bankVersion.supply > 0) {
+                                var acquiredCard = acquire(playerData, "curse");
+                                playerData.hand.push(acquiredCard);
+                                io.sockets.emit("log", playerData.id + " acquires a curse!");
+                                gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+                                if (gameState.activePlayer === currentPlayer) {
+                                    gameState.phase = "action";
+                                    sendGameStates();
+                                } else {
+                                    attack();
+                                    sendGameStates();
+                                }
                             }
+                            else {
+                                console.log("entered else");
+                                gameState.phase = "select";
+                                gameState.queryData = {
+                                    eligible: ".you .player .hand .card",
+                                    number: twoCounter(),
+                                    unique: true,
+                                    exact: true,
+                                    message: "No more curses are available... select cards to discard",
+                                    selected: [],
+                                    callback: function(data) {
+                                        var targetCardIndices = [];
+                                        for (var i in data) {
+                                            targetCardIndices.push(data[i].index);
+                                        }
+                                        targetCardIndices.sort(function(a, b) {
+                                            return b - a;
+                                        });
+                                        for (var i = 0; i < targetCardIndices.length; i++) {
+                                            var cardIndex = targetCardIndices[i];
+                                            playerData.discarded.push(playerData.hand[cardIndex]);
+                                            io.sockets.emit("log", " ... " + playerData.id + " discards " + cards[playerData.hand[cardIndex].id].name);
+                                            playerData.hand.splice(cardIndex, 1);
+                                        }
+                                        gameState.activePlayer = (gameState.activePlayer + 1) % gameState.playerOrder.length;
+                                        if (gameState.activePlayer === currentPlayer) {
+                                            gameState.phase = "action";
+                                            sendGameStates();
+                                        } else {
+                                            gameState.phase = "choose";
+                                            attack();
+                                            sendGameStates();
+                                       }
+                                    }
+                                }
+                            }                            
                         }
                         sendGameStates();
                     }
