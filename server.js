@@ -138,6 +138,8 @@ io.sockets.on("connection", function(socket) {
                 sendGameStates();
             }
         }
+        gameState.phase = "buy";
+        sendGameStates();        
     });
     // ----------------
     // Received buy message from client. User bought a card from the bank
